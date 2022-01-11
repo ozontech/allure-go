@@ -1,0 +1,28 @@
+- repo: https://github.com/dnephin/pre-commit-golang
+  sha: HEAD
+  hooks:
+    - id: go-fmt
+
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v1.4.0
+  hooks:
+    - id: check-yaml
+
+- repo: https://github.com/Lucas-C/pre-commit-hooks-go
+  sha: v1.0.0
+  hooks:
+    - id: checkmake
+
+- repo: local
+  hooks:
+    - id: golangci-lint
+      language: system
+      name: Golangci linter
+      entry: make lint
+
+#- repo: local
+#  hooks:
+#    - id: unit-tests
+#      language: system
+#      name: Unit tests
+#      entry: make test
