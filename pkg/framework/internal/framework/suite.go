@@ -11,10 +11,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/allure"
-	"github.com/koodeex/allure-testify/pkg/framework/constructors"
-	"github.com/koodeex/allure-testify/pkg/framework/internal/structs"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/framework/constructors"
+	"github.com/ozontech/allure-go/pkg/framework/internal/structs"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 var matchMethod = flag.String("allure-testify-1.m", "", "regular expression to select tests of the testify suite to run")

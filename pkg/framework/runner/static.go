@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/internal/file_manager"
-	"github.com/koodeex/allure-testify/pkg/framework/internal/framework"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/internal/file_manager"
+	"github.com/ozontech/allure-go/pkg/framework/internal/framework"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 // RunSuite Finds all methods of the passed structure that begin with the prefix `Test` and executes them.

@@ -1,10 +1,10 @@
-module github.com/koodeex/allure-testify/pkg/framework
+module github.com/ozontech/allure-go/pkg/framework
 
 go 1.17
 
 require (
-	github.com/koodeex/allure-testify/pkg/allure v0.1.1
-	github.com/koodeex/allure-testify/pkg/provider v0.1.1
+	github.com/ozontech/allure-go/pkg/allure v0.1.2
+	github.com/ozontech/allure-go/pkg/provider v0.1.2
 )
 
 require (

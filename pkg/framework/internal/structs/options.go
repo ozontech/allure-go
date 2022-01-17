@@ -4,7 +4,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/koodeex/allure-testify/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/allure"
 )
 
 // Options struct provide easy way to configure tests in suites

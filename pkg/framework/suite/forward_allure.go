@@ -1,6 +1,6 @@
 package suite
 
-import "github.com/koodeex/allure-testify/pkg/allure"
+import "github.com/ozontech/allure-go/pkg/allure"
 
 /*
 	Forward Actions

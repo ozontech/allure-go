@@ -69,7 +69,7 @@
 ```go
 package runner
 
-import "github.com/koodeex/allure-testify/pkg/provider"
+import "github.com/ozontech/allure-go/pkg/provider"
 
 // ITestRunner TestRunner interface
 type ITestRunner interface {

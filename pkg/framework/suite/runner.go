@@ -3,8 +3,8 @@ package suite
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/internal/framework"
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/internal/framework"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 // RunSuite forward of runner.RunSuite function

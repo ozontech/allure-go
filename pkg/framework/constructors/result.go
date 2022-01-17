@@ -1,8 +1,8 @@
 package constructors
 
 import (
-	"github.com/koodeex/allure-testify/pkg/allure"
-	"github.com/koodeex/allure-testify/pkg/framework/internal/structs"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/framework/internal/structs"
 )
 
 // ResultHelper provides easy way to construct allure.Result struct

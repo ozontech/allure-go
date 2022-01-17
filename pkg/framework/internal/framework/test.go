@@ -1,8 +1,8 @@
 package framework
 
 import (
-	"github.com/koodeex/allure-testify/pkg/allure"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 type InternalTest struct {
