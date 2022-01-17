@@ -82,7 +82,7 @@ You can read in detail [here](#how-to-use-suite). <br>
 1. Install package <br>
 
 ```bash
-go get github.com/koodeex/allure-testify
+go get github.com/ozontech/allure-go
 ```
 
 2. If you already use testify, you need to replace the imports
@@ -101,7 +101,7 @@ to
 package tests
 
 import (
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 ``` 
 
@@ -119,7 +119,7 @@ import (
 ### Demo Installation
 
 ```bash
-  git clone https://github.com/koodeex/allure-testify.git
+  git clone https://github.com/ozontech/allure-go.git
 ```
 
 ### Run Examples
@@ -133,7 +133,7 @@ make demo
 ### Installation
 
 ```bash
-go get github.com/koodeex/allure-testify
+go get github.com/ozontech/allure-go
 ```
 
 ### Configure Behavior
@@ -160,8 +160,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/provider"
-	"github.com/koodeex/allure-testify/pkg/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/runner"
 )
 
 func TestSampleDemo(t *testing.T) {
@@ -189,8 +189,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/provider"
-	"github.com/koodeex/allure-testify/pkg/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/runner"
 )
 
 func TestSampleDemo(t *testing.T) {
@@ -220,8 +220,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/provider"
-	"github.com/koodeex/allure-testify/pkg/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/runner"
 )
 
 func TestSampleDemo(t *testing.T) {
@@ -239,7 +239,7 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/runner"
+	"github.com/ozontech/allure-go/pkg/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
@@ -258,7 +258,7 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/runner"
+	"github.com/ozontech/allure-go/pkg/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
@@ -283,8 +283,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/provider"
-	"github.com/koodeex/allure-testify/pkg/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
@@ -323,7 +323,7 @@ type DemoSuite struct{}
 ```go
 package suite_demo
 
-import "github.com/koodeex/allure-testify/pkg/suite"
+import "github.com/ozontech/allure-go/pkg/suite"
 
 type DemoSuite struct{ suite.Suite }
 ```
@@ -333,7 +333,7 @@ type DemoSuite struct{ suite.Suite }
 ```go
  package suite_demo
 
-import "github.com/koodeex/allure-testify/pkg/suite"
+import "github.com/ozontech/allure-go/pkg/suite"
 
 type DemoSuite struct{ suite.Suite }
 
@@ -355,8 +355,8 @@ To do this, you need to describe a function that will run your test and call ``r
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/runner"
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/runner"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type DemoSuite struct {
@@ -553,7 +553,7 @@ Test code:
 package examples
 
 import (
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type StepTreeDemoSuite struct {
@@ -592,8 +592,8 @@ package examples
 import (
 	"encoding/json"
 
-	"github.com/koodeex/allure-testify/pkg/allure"
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type JSONStruct struct {
@@ -638,7 +638,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type TestRunningDemoSuite struct {
@@ -684,7 +684,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type BeforeAfterDemoSuite struct {
@@ -739,7 +739,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type DemoSuite struct {

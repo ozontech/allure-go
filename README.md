@@ -87,7 +87,7 @@ Allure-Testify - проект, предоставляющий полноценн
 1. Установить пакет <br>
 
 ```bash
-go get github.com/koodeex/allure-testify
+go get github.com/ozontech/allure-go
 ```
 
 2. Если Вы уже используете testify, то нужно заменить импорты
@@ -106,7 +106,7 @@ import (
 package tests
 
 import (
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 ``` 
 
@@ -124,7 +124,7 @@ import (
 ### Demo Installation
 
 ```bash
-  git clone https://github.com/koodeex/allure-testify.git
+  git clone https://github.com/ozontech/allure-go.git
 ```
 
 ### Run Examples
@@ -138,7 +138,7 @@ make demo
 ### Installation
 
 ```bash
-go get github.com/koodeex/allure-testify
+go get github.com/ozontech/allure-go
 ```
 
 ### Configure Behavior
@@ -164,8 +164,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 func TestSampleDemo(t *testing.T) {
@@ -193,8 +193,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 func TestSampleDemo(t *testing.T) {
@@ -225,8 +225,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 func TestSampleDemo(t *testing.T) {
@@ -244,7 +244,7 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
@@ -263,7 +263,7 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
@@ -288,8 +288,8 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
@@ -327,7 +327,7 @@ type DemoSuite struct {
 ```go
 package suite_demo
 
-import "github.com/koodeex/allure-testify/pkg/framework/suite"
+import "github.com/ozontech/allure-go/pkg/framework/suite"
 
 type DemoSuite struct {
 	suite.Suite
@@ -339,7 +339,7 @@ type DemoSuite struct {
 ```go
 package suite_demo
 
-import "github.com/koodeex/allure-testify/pkg/framework/suite"
+import "github.com/ozontech/allure-go/pkg/framework/suite"
 
 type DemoSuite struct {
 	suite.Suite
@@ -364,8 +364,8 @@ package suite_demo
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type DemoSuite struct {
@@ -564,7 +564,7 @@ ___________________________________
 package examples
 
 import (
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type StepTreeDemoSuite struct {
@@ -603,8 +603,8 @@ package examples
 import (
 	"encoding/json"
 
-	"github.com/koodeex/allure-testify/pkg/allure"
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type JSONStruct struct {
@@ -649,7 +649,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type TestRunningDemoSuite struct {
@@ -695,7 +695,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type BeforeAfterDemoSuite struct {
@@ -750,7 +750,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type DemoSuite struct {

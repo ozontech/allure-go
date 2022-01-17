@@ -7,9 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/allure"
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
-	"github.com/koodeex/allure-testify/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type LinkDemoSuite struct {

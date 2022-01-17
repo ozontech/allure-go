@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/framework/runner"
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 func TestSampleDemo(t *testing.T) {

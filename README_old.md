@@ -33,7 +33,7 @@
 Чтобы выкачать проект:
 
 ```bash
-git clone https://github.com/koodeex/allure-testify
+git clone https://github.com/ozontech/allure-go
 ```
 
 Чтобы установить необходимые для примеров инструменты (mac)
@@ -53,7 +53,7 @@ make demo
 1. Установить пакет <br>
 
 ```bash
-go get github.com/koodeex/allure-testify
+go get github.com/ozontech/allure-go
 ```
 
 2. Если Вы уже используете testify, то нужно заменить импорты
@@ -72,7 +72,7 @@ import (
 package tests
 
 import (
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 ``` 
 
@@ -97,7 +97,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type StepTreeDemoSuite struct {
@@ -137,8 +137,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/allure"
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type JSONStruct struct {
@@ -183,7 +183,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type TestRunningDemoSuite struct {
@@ -229,7 +229,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/suite"
 )
 
 type BeforeAfterDemoSuite struct {
@@ -380,7 +380,7 @@ package Test
 import (
 	"testing"
 
-	"github.com/koodeex/allure-testify/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/provider"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
