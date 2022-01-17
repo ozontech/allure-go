@@ -1,7 +1,7 @@
 package provider
 
 import (
-	"github.com/koodeex/allure-testify/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/allure"
 )
 
 type stepState interface {

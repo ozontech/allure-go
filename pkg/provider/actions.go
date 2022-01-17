@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/koodeex/allure-testify/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/allure"
 )
 
 type AllureActions interface {

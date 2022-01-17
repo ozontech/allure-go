@@ -1,8 +1,8 @@
-module github.com/koodeex/allure-testify/pkg/provider
+module github.com/ozontech/allure-go/pkg/provider
 
 go 1.17
 
-require github.com/koodeex/allure-testify/pkg/allure v0.1.1
+require github.com/ozontech/allure-go/pkg/allure v0.1.2
 
 require (
 	github.com/google/uuid v1.3.0 // indirect
