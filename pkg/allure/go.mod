@@ -1,4 +1,4 @@
-module github.com/koodeex/allure-testify/pkg/allure
+module github.com/ozontech/allure-go/pkg/allure
 
 go 1.17
 
