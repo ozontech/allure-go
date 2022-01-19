@@ -1,6 +1,6 @@
-# allure-testify
+# allure-go
 
-Allure-Testify is a project that provides a complete allure provider in go, without overloading the interface
+Allure-Go is a project that provides a complete allure provider in go, without overloading the interface
 usage. <br>
 The project started as a fork of testify, but over time it got its own runner and its own features. <br>
 
@@ -387,7 +387,7 @@ allure-reports.
 
 ### Configure Your Report
 
-Allure-Testify provides a wide range of options for interacting with allure.<br>
+Allure-Go provides a wide range of options for interacting with allure.<br>
 Most of the actions are done with the help of the `provider.T` structure, which is a wrapper over `testing.T`.<br>
 Also the `uite.Suite` structure allows you to use the Suite interface to interact with allure-report.
 
@@ -432,7 +432,7 @@ Read more about methods [here] (DOCUMENTATION.md#allurelabel)
 |`Package`|Package in which the tests were run|
 |`Thread`|The `Result.FullName` [[1]](#label_note_answer1).|
 |`Host`|`os.Host()||
-|`Framework`|`Allure-Testify@v0.3.x`|
+|`Framework`|`Allure-Go@v0.3.x`|
 |`Language`||runtime.Version()`|
 
 ___________________________________  
