@@ -9,11 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAttachmentImplements(t *testing.T) {
-	assert.Implements(t, (*Printable)(nil), new(Attachment))
-	assert.Implements(t, (*IAttachment)(nil), new(Attachment))
-}
-
 func TestNewAttachment(t *testing.T) {
 	for mimeType, fileType := range mimeTypeMap {
 		testName := fmt.Sprintf("Test init fileType: %s", mimeType)
@@ -31,7 +26,13 @@ func TestNewAttachment(t *testing.T) {
 
 func TestAttachment_Print(t *testing.T) {
 	testFolder := "./allure-results/"
-	createOutputFolder("./allure-results/")
+	isExists, err := exists(testFolder)
+	if err != nil {
+		panic(err)
+	}
+	if !isExists {
+		_ = os.MkdirAll(testFolder, os.ModePerm)
+	}
 	for mimeType := range mimeTypeMap {
 		testName := fmt.Sprintf("Test init fileType: %s", mimeType)
 		t.Run(testName, func(t *testing.T) {

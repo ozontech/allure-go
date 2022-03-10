@@ -250,15 +250,6 @@ type MimeType string
 ```go
 package allure
 
-type IContainer interface {
-	Printable
-	WithAttachments
-	WithSteps
-	WithTimer
-	AddChild(childUUID uuid.UUID)
-	IsEmpty() bool
-}
-
 // Container ...
 type Container struct {
 	UUID         uuid.UUID    `json:"uuid"`     // Уникальный идентификатор контейнера
@@ -267,8 +258,6 @@ type Container struct {
 	Afters       []*Step      `json:"afters"`   // Массив шагов в Test Teardown
 	Start        int64        `json:"start"`    // Время начала работы контейнера
 	Stop         int64        `json:"stop"`     // Время завершения работы контейнера
-	BeforesQueue NestingQueue `json:"-"`        // Очередь вложенных шагов в Befores
-	AftersQueue  NestingQueue `json:"-"`        // Очередь вложенных шагов в Afters
 }
 ```
 
@@ -899,10 +888,7 @@ type Result struct {
 	Labels        []Label       `json:"labels"`        // Массив лейблов
 	Links         []Link        `json:"links"`         // Массив ссылок
 	Steps         []*Step       `json:"steps"`         // Массив шагов
-	StepsQueue    NestingQueue  `json:"-"`             // Очередь вложенности
-	NestedSteps   []string      `json:"-"`             // Массив содержащий все текущие uuid.UUID незавершенных вложенных шагов 
-	Container     *Container    `json:"-"`             // Контейнер для Before/After Test хука
-	toPrint       bool          // Если false - отчет не будет сохранен в файл
+    toPrint       bool          // Если false - отчет не будет сохранен в файл
 }
 
 type Status string

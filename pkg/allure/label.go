@@ -1,8 +1,5 @@
 package allure
 
-type ILabel interface {
-}
-
 // Label is the implementation of the label.
 // A label is an entity used by Allure to make metrics and grouping of tests.
 type Label struct {
@@ -38,6 +35,7 @@ const (
 	Language    LabelType = "language"
 	Owner       LabelType = "owner"
 	Lead        LabelType = "lead"
+	AllureID    LabelType = "ALLURE_ID"
 )
 
 func (l LabelType) ToString() string {
@@ -147,4 +145,9 @@ func OwnerLabel(ownerName string) Label {
 // LeadLabel returns Lead Label
 func LeadLabel(leadName string) Label {
 	return NewLabel(Lead, leadName)
+}
+
+// IDAllureLabel returns AllureID Label
+func IDAllureLabel(allureID string) Label {
+	return NewLabel(AllureID, allureID)
 }
