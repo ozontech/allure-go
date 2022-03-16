@@ -545,7 +545,7 @@ Detailed documentation for each public package can be found in that package's di
 
 ## Examples
 
-### [Test with nested steps](examples/suite_demo/step_tree_test.go):
+### [Test with nested steps](examples_old/suite_demo/step_tree_test.go):
 
 Test code:
 
@@ -582,7 +582,7 @@ Output to Allure:
 
 ![](.resources/example_step_tree.png)
 
-### [Test with Attachment](examples/suite_demo/attachments_test.go)
+### [Test with Attachment](examples_old/suite_demo/attachments_test.go)
 
 Test code:
 
@@ -628,7 +628,7 @@ Output to Allure:
 
 ![](.resources/example_attachments.png)
 
-### [Run few parallel suites](examples/suite_demo/running_test.go)
+### [Run few parallel suites](examples_old/suite_demo/running_test.go)
 
 Test code:
 
@@ -674,7 +674,7 @@ Output to Allure:
 
 ![](.resources/example_multiple_suites_run.png)
 
-### [Setup hooks](examples/suite_demo/befores_afters_test.go)
+### [Setup hooks](examples_old/suite_demo/befores_afters_test.go)
 
 Test code:
 
@@ -727,7 +727,7 @@ Output to Allure:
 
 ![](.resources/example_befores_afters.png)
 
-### [XSkip](examples/suite_demo/fails_test.go)
+### [XSkip](examples_old/suite_demo/fails_test.go)
 
 Test code:
 

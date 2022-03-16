@@ -556,7 +556,7 @@ ___________________________________
 
 ## Examples
 
-### [Test with nested steps](examples/suite_demo/step_tree_test.go):
+### [Test with nested steps](examples_old/suite_demo/step_tree_test.go):
 
 Код теста:
 
@@ -593,7 +593,7 @@ func (s *StepTreeDemoSuite) TestInnerSteps() {
 
 ![](.resources/example_step_tree.png)
 
-### [Test with Attachment](examples/suite_demo/attachments_test.go)
+### [Test with Attachment](examples_old/suite_demo/attachments_test.go)
 
 Код теста:
 
@@ -639,7 +639,7 @@ func (s *AttachmentTestDemoSuite) TestAttachment() {
 
 ![](.resources/example_attachments.png)
 
-### [Run few parallel suites](examples/suite_demo/running_test.go)
+### [Run few parallel suites](examples_old/suite_demo/running_test.go)
 
 Код теста:
 
@@ -685,7 +685,7 @@ func TestRunDemo(t *testing.T) {
 
 ![](.resources/example_multiple_suites_run.png)
 
-### [Setup hooks](examples/suite_demo/befores_afters_test.go)
+### [Setup hooks](examples_old/suite_demo/befores_afters_test.go)
 
 Код теста:
 
@@ -738,7 +738,7 @@ func TestBeforesAfters(t *testing.T) {
 
 ![](.resources/example_befores_afters.png)
 
-### [XSkip](examples/suite_demo/fails_test.go)
+### [XSkip](examples_old/suite_demo/fails_test.go)
 
 Код теста:
 

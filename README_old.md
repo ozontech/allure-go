@@ -87,7 +87,7 @@ import (
 
 ## Examples
 
-### [Тест с вложенными шагами](examples/suite_demo/step_tree_test.go):
+### [Тест с вложенными шагами](examples_old/suite_demo/step_tree_test.go):
 
 Код теста:
 
@@ -126,7 +126,7 @@ func (s *StepTreeDemoSuite) TestInnerSteps() {
 
 ![](_resources/example_step_tree.png)
 
-### [Тест с Attachment](examples/suite_demo/attachments_test.go)
+### [Тест с Attachment](examples_old/suite_demo/attachments_test.go)
 
 Код теста:
 
@@ -173,7 +173,7 @@ func (s *AttachmentTestDemoSuite) TestAttachment() {
 
 ![](_resources/example_attachments.png)
 
-### [Запуск нескольких suites](examples/suite_demo/running_test.go)
+### [Запуск нескольких suites](examples_old/suite_demo/running_test.go)
 
 Код теста:
 
@@ -219,7 +219,7 @@ func TestRunDemo(t *testing.T) {
 
 ![](_resources/example_multiple_suites_run.png)
 
-## [Setup hooks](examples/suite_demo/befores_afters_test.go)
+## [Setup hooks](examples_old/suite_demo/befores_afters_test.go)
 
 Код теста:
 
@@ -372,7 +372,7 @@ ___________________________________
 
 #### Example `T.Run`
 
-[Код теста:](examples/provider_demo/sample_test.go)
+[Код теста:](examples_old/provider_demo/sample_test.go)
 
 ```go
 package Test

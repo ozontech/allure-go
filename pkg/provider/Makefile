@@ -1,5 +1,5 @@
 APP?=allure-testify
-RELEASE?=0.4.2
+RELEASE?=0.5.0
 GOOS?=darwin
 
 COMMIT?=$(shell git rev-parse --short HEAD)
