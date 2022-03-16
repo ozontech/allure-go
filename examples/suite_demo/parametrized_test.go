@@ -1,102 +1,103 @@
-//go:build examples
-// +build examples
+//go:build examples_new
+// +build examples_new
 
 package suite_demo
 
 import (
 	"fmt"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
-	"github.com/ozontech/allure-go/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type ParametrizedTestDemo struct {
 	suite.Suite
 }
 
-func (s *ParametrizedTestDemo) BeforeEach() {
-	s.Epic("Demo")
-	s.Feature("Paramterized")
+func (s *ParametrizedTestDemo) BeforeEach(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Parametrized")
 }
 
-func (s *ParametrizedTestDemo) TestParameterized() {
-	s.Title("Parent Test")
-	s.Description(`
+func (s *ParametrizedTestDemo) TestParameterized(t provider.T) {
+	t.Title("Parent Test")
+	t.Description(`
 		This test is parent for all Parametrized`)
 
 	for i := 0; i < 10; i++ {
 		newI := i
-		s.RunTest(fmt.Sprintf("Parametrized #%d", newI), func(t *provider.T) {
+		t.Run(fmt.Sprintf("Parametrized #%d", newI), func(t provider.T) {
+			t.Feature("Parametrized")
 			t.Description(fmt.Sprintf("This test checks that 1 Equal %d", newI))
-			t.Tag("Parameterized")
+			t.Tag("Parametrized")
 			t.Parallel()
-			t.WithNewStep(fmt.Sprintf("Step %d", i), func() {
-				require.Equal(t, 1, newI)
+			t.WithNewStep(fmt.Sprintf("Step %d", i), func(ctx provider.StepCtx) {
+				ctx.Require().Equal(1, newI)
 			})
 		})
 	}
 
 	for i := 0; i < 10; i++ {
 		newI := i
-		s.RunTest(fmt.Sprintf("Parametrized 2#%d", newI), func(t *provider.T) {
+		t.Run(fmt.Sprintf("Parametrized 2#%d", newI), func(t provider.T) {
+			t.Feature("Parametrized")
 			t.Description(fmt.Sprintf("This test checks that 1 Equal %d", newI))
-			t.Tag("Parameterized")
+			t.Tag("Parametrized")
 			t.Parallel()
-			t.WithNewStep(fmt.Sprintf("Step %d", newI), func() {
-				require.Less(t, 1, newI)
+			t.WithNewStep(fmt.Sprintf("Step %d", newI), func(ctx provider.StepCtx) {
+				ctx.Require().Less(1, newI)
 			})
 		})
 	}
 }
 
 func TestParametrizedDemo(t *testing.T) {
-	runner.RunSuite(t, new(ParametrizedTestDemo))
+	suite.RunSuite(t, new(ParametrizedTestDemo))
 }
 
 type ParametrizedTestDemo2 struct {
 	suite.Suite
 }
 
-func (s *ParametrizedTestDemo2) BeforeEach() {
-	s.Epic("Demo")
-	s.Feature("Paramterized")
+func (s *ParametrizedTestDemo2) BeforeEach(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Parametrized")
 }
 
-func (s *ParametrizedTestDemo2) TestParameterized2() {
-	s.Title("Parent Test")
-	s.Description(`
+func (s *ParametrizedTestDemo2) TestParameterized2(t provider.T) {
+	t.Title("Parent Test")
+	t.Description(`
 		This test is parent for all Parametrized`)
 
 	for i := 0; i < 10; i++ {
 		newI := i
-		s.Run(fmt.Sprintf("Parametrized #%d", newI), func() {
-			s.Description(fmt.Sprintf("This test checks that 1 Equal %d", newI))
-			s.Tag("Parameterized")
-			s.WithNewStep(fmt.Sprintf("Step %d", newI), func() {
-				require.Equal(s.T(), 1, newI)
+		t.Run(fmt.Sprintf("Parametrized #%d", newI), func(t provider.T) {
+			t.Feature("Parametrized")
+			t.Description(fmt.Sprintf("This test checks that 1 Equal %d", newI))
+			t.Tag("Parametrized")
+			t.WithNewStep(fmt.Sprintf("Step %d", newI), func(ctx provider.StepCtx) {
+				ctx.Require().Equal(1, newI)
 			})
 		})
 	}
 
 	for i := 0; i < 10; i++ {
 		newI := i
-		s.Run(fmt.Sprintf("Parametrized 2#%d", newI), func() {
-			s.Description(fmt.Sprintf("This test checks that 1 Equal %d", newI))
-			s.Tag("Parameterized")
-			s.WithNewStep(fmt.Sprintf("Step %d", newI), func() {
+		t.Run(fmt.Sprintf("Parametrized 2#%d", newI), func(t provider.T) {
+			t.Feature("Parametrized")
+			t.Description(fmt.Sprintf("This test checks that 1 Equal %d", newI))
+			t.Tag("Parametrized")
+			t.WithNewStep(fmt.Sprintf("Step %d", newI), func(ctx provider.StepCtx) {
 				if newI == 4 {
 					panic("WHOOPS")
 				}
-				require.Less(s.T(), 1, newI)
+				ctx.Require().Less(1, newI)
 			})
 		})
 	}
 }
 
 func TestParametrizedDemo2(t *testing.T) {
-	runner.RunSuite(t, new(ParametrizedTestDemo2))
+	suite.RunSuite(t, new(ParametrizedTestDemo2))
 }

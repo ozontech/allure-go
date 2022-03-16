@@ -1,31 +1,30 @@
-//go:build examples
-// +build examples
+//go:build examples_new
+// +build examples_new
 
 package suite_demo
 
 import (
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 	"testing"
-
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type SkipDemoSuite struct {
 	suite.Suite
 }
 
-func (s *SkipDemoSuite) TestSkip() {
-	s.Epic("Demo")
-	s.Feature("Skip Test")
-	s.Title("Skip test")
-	s.Description(`
+func (s *SkipDemoSuite) TestSkip(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Skip Test")
+	t.Title("Skip test")
+	t.Description(`
 		This test will be skipped`)
 
-	s.Tags("Test", "Skip")
-	s.T().Skip("Skip Reason")
+	t.Tags("Test", "Skip")
+	t.Skip("Skip Reason")
 }
 
 func TestSkipDemo(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(SkipDemoSuite))
+	suite.RunSuite(t, new(SkipDemoSuite))
 }

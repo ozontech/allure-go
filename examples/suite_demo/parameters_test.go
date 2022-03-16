@@ -1,25 +1,25 @@
-//go:build examples
-// +build examples
+//go:build examples_new
+// +build examples_new
 
 package suite_demo
 
 import (
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"testing"
 
 	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type ParametersDemoSuite struct {
 	suite.Suite
 }
 
-func (s *ParametersDemoSuite) TestAddParameterToStep() {
-	s.Epic("Demo")
-	s.Feature("Parameters")
-	s.Title("Add Parameters to step")
-	s.Description(`
+func (s *ParametersDemoSuite) TestAddParameterToStep(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Parameters")
+	t.Title("Add Parameters to step")
+	t.Description(`
 		Step A will contain following parameters:
 			Param1 = Val1
 			Param2 = Val2
@@ -29,42 +29,39 @@ func (s *ParametersDemoSuite) TestAddParameterToStep() {
 			Param6 = Val6
 			Param7 = Val7`)
 
-	s.Tags("Steps", "Nesting", "Parameters")
+	t.Tags("Steps", "Nesting", "Parameters")
 
 	step := allure.NewSimpleStep("Step A")
-	// with step.AddParameter(s) function
-	step.AddParameter(allure.NewParameter("Param1", "Val1"))
-	step.AddParameters(allure.NewParameters("Param2", "Val2", "Param3", "Val3", "Param4", "Val4")...)
 
-	// with step.AddNewParameter(s) function
-	step.AddNewParameter("Param5", "Val5")
-	step.AddNewParameters("Param6", "Val6", "Param7", "Val7")
+	// with step.WithParameters(s) function
+	step.WithParameters(allure.NewParameter("Param1", "Val1"))
+	step.WithParameters(allure.NewParameters("Param2", "Val2", "Param3", "Val3", "Param4", "Val4")...)
 
 	// don't forget register your step :)
-	s.Step(step)
+	t.Step(step)
 }
 
-func (s *ParametersDemoSuite) TestAddParameterToNestedStep() {
-	s.Epic("Demo")
-	s.Feature("Parameters")
-	s.Title("Add parameters to Nested Steps")
-	s.Description(`
+func (s *ParametersDemoSuite) TestAddParameterToNestedStep(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Parameters")
+	t.Title("Add parameters to Nested Steps")
+	t.Description(`
 		Step A is parent step for Step B
 		Step A contains Param 1 and Param 4
 		Step B contains Param 2 and Param 3`)
 
-	s.Tags("Steps", "Nesting", "Parameters")
+	t.Tags("Steps", "Nesting", "Parameters")
 
-	s.WithNewStep("Step A", func() {
-		s.AddNewParameterToNested("Param 1", "Value 1")
-		s.WithNewStep("Step B", func() {
-			s.AddNewParametersToNested("Param 2", "Value 2", "Param 3", "Value 3")
+	t.WithNewStep("Step A", func(ctx provider.StepCtx) {
+		ctx.WithNewParameters("Param 1", "Value 1")
+		ctx.WithNewStep("Step B", func(ctx provider.StepCtx) {
+			ctx.WithNewParameters("Param 2", "Value 2", "Param 3", "Value 3")
 		})
-		s.AddNewParameterToNested("Param 4", "Value 3")
+		ctx.WithNewParameters("Param 4", "Value 3")
 	})
 }
 
 func TestParameters(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(ParametersDemoSuite))
+	suite.RunSuite(t, new(ParametersDemoSuite))
 }

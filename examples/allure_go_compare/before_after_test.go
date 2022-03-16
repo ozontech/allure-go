@@ -1,13 +1,13 @@
-//go:build allure_go
-// +build allure_go
+//go:build allure_go_new
+// +build allure_go_new
 
 package allure_go_compare
 
 import (
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type AllureGoBeforesAfters struct {
@@ -51,19 +51,19 @@ func TestAllureSetupTeardown(t *testing.T) {
 //	s.NewStep("Teardown suite step 1")
 //}
 
-func (s AllureGoBeforesAfters) BeforeEach() {
-	s.NewStep("Setup test step 1")
+func (s AllureGoBeforesAfters) BeforeEach(t provider.T) {
+	t.NewStep("Setup test step 1")
 }
 
-func (s AllureGoBeforesAfters) AfterEach() {
-	s.NewStep("Teardown test step 1")
+func (s AllureGoBeforesAfters) AfterEach(t provider.T) {
+	t.NewStep("Teardown test step 1")
 }
 
-func (s AllureGoBeforesAfters) TestBeforesAfters() {
-	s.Epic("Compare with allure-go")
-	s.NewStep("Test step 1")
+func (s AllureGoBeforesAfters) TestBeforesAfters(t provider.T) {
+	t.Epic("Compare with allure-go")
+	t.NewStep("Test step 1")
 }
 
 func TestAllureGoBeforesAfters(t *testing.T) {
-	runner.RunSuite(t, new(AllureGoBeforesAfters))
+	suite.RunSuite(t, new(AllureGoBeforesAfters))
 }

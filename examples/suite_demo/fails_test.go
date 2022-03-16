@@ -1,121 +1,110 @@
-//go:build examples
-// +build examples
+//go:build examples_new
+// +build examples_new
 
 package suite_demo
 
 import (
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type FailsDemoSuite struct {
 	suite.Suite
 }
 
-func (s *FailsDemoSuite) BeforeEach() {
-	s.Epic("Demo")
-	s.Feature("Failures")
+func (s *FailsDemoSuite) BeforeEach(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Failures")
 }
 
-func (s *FailsDemoSuite) TestAssertionFail() {
-	s.Title("This test failed by assert with message")
-	s.Description(`
+func (s *FailsDemoSuite) TestAssertionFail(t provider.T) {
+	t.Title("This test failed by assert with message")
+	t.Description(`
 		This Test will be failed with assert Error.
 		Error text: Assertion Failed`)
-	s.Tags("fail", "assertions")
+	t.Tags("fail", "assertions")
 
-	t := s.T()
-	require.Equal(t, 1, 2, "Assertion Failed")
+	t.Require().Equal(1, 2, "Assertion Failed")
 }
 
-func (s *FailsDemoSuite) TestXSkipFail() {
-	s.Title("This test skipped by assert with message")
-	s.Description(`
+func (s *FailsDemoSuite) TestXSkipFail(t provider.T) {
+	t.Title("This test skipped by assert with message")
+	t.Description(`
 		This Test will be skipped with assert Error.
 		Error text: Assertion Failed`)
-	s.Tags("fail", "xskip", "assertions")
+	t.Tags("fail", "xskip", "assertions")
 
-	t := s.T()
 	t.XSkip()
-	require.Equal(t, 1, 2, "Assertion Failed")
+	t.Require().Equal(1, 2, "Assertion Failed")
 }
 
-func (s *FailsDemoSuite) TestAssertionFailNoMessage() {
-	s.Title("This test failed by assert without message")
-	s.Description(`
+func (s *FailsDemoSuite) TestAssertionFailNoMessage(t provider.T) {
+	t.Title("This test failed by assert without message")
+	t.Description(`
 		This Test will be failed with assert Error.
 		Error text:
 					Not equal:
 					expected: 1
 					actual  : 2`)
 
-	s.Tags("fail", "assertions")
+	t.Tags("fail", "assertions")
 
-	t := s.T()
-	require.Equal(t, 1, 2)
+	t.Require().Equal(1, 2)
 }
 
-func (s *FailsDemoSuite) TestAssertionFailInnerSteps() {
-	s.Title("This test failed by assert with inner step")
-	s.Description(`
+func (s *FailsDemoSuite) TestAssertionFailInnerSteps(t provider.T) {
+	t.Title("This test failed by assert with inner step")
+	t.Description(`
 		This Test will be failed with assert Error.
 		Error text:
 					Not equal:
 					expected: 1
 					actual  : 2`)
 
-	s.Tags("fail", "assertions", "nesting")
+	t.Tags("fail", "assertions", "nesting")
 
-	t := s.T()
-
-	s.WithNewStep("Failed parent step", func() {
-		s.WithNewStep("Failed child step", func() {
-			require.Equal(t, 1, 2, "Failed inside step")
+	t.WithNewStep("Failed parent step", func(ctx provider.StepCtx) {
+		ctx.WithNewStep("Failed child step", func(ctx provider.StepCtx) {
+			ctx.Require().Equal(1, 2, "Failed inside step")
 		})
 	})
 }
 
-func (s *FailsDemoSuite) TestPanic() {
-	s.Title("This test panicked")
-	s.Description(`
+func (s *FailsDemoSuite) TestPanic(t provider.T) {
+	t.Title("This test panicked")
+	t.Description(`
 		This Test will Failed by panic.
 		Error text:
 	test panicked: runtime error: index out of range [0] with length 0 goroutine 8 [running]:...`)
 
-	s.Tags("fail", "panic")
-
-	t := s.T()
+	t.Tags("fail", "panic")
 
 	var test []string
 	test2 := test[0]
-	require.Equal(t, test2, test2, "Never reach this")
+	t.Require().Equal(test2, test2, "Never reach this")
 }
 
-func (s *FailsDemoSuite) TestPanicInnerSteps() {
-	s.Title("This test panicked with inner steps")
-	s.Description(`
+func (s *FailsDemoSuite) TestPanicInnerSteps(t provider.T) {
+	t.Title("This test panicked with inner steps")
+	t.Description(`
 		This Test will Failed by panic.
 		All steps that includes error will be failed
 		Error text:
 	test panicked: runtime error: index out of range [0] with length 0 goroutine 8 [running]:...`)
 
-	s.Tags("fail", "panic", "nesting")
+	t.Tags("fail", "panic", "nesting")
 
-	t := s.T()
-
-	s.WithNewStep("Check 1", func() {
-		s.WithNewStep("Check 1.1", func() {
+	t.WithNewStep("Check 1", func(ctx provider.StepCtx) {
+		ctx.WithNewStep("Check 1.1", func(ctx provider.StepCtx) {
 
 		})
-		s.WithNewStep("Check 1.2", func() {
-			s.WithNewStep("Check 1.2.1", func() {
+		ctx.WithNewStep("Check 1.2", func(ctx provider.StepCtx) {
+			ctx.WithNewStep("Check 1.2.1", func(ctx provider.StepCtx) {
 				var test []string
 				test2 := test[0]
-				require.Equal(t, test2, test2, "Never reach this")
+				ctx.Require().Equal(test2, test2, "Never reach this")
 			})
 		})
 	})
@@ -123,5 +112,5 @@ func (s *FailsDemoSuite) TestPanicInnerSteps() {
 
 func TestFails(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(FailsDemoSuite))
+	suite.RunSuite(t, new(FailsDemoSuite))
 }

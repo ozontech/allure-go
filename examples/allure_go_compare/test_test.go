@@ -1,14 +1,13 @@
-//go:build allure_go
-// +build allure_go
+//go:build allure_go_new
+// +build allure_go_new
 
 package allure_go_compare
 
 import (
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type SuiteStruct struct {
@@ -30,10 +29,10 @@ func TestNewTest(t *testing.T) {
 }
 */
 
-func (s *SuiteStruct) TestNewTest() {
-	s.Epic("Compare with allure-go")
-	s.Description("New Test Description")
-	s.WithNewStep("Step description", func() {
+func (s *SuiteStruct) TestNewTest(t provider.T) {
+	t.Epic("Compare with allure-go")
+	t.Description("New Test Description")
+	t.WithNewStep("Step description", func(ctx provider.StepCtx) {
 
 	})
 }
@@ -67,49 +66,49 @@ func TestWithIntricateSubsteps(t *testing.T) {
 }
 */
 
-func doSomething(s *SuiteStruct) {
-	s.WithNewStep("Something", func() {
-		s.NewStep("Because We Can!")
+func doSomething(ctx provider.StepCtx) {
+	ctx.WithNewStep("Something", func(ctx provider.StepCtx) {
+		ctx.WithNewStep("Because We Can!", func(ctx provider.StepCtx) {
+
+		})
 	})
 }
 
 // Works even better! each step will have his real status, but parent will be failed anyway
 
-func (s *SuiteStruct) TestWithIntricateSubsteps() {
-	s.Epic("Compare with allure-go")
-	s.Description("Test")
+func (s *SuiteStruct) TestWithIntricateSubsteps(t provider.T) {
+	t.Epic("Compare with allure-go")
+	t.Description("Test")
 
-	t := s.T()
-
-	s.WithNewStep("Step 1", func() {
-		doSomething(s)
-		s.WithNewStep("Sub-step 1.1", func() {
-			t.Errorf("Failure")
+	t.WithNewStep("Step 1", func(ctx provider.StepCtx) {
+		doSomething(ctx)
+		ctx.WithNewStep("Sub-step 1.1", func(ctx provider.StepCtx) {
+			ctx.Error("Failure Sub-step 1.1")
 		})
-		s.WithNewStep("Sub-step 1.2", func() {
+		ctx.WithNewStep("Sub-step 1.2", func(ctx provider.StepCtx) {
 
 		})
-		s.WithStep(allure.NewSimpleStep("Sub-step 1.3").Skipped(), func() {
+		ctx.WithNewStep("Sub-step 1.3", func(ctx provider.StepCtx) {
 
 		})
 	})
-	s.WithNewStep("Step 2", func() {
-		s.WithNewStep("Sub-Step 2.1", func() {
-			s.WithNewStep("Sub-step 2.1.1", func() {
-				s.WithNewStep("Sub-step 2.1.1.1", func() {
-					t.Errorf("Failure")
+	t.WithNewStep("Step 2", func(ctx provider.StepCtx) {
+		ctx.WithNewStep("Sub-Step 2.1", func(ctx provider.StepCtx) {
+			ctx.WithNewStep("Sub-step 2.1.1", func(ctx provider.StepCtx) {
+				ctx.WithNewStep("Sub-step 2.1.1.1", func(ctx provider.StepCtx) {
+					ctx.Error("Failure Sub-step 2.1.1.1")
 				})
-				s.WithNewStep("Sub-step 2.1.1.2", func() {
-					t.Errorf("Failed like this")
+				ctx.WithNewStep("Sub-step 2.1.1.2", func(ctx provider.StepCtx) {
+					ctx.Error("This will be in report-status. Sub-step 2.1.1.2")
 				})
 			})
 		})
-		s.WithNewStep("Sub-Step 2.2", func() {
+		ctx.WithNewStep("Sub-Step 2.2", func(ctx provider.StepCtx) {
 
 		})
 	})
 }
 
 func TestRun(t *testing.T) {
-	runner.RunSuite(t, new(SuiteStruct))
+	suite.RunSuite(t, new(SuiteStruct))
 }
