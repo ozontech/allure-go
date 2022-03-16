@@ -3,12 +3,13 @@ package suite
 import (
 	"flag"
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 	"os"
 	"reflect"
 	"regexp"
 	"testing"
+
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type InternalSuite interface {

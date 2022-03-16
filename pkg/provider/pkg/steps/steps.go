@@ -2,11 +2,11 @@ package steps
 
 import (
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/provider/internal"
 	"runtime/debug"
 	"sync"
 
 	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/provider/internal"
 	"github.com/ozontech/allure-go/pkg/provider/pkg/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )

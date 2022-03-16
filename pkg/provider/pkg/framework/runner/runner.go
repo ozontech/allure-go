@@ -43,7 +43,7 @@ func newTest(testName string, testBody func(provider.T), tags ...string) *test {
 }
 
 func NewRunner(realT *testing.T, suiteName string) TestRunner {
-	newT := common.NewT(realT, suiteName).(provider.InternalT)
+	newT := common.NewT(realT, suiteName)
 	if it, ok := newT.(provider.InternalT); ok {
 		return &runner{internalT: it, tests: make(map[string]*test)}
 	}

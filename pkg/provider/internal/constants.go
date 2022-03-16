@@ -1,5 +1,6 @@
 package internal
 
+// Context names constants
 const (
 	TestContextName       = "test"
 	BeforeEachContextName = "beforeEach"
