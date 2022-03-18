@@ -9,7 +9,6 @@ type Step struct {
 	Steps       []*Step       `json:"steps,omitempty"`
 	Parameters  []Parameter   `json:"parameters,omitempty"`
 	parent      *Step
-	uuid        string
 }
 
 // NewStep Constructor. Creates a new `allure.Step` object with field values passed in arguments
@@ -21,7 +20,6 @@ func NewStep(name string, status Status, start int64, stop int64, parameters []P
 		Start:      start,
 		Stop:       stop,
 		Parameters: parameters,
-		uuid:       getUUID().String(),
 	}
 }
 
@@ -37,11 +35,6 @@ func NewStep(name string, status Status, start int64, stop int64, parameters []P
 // =================================
 func NewSimpleStep(name string, parameters ...Parameter) *Step {
 	return NewStep(name, Passed, GetNow(), GetNow(), parameters)
-}
-
-// GetUUID returns step's UUID
-func (s *Step) GetUUID() string {
-	return s.uuid
 }
 
 // GetParent returns step's parent
