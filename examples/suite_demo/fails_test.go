@@ -4,9 +4,9 @@
 package suite_demo
 
 import (
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"testing"
 
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 

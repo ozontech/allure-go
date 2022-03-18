@@ -4,12 +4,12 @@
 package suite_demo
 
 import (
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 	"testing"
 	"time"
 
-	allure "github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type StepDemoSuite struct {

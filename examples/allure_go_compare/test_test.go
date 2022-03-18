@@ -4,30 +4,15 @@
 package allure_go_compare
 
 import (
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"testing"
 
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
 	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type SuiteStruct struct {
 	suite.Suite
 }
-
-/* Allure-Go style:
-func TestNewTest(t *testing.T) {
-	allure.Test(
-		t,
-		allure.Description("New Test Description"),
-		allure.Action(func() {
-			allure.Step(
-				allure.Description("Step description"),
-				allure.Action(func() {
-
-				}))
-		}))
-}
-*/
 
 func (s *SuiteStruct) TestNewTest(t provider.T) {
 	t.Epic("Compare with allure-go")
