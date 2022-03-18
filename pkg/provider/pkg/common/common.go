@@ -135,7 +135,7 @@ func (c *common) Run(testName string, testBody func(provider.T), tags ...string)
 			testT.WG().Wait()
 			if rec != nil {
 				errMsg := fmt.Sprintf("Test panicked: %v\n%s", rec, debug.Stack())
-				internal.TestError(errMsg, testT)
+				internal.TestError(c.Provider().ExecutionContext().GetName(), errMsg, testT)
 			}
 		}()
 

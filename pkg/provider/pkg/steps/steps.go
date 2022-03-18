@@ -86,7 +86,7 @@ func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx)
 			ctxName := newCtx.t.Provider().ExecutionContext().GetName()
 			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, r, debug.Stack())
 			newCtx.Broken()
-			internal.TestError(errMsg, newCtx.t)
+			internal.TestError(newCtx.t.Provider().ExecutionContext().GetName(), errMsg, newCtx.t)
 		}
 	}()
 	step(newCtx)

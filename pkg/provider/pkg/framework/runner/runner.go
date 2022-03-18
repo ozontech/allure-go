@@ -118,7 +118,7 @@ func (r *runner) RunTests() map[string]bool {
 				if rec != nil {
 					ctxName := testT.Provider().ExecutionContext().GetName()
 					errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
-					internal.TestError(errMsg, testT)
+					internal.TestError(testT.Provider().ExecutionContext().GetName(), errMsg, testT)
 				}
 			}()
 
