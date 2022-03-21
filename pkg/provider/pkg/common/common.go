@@ -15,7 +15,7 @@ import (
 )
 
 type common struct {
-	*testing.T
+	provider.TestingT
 
 	assert  provider.Asserts
 	require provider.Asserts
@@ -26,10 +26,10 @@ type common struct {
 	wg sync.WaitGroup
 }
 
-func NewT(realT *testing.T, suiteName string) provider.T {
+func NewT(realT provider.TestingT, suiteName string) provider.T {
 	packageName := getPackage(2)
 	callers := strings.Split(realT.Name(), "/")
-	newT := &common{T: realT, provider: newProvider(packageName, callers[0], realT.Name(), suiteName)}
+	newT := &common{TestingT: realT, provider: newProvider(packageName, callers[0], realT.Name(), suiteName)}
 	newT.assert = helper.NewAssertsHelper(newT)
 	newT.require = helper.NewRequireHelper(newT)
 	return newT
@@ -47,8 +47,8 @@ func NewTestT(parentT provider.InternalT, realT *testing.T, testName string, tag
 	return newT.(provider.T)
 }
 
-func (c *common) RealT() *testing.T {
-	return c.T
+func (c *common) RealT() provider.TestingT {
+	return c.TestingT
 }
 
 func (c *common) WG() *sync.WaitGroup {
@@ -70,13 +70,13 @@ func (c *common) XSkip() {
 func (c *common) Error(args ...interface{}) {
 	fullMessage := fmt.Sprintf("%s", args...)
 	c.registerError(fullMessage)
-	c.T.Error(args...)
+	c.RealT().Error(args...)
 }
 
 func (c *common) Errorf(format string, args ...interface{}) {
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
-	c.T.Errorf(format, args...)
+	c.RealT().Errorf(format, args...)
 }
 
 func (c *common) Skip(args ...interface{}) {
@@ -90,7 +90,7 @@ func (c *common) Skip(args ...interface{}) {
 		result.StatusDetails.Trace = skipMessage
 		result.Status = allure.Skipped
 	})
-	c.T.Skip(args...)
+	c.RealT().Skip(args...)
 }
 
 func (c *common) Assert() provider.Asserts {
@@ -123,7 +123,7 @@ func (c *common) BreakResult(reason string) {
 }
 
 func (c *common) Run(testName string, testBody func(provider.T), tags ...string) bool {
-	return c.T.Run(testName, func(realT *testing.T) {
+	return c.RealT().Run(testName, func(realT *testing.T) {
 		testT := NewTestT(c, realT, testName, tags...).(provider.InternalT)
 
 		// print test result

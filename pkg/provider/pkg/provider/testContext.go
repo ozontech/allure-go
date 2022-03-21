@@ -7,13 +7,19 @@ import (
 	"github.com/ozontech/allure-go/pkg/allure"
 )
 
+type TestingT interface {
+	testing.TB
+	Parallel()
+	Run(testName string, testBody func(t *testing.T)) bool
+}
+
 type T interface {
 	testing.TB
 	AllureForward
 
 	Parallel()
 
-	RealT() *testing.T
+	RealT() TestingT
 	XSkip()
 	SkipOnPrint()
 	Assert() Asserts

@@ -34,7 +34,7 @@ type suiteRunner struct {
 	tests     map[string]*suiteTest
 }
 
-func NewSuiteRunner(t *testing.T, suiteName string, suite InternalSuite) runner.TestRunner {
+func NewSuiteRunner(t provider.TestingT, suiteName string, suite InternalSuite) runner.TestRunner {
 	r := &suiteRunner{
 		TestRunner: runner.NewRunner(t, suiteName),
 		suiteName:  suiteName,

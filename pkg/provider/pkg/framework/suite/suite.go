@@ -3,13 +3,11 @@ package suite
 import (
 	"flag"
 	"fmt"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 	"os"
 	"reflect"
 	"regexp"
-	"testing"
-
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
 type InternalSuite interface {
@@ -84,10 +82,10 @@ func methodFilter(name string) (bool, error) {
 	return regexp.MatchString(*matchMethod, name)
 }
 
-func RunSuite(t *testing.T, suite InternalSuite) map[string]bool {
+func RunSuite(t provider.TestingT, suite InternalSuite) map[string]bool {
 	return RunNamedSuite(t, t.Name(), suite)
 }
 
-func RunNamedSuite(t *testing.T, suiteName string, suite InternalSuite) map[string]bool {
+func RunNamedSuite(t provider.TestingT, suiteName string, suite InternalSuite) map[string]bool {
 	return NewSuiteRunner(t, suiteName, suite).RunTests()
 }

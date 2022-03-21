@@ -20,27 +20,11 @@ func NewAssertsHelper(t ProviderT) AssertsHelper {
 	}
 }
 
-// NewRequireHelper inits new Require interface
-func NewRequireHelper(t ProviderT) AssertsHelper {
-	return &a{
-		t:       t,
-		asserts: wrapper.NewRequire(),
-	}
-}
-
 // NewAssertsSubStepHelper inits new Require interface for sub step
 func NewAssertsSubStepHelper(t ProviderT, ctx provider.StepCtx) AssertsHelper {
 	return &a{
 		t:       t,
 		asserts: wrapper.NewAssertsSubStep(ctx),
-	}
-}
-
-// NewRequireSubStepHelper inits new Require interface for sub step
-func NewRequireSubStepHelper(t ProviderT, ctx provider.StepCtx) AssertsHelper {
-	return &a{
-		t:       t,
-		asserts: wrapper.NewRequireSubStep(ctx),
 	}
 }
 
