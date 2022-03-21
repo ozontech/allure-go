@@ -1,6 +1,23 @@
 package steps
 
-import "time"
+import (
+	"time"
+
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
+)
+
+type ProviderT interface {
+	Provider() provider.Provider
+	GetResult() *allure.Result
+	BreakResult(reason string)
+	WithNewStep(stepName string, step func(ctx provider.StepCtx), params ...allure.Parameter)
+	Errorf(format string, args ...interface{})
+	Error(args ...interface{})
+	Log(args ...interface{})
+	Logf(format string, args ...interface{})
+	FailNow()
+}
 
 // AssertsHelper ...
 type AssertsHelper interface {

@@ -12,7 +12,7 @@ import (
 )
 
 type stepCtx struct {
-	t           provider.InternalT
+	t           ProviderT
 	currentStep *allure.Step
 	parentStep  *stepCtx
 
@@ -22,7 +22,7 @@ type stepCtx struct {
 	wg sync.WaitGroup
 }
 
-func NewStepCtx(t provider.InternalT, stepName string, params ...allure.Parameter) provider.StepCtx {
+func NewStepCtx(t ProviderT, stepName string, params ...allure.Parameter) provider.StepCtx {
 	currentStep := allure.NewSimpleStep(stepName, params...)
 	newCtx := &stepCtx{t: t, currentStep: currentStep, wg: sync.WaitGroup{}}
 	newCtx.asserts = helper.NewAssertsSubStepHelper(t, newCtx)
@@ -30,8 +30,16 @@ func NewStepCtx(t provider.InternalT, stepName string, params ...allure.Paramete
 	return newCtx
 }
 
+func (ctx *stepCtx) newChildCtx(stepName string, params ...allure.Parameter) *stepCtx {
+	currentStep := allure.NewSimpleStep(stepName, params...)
+	newCtx := &stepCtx{t: ctx.t, currentStep: currentStep, parentStep: ctx, wg: sync.WaitGroup{}}
+	newCtx.asserts = helper.NewAssertsSubStepHelper(ctx.t, newCtx)
+	newCtx.require = helper.NewRequireSubStepHelper(ctx.t, newCtx)
+	return newCtx
+}
+
 func (ctx *stepCtx) T() provider.T {
-	return ctx.t
+	return ctx.t.(provider.T)
 }
 
 func (ctx *stepCtx) Error(args ...interface{}) {
@@ -43,17 +51,8 @@ func (ctx *stepCtx) Errorf(format string, args ...interface{}) {
 	ctx.Fail()
 	ctx.T().Errorf(format, args...)
 }
-
 func (ctx *stepCtx) CurrentStep() *allure.Step {
 	return ctx.currentStep
-}
-
-func (ctx *stepCtx) newChildCtx(stepName string, params ...allure.Parameter) *stepCtx {
-	currentStep := allure.NewSimpleStep(stepName, params...)
-	newCtx := &stepCtx{t: ctx.t, currentStep: currentStep, parentStep: ctx, wg: sync.WaitGroup{}}
-	newCtx.asserts = helper.NewAssertsSubStepHelper(ctx.t, newCtx)
-	newCtx.require = helper.NewRequireSubStepHelper(ctx.t, newCtx)
-	return newCtx
 }
 
 func (ctx *stepCtx) Log(args ...interface{}) {
