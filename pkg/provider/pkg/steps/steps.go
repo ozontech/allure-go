@@ -51,6 +51,7 @@ func (ctx *stepCtx) Errorf(format string, args ...interface{}) {
 	ctx.Fail()
 	ctx.T().Errorf(format, args...)
 }
+
 func (ctx *stepCtx) CurrentStep() *allure.Step {
 	return ctx.currentStep
 }

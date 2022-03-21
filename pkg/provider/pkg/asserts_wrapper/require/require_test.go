@@ -13,6 +13,11 @@ import (
 	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
 )
 
+type resultInterface interface {
+	GetResult() *allure.Result
+	Provider() provider.Provider
+}
+
 type MockT struct {
 	*testing.T
 	failed bool
@@ -34,8 +39,8 @@ func getT(testName string) provider.T {
 	mockRealT := new(MockT)
 	mockRealT.T = new(testing.T)
 	mockT := common.NewT(mockRealT, "TestSuite")
-	mockT.(provider.InternalT).Provider().NewTest("FakeTest", testName)
-	mockT.(provider.InternalT).Provider().TestContext()
+	mockT.(resultInterface).Provider().NewTest("FakeTest", testName)
+	mockT.(resultInterface).Provider().TestContext()
 	return mockT
 }
 
@@ -44,7 +49,7 @@ func TestEqual_Success(t *testing.T) {
 
 	Equal(mockT, 1, 1)
 	require.False(t, mockT.Failed())
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -65,7 +70,7 @@ func TestEqual_Failed(t *testing.T) {
 	Equal(mockT, 1, 2)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -84,7 +89,7 @@ func TestNotEqual_Success(t *testing.T) {
 
 	NotEqual(mockT, 1, 2)
 	require.False(t, mockT.Failed())
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -105,7 +110,7 @@ func TestNotEqual_Failed(t *testing.T) {
 	NotEqual(mockT, 1, 1)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -127,7 +132,7 @@ func TestError_Success(t *testing.T) {
 	Error(mockT, err)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -146,7 +151,7 @@ func TestError_Fail(t *testing.T) {
 	Error(mockT, nil)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, result.Status, allure.Failed)
 	require.Len(t, steps, 1)
@@ -165,7 +170,7 @@ func TestNoError_Success(t *testing.T) {
 	NoError(mockT, nil)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -186,7 +191,7 @@ func TestNoError_Fail(t *testing.T) {
 	NoError(mockT, err)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, result.Status, allure.Failed)
 	require.Len(t, steps, 1)
@@ -206,7 +211,7 @@ func TestNotNil_Success(t *testing.T) {
 	NotNil(mockT, object)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -225,7 +230,7 @@ func TestNotNil_Failed(t *testing.T) {
 	NotNil(mockT, nil)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -244,7 +249,7 @@ func TestNil_Success(t *testing.T) {
 	Nil(mockT, nil)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -264,7 +269,7 @@ func TestNil_Failed(t *testing.T) {
 	Nil(mockT, object)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -283,7 +288,7 @@ func TestLen_Success(t *testing.T) {
 	Len(mockT, str, 4)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -305,7 +310,7 @@ func TestLen_Failed(t *testing.T) {
 	Len(mockT, str, 4)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -326,7 +331,7 @@ func TestNotContains_Success(t *testing.T) {
 	NotContains(mockT, str, "4")
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -348,7 +353,7 @@ func TestNotContains_Failed(t *testing.T) {
 	NotContains(mockT, str, "est")
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -370,7 +375,7 @@ func TestContains_Success(t *testing.T) {
 
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -392,7 +397,7 @@ func TestContains_Failed(t *testing.T) {
 	Contains(mockT, str, "4")
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -414,7 +419,7 @@ func TestGreater_Success(t *testing.T) {
 	Greater(mockT, test, 3)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -436,7 +441,7 @@ func TestGreater_Fail(t *testing.T) {
 	Greater(mockT, test, 5)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -458,7 +463,7 @@ func TestGreaterOrEqual_Success(t *testing.T) {
 	GreaterOrEqual(mockT, test, 4)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -480,7 +485,7 @@ func TestGreaterOrEqual_Fail(t *testing.T) {
 	GreaterOrEqual(mockT, test, 5)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -502,7 +507,7 @@ func TestLess_Success(t *testing.T) {
 	Less(mockT, test, 4)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -524,7 +529,7 @@ func TestLess_Fail(t *testing.T) {
 	Less(mockT, test, 5)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -546,7 +551,7 @@ func TestLesOrEqual_Success(t *testing.T) {
 	LessOrEqual(mockT, test, 4)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -568,7 +573,7 @@ func TestLessOrEqual_Fail(t *testing.T) {
 	LessOrEqual(mockT, test, 5)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -601,7 +606,7 @@ func TestImplements_Success(t *testing.T) {
 	Implements(mockT, ti, ts)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -628,7 +633,7 @@ func TestImplements_Failed(t *testing.T) {
 	Implements(mockT, ti, ts)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -650,7 +655,7 @@ func TestEmpty_Success(t *testing.T) {
 	Empty(mockT, test)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -670,7 +675,7 @@ func TestEmpty_False(t *testing.T) {
 	Empty(mockT, test)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -690,7 +695,7 @@ func TestNotEmpty_Success(t *testing.T) {
 	NotEmpty(mockT, test)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -710,7 +715,7 @@ func TestNotEmpty_False(t *testing.T) {
 	NotEmpty(mockT, test)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -732,7 +737,7 @@ func TestWithDuration_Success(t *testing.T) {
 	WithinDuration(mockT, test, test2, delta)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -761,7 +766,7 @@ func TestWithDuration_Fail(t *testing.T) {
 	WithinDuration(mockT, test, test2, delta)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -787,7 +792,7 @@ func TestJSONEq_Success(t *testing.T) {
 	JSONEq(mockT, exp, exp)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -812,7 +817,7 @@ func TestJSONEq_Fail(t *testing.T) {
 	JSONEq(mockT, exp, actual)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -837,7 +842,7 @@ func TestSubset_Success(t *testing.T) {
 	Subset(mockT, test, subset)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -862,7 +867,7 @@ func TestSubset_Fail(t *testing.T) {
 	Subset(mockT, test, subset)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -889,7 +894,7 @@ func TestIsType_Success(t *testing.T) {
 	IsType(mockT, test, test)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -919,7 +924,7 @@ func TestIsType_Fail(t *testing.T) {
 	IsType(mockT, test, act)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -942,7 +947,7 @@ func TestTrue_Success(t *testing.T) {
 	True(mockT, true)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -962,7 +967,7 @@ func TestTrue_Fail(t *testing.T) {
 	True(mockT, false)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)
@@ -982,7 +987,7 @@ func TestFalse_Success(t *testing.T) {
 	False(mockT, false)
 	require.False(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Empty(t, result.Status)
 	require.Len(t, steps, 1)
@@ -1002,7 +1007,7 @@ func TestFalse_Fail(t *testing.T) {
 	False(mockT, true)
 	require.True(t, mockT.Failed())
 
-	result := mockT.(provider.InternalT).Provider().GetTestMeta().GetResult()
+	result := mockT.(resultInterface).GetResult()
 	steps := result.Steps
 	require.Equal(t, allure.Failed, result.Status)
 	require.Len(t, steps, 1)

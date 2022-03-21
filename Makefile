@@ -62,7 +62,7 @@ allure-serve:
 # run full lint like in pipeline
 .PHONY: lint
 lint: install-lint
-	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=examples,allure_go,provider
+	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=examples_new,provider_new,allure_go_new
 
 
 .PHONY: install-lint
