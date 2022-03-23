@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestSampleDemo(t *testing.T) {

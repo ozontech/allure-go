@@ -6,8 +6,8 @@ package suite_demo
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 //TestRunningDemoSuite demonstrate parallel running

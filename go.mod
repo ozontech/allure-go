@@ -4,12 +4,12 @@ go 1.17
 
 replace (
 	github.com/ozontech/allure-go/pkg/allure => ./pkg/allure
-	github.com/ozontech/allure-go/pkg/provider => ./pkg/provider
+	github.com/ozontech/allure-go/pkg/framework => ./pkg/framework
 )
 
 require (
 	github.com/ozontech/allure-go/pkg/allure v0.1.2
-	github.com/ozontech/allure-go/pkg/provider v0.1.2
+	github.com/ozontech/allure-go/pkg/framework v0.1.2
 )
 
 require (

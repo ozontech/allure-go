@@ -17,7 +17,7 @@ jobs:
       - name: allure-golangci-lint
         run: cd ./pkg/allure && make lint
       - name: provider-golangci-lint
-        run: cd ./pkg/provider && make lint
+        run: cd ./pkg/framework && make lint
       - name: examples-golangci-lint
         run: make lint
 
@@ -28,4 +28,4 @@ jobs:
       - name: allure-test
         run: cd ./pkg/allure && make test
       - name: provider-test
-        run: cd ./pkg/provider && make test
+        run: cd ./pkg/framework && make test

@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/framework/suite"
-	"github.com/ozontech/allure-go/pkg/provider/pkg/provider"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type StepDemoSuite struct {
