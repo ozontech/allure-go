@@ -16,8 +16,15 @@ type SuiteAsyncDemo struct {
 	suite.Suite
 }
 
+func (s *SuiteAsyncDemo) BeforeEach(t provider.T) {
+	t.Epic("Async")
+	t.Feature("Async Suite")
+	t.Tags("async", "suite", "steps")
+}
+
 func (s *SuiteAsyncDemo) TestAsyncSuiteDemo1(t provider.T) {
 	t.Title("Async Test 1")
+
 	startSign := fmt.Sprintf("%s", time.Now())
 	t.Parallel()
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {
@@ -32,6 +39,7 @@ func (s *SuiteAsyncDemo) TestAsyncSuiteDemo1(t provider.T) {
 
 func (s *SuiteAsyncDemo) TestAsyncSuiteDemo2(t provider.T) {
 	t.Title("Async Test 2")
+
 	startSign := fmt.Sprintf("%s", time.Now())
 	t.Parallel()
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {
@@ -48,6 +56,7 @@ func (s *SuiteAsyncDemo) TestAsyncSuiteDemo3(t provider.T) {
 	t.Title("Async Test 3")
 	t.Description(`
 		This test should be failed. But all logs a correct.`)
+
 	startSign := fmt.Sprintf("%s", time.Now())
 	t.Parallel()
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {
@@ -67,6 +76,7 @@ func (s *SuiteAsyncDemo) TestAsyncSuiteDemo4(t provider.T) {
 	t.Title("Async Test 4")
 	t.Description(`
 		This test should be panic. But all logs a correct.`)
+
 	startSign := fmt.Sprintf("%s", time.Now())
 	t.Parallel()
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {

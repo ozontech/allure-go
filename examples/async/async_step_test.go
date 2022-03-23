@@ -16,448 +16,313 @@ type StepAsyncDemo struct {
 	suite.Suite
 }
 
+func (s *StepAsyncDemo) BeforeEach(t provider.T) {
+	t.Epic("Async")
+	t.Feature("Async Steps")
+	t.Tags("async", "suite", "steps")
+}
+
 func (s *StepAsyncDemo) TestAsyncStepDemo1(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+	t.Title("Test with async steps 1")
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
 
 	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 2 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.Logf("Step 2 Stopped At: %s", fmt.Sprintf("%s", time.Now()))
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *StepAsyncDemo) TestAsyncStepDemo2(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+	t.Title("Test with async steps 2")
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 			time.Sleep(3 * time.Second)
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 		})
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
-}
-
-func (s *StepAsyncDemo) TestAsyncStepDemo5(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
-	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
-		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
-	})
-
-	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
-		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 2 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
-	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
-}
-
-func (s *StepAsyncDemo) TestAsyncStepDemo6(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
-	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
-		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
-			time.Sleep(3 * time.Second)
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
-		})
-		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
-	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *StepAsyncDemo) TestAsyncStepDemo3(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+	t.Title("Test with async steps 3")
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
 
 	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
+		t.Title("Test with async steps 1")
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		defer func() {
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
-		}()
-		panic("Whoops")
+		ctx.Logf("Step 2 Stopped At: %s", fmt.Sprintf("%s", time.Now()))
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *StepAsyncDemo) TestAsyncStepDemo4(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+	t.Title("Test with async steps 4")
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+			time.Sleep(3 * time.Second)
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+		})
+		time.Sleep(3 * time.Second)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+	})
+}
+
+func (s *StepAsyncDemo) TestAsyncStepDemo5(t provider.T) {
+	t.Title("Test with async steps 5")
+
+	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+		time.Sleep(3 * time.Second)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+	})
+
+	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+		time.Sleep(3 * time.Second)
+		defer func() {
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+		}()
+		panic("Whoops")
+	})
+}
+
+func (s *StepAsyncDemo) TestAsyncStepDemo6(t provider.T) {
+	t.Title("Test with async steps 6")
+
+	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 			time.Sleep(3 * time.Second)
 			defer func() {
-				stopSign := fmt.Sprintf("%s", time.Now())
-				ctx.Logf("Step 2 Stopped At: %s", stopSign)
-				ctx.WithNewParameters("Stop", stopSign)
+				ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 			}()
 			panic("Whoops")
 		})
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *StepAsyncDemo) TestAsyncStepDemo7(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+	t.Title("Test with async steps ")
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
 
 	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
 		defer func() {
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 		}()
 		ctx.Assert().False(true)
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *StepAsyncDemo) TestAsyncStepDemo8(t provider.T) {
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+	t.Title("Test with async steps 8")
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 			time.Sleep(3 * time.Second)
 			defer func() {
-				stopSign := fmt.Sprintf("%s", time.Now())
-				ctx.Logf("Step 2 Stopped At: %s", stopSign)
-				ctx.WithNewParameters("Stop", stopSign)
+				ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 			}()
 			ctx.Assert().False(true)
 		})
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 type AsyncSuiteStepDemo struct {
 	suite.Suite
 }
 
+func (s *AsyncSuiteStepDemo) BeforeEach(t provider.T) {
+	t.Epic("Async")
+	t.Feature("Async Steps")
+	t.Tags("async", "suite", "steps")
+}
+
 func (s *AsyncSuiteStepDemo) TestAsyncStepDemo1(t provider.T) {
+	t.Title("Async Test with async steps 1")
+
 	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
 
 	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 2 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.Logf("Step 2 Stopped At: %s", fmt.Sprintf("%s", time.Now()))
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *AsyncSuiteStepDemo) TestAsyncStepDemo2(t provider.T) {
+	t.Title("Async Test with async steps 2")
+
 	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 			time.Sleep(3 * time.Second)
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 		})
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
-}
-
-func (s *AsyncSuiteStepDemo) TestAsyncStepDemo5(t provider.T) {
-	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
-	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
-		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
-	})
-
-	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
-		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 2 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
-	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
-}
-
-func (s *AsyncSuiteStepDemo) TestAsyncStepDemo6(t provider.T) {
-	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
-	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
-		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
-			time.Sleep(3 * time.Second)
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
-		})
-		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
-	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *AsyncSuiteStepDemo) TestAsyncStepDemo3(t provider.T) {
+	t.Title("Async Test with async steps 3")
+
 	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
 
 	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		defer func() {
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
-		}()
-		panic("Whoops")
+		ctx.Logf("Step 2 Stopped At: %s", fmt.Sprintf("%s", time.Now()))
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *AsyncSuiteStepDemo) TestAsyncStepDemo4(t provider.T) {
+	t.Title("Async Test with async steps 4")
+
 	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+			time.Sleep(3 * time.Second)
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+		})
+		time.Sleep(3 * time.Second)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+	})
+}
+
+func (s *AsyncSuiteStepDemo) TestAsyncStepDemo5(t provider.T) {
+	t.Title("Async Test with async steps 5")
+
+	t.Parallel()
+
+	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+		time.Sleep(3 * time.Second)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+	})
+
+	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+		time.Sleep(3 * time.Second)
+		defer func() {
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+		}()
+		panic("Whoops")
+	})
+}
+
+func (s *AsyncSuiteStepDemo) TestAsyncStepDemo6(t provider.T) {
+	t.Title("Async Test with async steps 6")
+
+	t.Parallel()
+
+	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+
+		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 			time.Sleep(3 * time.Second)
 			defer func() {
-				stopSign := fmt.Sprintf("%s", time.Now())
-				ctx.Logf("Step 2 Stopped At: %s", stopSign)
-				ctx.WithNewParameters("Stop", stopSign)
+				ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 			}()
 			panic("Whoops")
 		})
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *AsyncSuiteStepDemo) TestAsyncStepDemo7(t provider.T) {
+	t.Title("Async Test with async steps 7")
+
 	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 1 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
 
 	t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
-		startSign := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Step 2 Started At: %s", startSign)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		time.Sleep(3 * time.Second)
 		defer func() {
-			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Step 2 Stopped At: %s", stopSign)
-			ctx.WithNewParameters("Stop", stopSign)
+			ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 		}()
 		ctx.Assert().False(true)
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func (s *AsyncSuiteStepDemo) TestAsyncStepDemo8(t provider.T) {
+	t.Title("Async Test with async steps 8")
+
 	t.Parallel()
-	testStart := fmt.Sprintf("%s", time.Now())
-	t.Logf("Test Started at %s", testStart)
+
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
-		outerStepStart := fmt.Sprintf("%s", time.Now())
-		ctx.WithNewParameters("Start", outerStepStart)
-		ctx.Logf("Step 1 Started At: %s", outerStepStart)
+		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 		ctx.WithNewAsyncStep("Async Step 1.1", func(ctx provider.StepCtx) {
-			innerStepStart := fmt.Sprintf("%s", time.Now())
-			ctx.WithNewParameters("Start", innerStepStart)
-			ctx.Logf("Step 2 Started At: %s", innerStepStart)
+			ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
 			time.Sleep(3 * time.Second)
 			defer func() {
-				stopSign := fmt.Sprintf("%s", time.Now())
-				ctx.Logf("Step 2 Stopped At: %s", stopSign)
-				ctx.WithNewParameters("Stop", stopSign)
+				ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 			}()
 			ctx.Assert().False(true)
 		})
 		time.Sleep(3 * time.Second)
-		stopSign := fmt.Sprintf("%s", time.Now())
-		ctx.Logf("Step 1 Stopped At: %s", stopSign)
-		ctx.WithNewParameters("Stop", stopSign)
+		ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
 	})
-	t.Logf("Test already here at %s.", time.Now())
-	t.Logf("But it still running cause of async steps!")
 }
 
 func TestStepAsyncRunner(t *testing.T) {
