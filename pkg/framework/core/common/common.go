@@ -3,7 +3,6 @@ package common
 import (
 	"fmt"
 	"regexp"
-	"runtime"
 	"runtime/debug"
 	"strings"
 	"sync"
@@ -126,7 +125,7 @@ func (c *Common) Errorf(format string, args ...interface{}) {
 // Run runs test body as test with passed tags
 func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
 	return c.TestingT.Run(testName, func(realT *testing.T) {
-		testT := NewTestT(realT, c.Provider, c, testName, getPackage(2), tags...)
+		testT := NewTestT(realT, c.Provider, c, c.Provider.GetSuiteMeta().GetPackageName(), testName, tags...)
 
 		// print test result
 		defer testT.Provider.FinishTest()
@@ -179,17 +178,6 @@ func copyLabels(input, target *allure.Result) *allure.Result {
 	}
 
 	return target
-}
-
-func getPackage(depth int) string {
-	pc, _, _, _ := runtime.Caller(depth)
-	funcName := runtime.FuncForPC(pc).Name()
-	lastSlash := strings.LastIndexByte(funcName, '/')
-	if lastSlash < 0 {
-		lastSlash = 0
-	}
-	lastDot := strings.LastIndexByte(funcName[lastSlash:], '.') + lastSlash
-	return funcName[:lastDot]
 }
 
 func extractErrorMessages(output string) string {
