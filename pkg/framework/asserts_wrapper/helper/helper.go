@@ -11,14 +11,6 @@ type a struct {
 	asserts wrapper.AssertsWrapper
 }
 
-// NewAssertsHelper inits new Assert interface
-func NewAssertsHelper(t TestingT) AssertsHelper {
-	return &a{
-		t:       t,
-		asserts: wrapper.NewAsserts(t),
-	}
-}
-
 // Equal ...
 func (a *a) Equal(expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
 	a.asserts.Equal(a.t, expected, actual, msgAndArgs...)

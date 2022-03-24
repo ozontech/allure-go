@@ -1,4 +1,4 @@
-package tests
+package require
 
 import (
 	"fmt"
@@ -9,207 +9,193 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
-	"github.com/ozontech/allure-go/pkg/framework/core/common"
-	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type MockHelperT struct {
-	*testing.T
-	failed bool
+type providerTMock struct {
+	steps        []*allure.Step
+	errorF       bool
+	errorFString string
+	failNow      bool
 }
 
-func (t *MockHelperT) Failed() bool {
-	return t.failed
+func newMock() *providerTMock {
+	return &providerTMock{steps: make([]*allure.Step, 0)}
 }
 
-func (t *MockHelperT) FailNow() {
-	t.failed = true
+func (p *providerTMock) Step(step *allure.Step) {
+	p.steps = append(p.steps, step)
 }
 
-func (t *MockHelperT) Errorf(format string, args ...interface{}) {
-	_, _ = format, args
+func (p *providerTMock) Errorf(format string, msgAndArgs ...interface{}) {
+	p.errorFString = format
+	p.errorF = true
 }
 
-func getHelperT(testName string) provider.T {
-	mockRealT := new(MockHelperT)
-	mockRealT.T = new(testing.T)
-	mockT := common.NewT(mockRealT, "package", "TestSuite")
-	mockT.Provider.NewTest("FakeTest", testName)
-	mockT.Provider.TestContext()
-	return mockT
+func (p *providerTMock) FailNow() {
+	p.failNow = true
 }
 
-func TestHelperEqual_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireEqual_Success(t *testing.T) {
+	mockT := newMock()
+	Equal(mockT, 1, 1)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Equal", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
 
-	helper.NewRequireHelper(mockT).Equal(1, 1)
-	require.False(t, mockT.Failed())
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: Equal", steps[0].Name)
-	require.Equal(t, allure.Passed, steps[0].Status)
-
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
 	require.Equal(t, "1", params[0].Value)
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, "1", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperEqual_Failed(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireEqual_Fail(t *testing.T) {
+	mockT := newMock()
+	Equal(mockT, 1, 2)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Equal", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
 
-	helper.NewRequireHelper(mockT).Equal(1, 2)
-	require.True(t, mockT.Failed())
-
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: Equal", steps[0].Name)
-	require.Equal(t, allure.Failed, steps[0].Status)
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
 	require.Equal(t, "1", params[0].Value)
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, "2", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperNotEqual_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotEqual_Success(t *testing.T) {
+	mockT := newMock()
+	NotEqual(mockT, 1, 2)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Not Equal", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
 
-	helper.NewRequireHelper(mockT).NotEqual(1, 2)
-	require.False(t, mockT.Failed())
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: Not Equal", steps[0].Name)
-	require.Equal(t, allure.Passed, steps[0].Status)
-
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
 	require.Equal(t, "1", params[0].Value)
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, "2", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperNotEqual_Failed(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotEqual_Fail(t *testing.T) {
+	mockT := newMock()
+	NotEqual(mockT, 1, 1)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Not Equal", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
 
-	helper.NewRequireHelper(mockT).NotEqual(1, 1)
-	require.True(t, mockT.Failed())
-
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: Not Equal", steps[0].Name)
-	require.Equal(t, allure.Failed, steps[0].Status)
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
 	require.Equal(t, "1", params[0].Value)
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, "1", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperError_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireError_Success(t *testing.T) {
+	mockT := newMock()
+	err := errors.New("kek")
+	Error(mockT, err)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Error", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
 
-	err := errors.New("Some Error")
-
-	helper.NewRequireHelper(mockT).Error(err)
-	require.False(t, mockT.Failed())
-
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: Error", steps[0].Name)
-	require.Equal(t, allure.Passed, steps[0].Status)
-
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Contains(t, params[0].Value, err.Error())
+	require.Equal(t, fmt.Sprintf("%+v", err), params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperError_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireError_Fail(t *testing.T) {
+	mockT := newMock()
+	Error(mockT, nil)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Error", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
 
-	helper.NewRequireHelper(mockT).Error(nil)
-	require.True(t, mockT.Failed())
-
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, result.Status, allure.Failed)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: Error", steps[0].Name)
-	require.Equal(t, allure.Failed, steps[0].Status)
-
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
 	require.Equal(t, "<nil>", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperNoError_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNoError_Success(t *testing.T) {
+	mockT := newMock()
+	NoError(mockT, nil)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: No Error", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
 
-	helper.NewRequireHelper(mockT).NoError(nil)
-	require.False(t, mockT.Failed())
-
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: No Error", steps[0].Name)
-	require.Equal(t, allure.Passed, steps[0].Status)
-
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
 	require.Equal(t, "<nil>", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperNoError_Fail(t *testing.T) {
-	err := errors.New("Some Error")
+func TestRequireNoError_Fail(t *testing.T) {
+	mockT := newMock()
+	err := errors.New("kek")
+	NoError(mockT, err)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: No Error", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
 
-	mockT := getHelperT(t.Name())
-
-	helper.NewRequireHelper(mockT).NoError(err)
-	require.True(t, mockT.Failed())
-
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, result.Status, allure.Failed)
-	require.Len(t, steps, 1)
-	require.Equal(t, "REQUIRE: No Error", steps[0].Name)
-	require.Equal(t, allure.Failed, steps[0].Status)
-
-	params := steps[0].Parameters
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Contains(t, params[0].Value, err.Error())
+	require.Equal(t, fmt.Sprintf("%+v", err), params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperNotNil_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotNil_Success(t *testing.T) {
+	mockT := newMock()
 	object := struct{}{}
 
-	helper.NewRequireHelper(mockT).NotNil(object)
-	require.False(t, mockT.Failed())
+	NotNil(mockT, object)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Not Nil", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -218,17 +204,18 @@ func TestHelperNotNil_Success(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
 	require.Equal(t, "struct {}(struct {}{})", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperNotNil_Failed(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotNil_Failed(t *testing.T) {
+	mockT := newMock()
 
-	helper.NewRequireHelper(mockT).NotNil(nil)
-	require.True(t, mockT.Failed())
+	NotNil(mockT, nil)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Not Nil", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -237,17 +224,18 @@ func TestHelperNotNil_Failed(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
 	require.Equal(t, "<nil>", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperNil_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNil_Success(t *testing.T) {
+	mockT := newMock()
 
-	helper.NewRequireHelper(mockT).Nil(nil)
-	require.False(t, mockT.Failed())
+	Nil(mockT, nil)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Nil", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -256,18 +244,19 @@ func TestHelperNil_Success(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
 	require.Equal(t, "<nil>", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperNil_Failed(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNil_Failed(t *testing.T) {
+	mockT := newMock()
 	object := struct{}{}
 
-	helper.NewRequireHelper(mockT).Nil(object)
-	require.True(t, mockT.Failed())
+	Nil(mockT, object)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Nil", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -276,17 +265,18 @@ func TestHelperNil_Failed(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
 	require.Equal(t, "struct {}(struct {}{})", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperLen_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireLen_Success(t *testing.T) {
+	mockT := newMock()
 	str := "test"
-	helper.NewRequireHelper(mockT).Len(str, 4)
-	require.False(t, mockT.Failed())
+	Len(mockT, str, 4)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Length", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -297,18 +287,19 @@ func TestHelperLen_Success(t *testing.T) {
 	require.Equal(t, "string(\"test\")", params[0].Value)
 	require.Equal(t, "Expected Len", params[1].Name)
 	require.Equal(t, "int(4)", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperLen_Failed(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireLen_Failed(t *testing.T) {
+	mockT := newMock()
 	str := "test1"
 
-	helper.NewRequireHelper(mockT).Len(str, 4)
-	require.True(t, mockT.Failed())
+	Len(mockT, str, 4)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Length", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -319,17 +310,18 @@ func TestHelperLen_Failed(t *testing.T) {
 	require.Equal(t, "string(\"test1\")", params[0].Value)
 	require.Equal(t, "Expected Len", params[1].Name)
 	require.Equal(t, "int(4)", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperNotContains_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotContains_Success(t *testing.T) {
+	mockT := newMock()
 	str := "test"
-	helper.NewRequireHelper(mockT).NotContains(str, "4")
-	require.False(t, mockT.Failed())
+	NotContains(mockT, str, "4")
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Not Contains", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -340,18 +332,19 @@ func TestHelperNotContains_Success(t *testing.T) {
 	require.Equal(t, "\"test\"", params[0].Value)
 	require.Equal(t, "Should Not Contains", params[1].Name)
 	require.Equal(t, "\"4\"", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperNotContains_Failed(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotContains_Failed(t *testing.T) {
+	mockT := newMock()
 	str := "test"
 
-	helper.NewRequireHelper(mockT).NotContains(str, "est")
-	require.True(t, mockT.Failed())
+	NotContains(mockT, str, "est")
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Not Contains", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -362,18 +355,18 @@ func TestHelperNotContains_Failed(t *testing.T) {
 	require.Equal(t, "\"test\"", params[0].Value)
 	require.Equal(t, "Should Not Contains", params[1].Name)
 	require.Equal(t, "\"est\"", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperContains_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireContains_Success(t *testing.T) {
+	mockT := newMock()
 	str := "test"
-	helper.NewRequireHelper(mockT).Contains(str, "est")
+	Contains(mockT, str, "est")
 
-	require.False(t, mockT.Failed())
-
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Contains", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -384,18 +377,19 @@ func TestHelperContains_Success(t *testing.T) {
 	require.Equal(t, "\"test\"", params[0].Value)
 	require.Equal(t, "Should Contains", params[1].Name)
 	require.Equal(t, "\"est\"", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperContains_Failed(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireContains_Failed(t *testing.T) {
+	mockT := newMock()
 	str := "test"
 
-	helper.NewRequireHelper(mockT).Contains(str, "4")
-	require.True(t, mockT.Failed())
+	Contains(mockT, str, "4")
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Contains", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -406,18 +400,19 @@ func TestHelperContains_Failed(t *testing.T) {
 	require.Equal(t, "\"test\"", params[0].Value)
 	require.Equal(t, "Should Contains", params[1].Name)
 	require.Equal(t, "\"4\"", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperGreater_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireGreater_Success(t *testing.T) {
+	mockT := newMock()
 	test := 4
 
-	helper.NewRequireHelper(mockT).Greater(test, 3)
-	require.False(t, mockT.Failed())
+	Greater(mockT, test, 3)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Greater", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -428,18 +423,19 @@ func TestHelperGreater_Success(t *testing.T) {
 	require.Equal(t, "4", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "3", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperGreater_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireGreater_Fail(t *testing.T) {
+	mockT := newMock()
 	test := 4
 
-	helper.NewRequireHelper(mockT).Greater(test, 5)
-	require.True(t, mockT.Failed())
+	Greater(mockT, test, 5)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Greater", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -450,18 +446,19 @@ func TestHelperGreater_Fail(t *testing.T) {
 	require.Equal(t, "4", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "5", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperGreaterOrEqual_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireGreaterOrEqual_Success(t *testing.T) {
+	mockT := newMock()
 	test := 4
 
-	helper.NewRequireHelper(mockT).GreaterOrEqual(test, 4)
-	require.False(t, mockT.Failed())
+	GreaterOrEqual(mockT, test, 4)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Greater Or Equal", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -472,18 +469,19 @@ func TestHelperGreaterOrEqual_Success(t *testing.T) {
 	require.Equal(t, "4", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "4", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperGreaterOrEqual_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireGreaterOrEqual_Fail(t *testing.T) {
+	mockT := newMock()
 	test := 4
 
-	helper.NewRequireHelper(mockT).GreaterOrEqual(test, 5)
-	require.True(t, mockT.Failed())
+	GreaterOrEqual(mockT, test, 5)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Greater Or Equal", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -494,18 +492,19 @@ func TestHelperGreaterOrEqual_Fail(t *testing.T) {
 	require.Equal(t, "4", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "5", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperLess_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireLess_Success(t *testing.T) {
+	mockT := newMock()
 	test := 3
 
-	helper.NewRequireHelper(mockT).Less(test, 4)
-	require.False(t, mockT.Failed())
+	Less(mockT, test, 4)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Less", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -516,18 +515,19 @@ func TestHelperLess_Success(t *testing.T) {
 	require.Equal(t, "3", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "4", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperLess_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireLess_Fail(t *testing.T) {
+	mockT := newMock()
 	test := 5
 
-	helper.NewRequireHelper(mockT).Less(test, 5)
-	require.True(t, mockT.Failed())
+	Less(mockT, test, 5)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Less", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -538,18 +538,19 @@ func TestHelperLess_Fail(t *testing.T) {
 	require.Equal(t, "5", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "5", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperLesOrEqual_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireLesOrEqual_Success(t *testing.T) {
+	mockT := newMock()
 	test := 4
 
-	helper.NewRequireHelper(mockT).LessOrEqual(test, 4)
-	require.False(t, mockT.Failed())
+	LessOrEqual(mockT, test, 4)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Less Or Equal", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -560,18 +561,19 @@ func TestHelperLesOrEqual_Success(t *testing.T) {
 	require.Equal(t, "4", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "4", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperLessOrEqual_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireLessOrEqual_Fail(t *testing.T) {
+	mockT := newMock()
 	test := 6
 
-	helper.NewRequireHelper(mockT).LessOrEqual(test, 5)
-	require.True(t, mockT.Failed())
+	LessOrEqual(mockT, test, 5)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Less Or Equal", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -582,29 +584,30 @@ func TestHelperLessOrEqual_Fail(t *testing.T) {
 	require.Equal(t, "6", params[0].Value)
 	require.Equal(t, "Second Element", params[1].Name)
 	require.Equal(t, "5", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-type testHelperStructSuc struct {
+type testStructSuc struct {
 }
 
-func (t *testHelperStructSuc) test() {
+func (t *testStructSuc) test() {
 }
 
-func TestHelperImplements_Success(t *testing.T) {
+func TestRequireImplements_Success(t *testing.T) {
 	type testInterface interface {
 		test()
 	}
 
-	mockT := getHelperT(t.Name())
+	mockT := newMock()
 	ti := new(testInterface)
-	ts := &testHelperStructSuc{}
+	ts := &testStructSuc{}
 
-	helper.NewRequireHelper(mockT).Implements(ti, ts)
-	require.False(t, mockT.Failed())
+	Implements(mockT, ti, ts)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Implements", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -612,26 +615,27 @@ func TestHelperImplements_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Interface Object", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*tests.testInterface(%#v)", ti), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*require.testInterface(%#v)", ti), params[0].Value)
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*tests.testHelperStructSuc(%#v)", ts), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*require.testStructSuc(%#v)", ts), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperImplements_Failed(t *testing.T) {
+func TestRequireImplements_Failed(t *testing.T) {
 	type testInterface interface {
 		test2()
 	}
 
-	mockT := getHelperT(t.Name())
+	mockT := newMock()
 	ti := new(testInterface)
-	ts := &testHelperStructSuc{}
+	ts := &testStructSuc{}
 
-	helper.NewRequireHelper(mockT).Implements(ti, ts)
-	require.True(t, mockT.Failed())
+	Implements(mockT, ti, ts)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Implements", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -639,21 +643,22 @@ func TestHelperImplements_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Interface Object", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*tests.testInterface(%#v)", ti), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*require.testInterface(%#v)", ti), params[0].Value)
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*tests.testHelperStructSuc(%#v)", ts), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*require.testStructSuc(%#v)", ts), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperEmpty_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireEmpty_Success(t *testing.T) {
+	mockT := newMock()
 
 	test := ""
-	helper.NewRequireHelper(mockT).Empty(test)
-	require.False(t, mockT.Failed())
+	Empty(mockT, test)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Empty", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -662,18 +667,19 @@ func TestHelperEmpty_Success(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
 	require.Equal(t, "string(\"\")", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperEmpty_False(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireEmpty_False(t *testing.T) {
+	mockT := newMock()
 
 	test := "123"
-	helper.NewRequireHelper(mockT).Empty(test)
-	require.True(t, mockT.Failed())
+	Empty(mockT, test)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Empty", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -682,18 +688,19 @@ func TestHelperEmpty_False(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
 	require.Equal(t, "string(\"123\")", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperNotEmpty_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotEmpty_Success(t *testing.T) {
+	mockT := newMock()
 
 	test := "123"
-	helper.NewRequireHelper(mockT).NotEmpty(test)
-	require.False(t, mockT.Failed())
+	NotEmpty(mockT, test)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Not Empty", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -702,18 +709,19 @@ func TestHelperNotEmpty_Success(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
 	require.Equal(t, "string(\"123\")", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperNotEmpty_False(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireNotEmpty_False(t *testing.T) {
+	mockT := newMock()
 
 	test := ""
-	helper.NewRequireHelper(mockT).NotEmpty(test)
-	require.True(t, mockT.Failed())
+	NotEmpty(mockT, test)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Not Empty", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -722,20 +730,21 @@ func TestHelperNotEmpty_False(t *testing.T) {
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
 	require.Equal(t, "string(\"\")", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperWithDuration_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireWithDuration_Success(t *testing.T) {
+	mockT := newMock()
 
 	test := time.Now()
 	test2 := test.Add(100)
 	delta := test2.Sub(test)
-	helper.NewRequireHelper(mockT).WithinDuration(test, test2, delta)
-	require.False(t, mockT.Failed())
+	WithinDuration(mockT, test, test2, delta)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Within Duration", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -750,21 +759,22 @@ func TestHelperWithDuration_Success(t *testing.T) {
 
 	require.Equal(t, "Delta", params[2].Name)
 	require.Equal(t, delta.String(), params[2].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperWithDuration_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireWithDuration_Fail(t *testing.T) {
+	mockT := newMock()
 
 	test := time.Now()
 	test2 := test.Add(100)
 	delta := test2.Sub(test)
 	test = test.Add(1000000)
-	helper.NewRequireHelper(mockT).WithinDuration(test, test2, delta)
-	require.True(t, mockT.Failed())
+	WithinDuration(mockT, test, test2, delta)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Within Duration", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -779,18 +789,19 @@ func TestHelperWithDuration_Fail(t *testing.T) {
 
 	require.Equal(t, "Delta", params[2].Name)
 	require.Equal(t, delta.String(), params[2].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperJSONEq_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireJSONEq_Success(t *testing.T) {
+	mockT := newMock()
 	exp := "{\"key1\": 123, \"key2\": \"test\"}"
 
-	helper.NewRequireHelper(mockT).JSONEq(exp, exp)
-	require.False(t, mockT.Failed())
+	JSONEq(mockT, exp, exp)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: JSON Equal", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -803,19 +814,20 @@ func TestHelperJSONEq_Success(t *testing.T) {
 
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, exp, params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperJSONEq_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireJSONEq_Fail(t *testing.T) {
+	mockT := newMock()
 	exp := "{\"key1\": 123, \"key2\": \"test\"}"
 	actual := "{\"key1\": 1232, \"key2\": \"test2\"}"
 
-	helper.NewRequireHelper(mockT).JSONEq(exp, actual)
-	require.True(t, mockT.Failed())
+	JSONEq(mockT, exp, actual)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: JSON Equal", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -828,19 +840,20 @@ func TestHelperJSONEq_Fail(t *testing.T) {
 
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, actual, params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperSubset_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireSubset_Success(t *testing.T) {
+	mockT := newMock()
 
 	test := []int{1, 2, 3}
 	subset := []int{2, 3}
-	helper.NewRequireHelper(mockT).Subset(test, subset)
-	require.False(t, mockT.Failed())
+	Subset(mockT, test, subset)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Subset", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -853,19 +866,20 @@ func TestHelperSubset_Success(t *testing.T) {
 
 	require.Equal(t, "Subset", params[1].Name)
 	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperSubset_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireSubset_Fail(t *testing.T) {
+	mockT := newMock()
 
 	test := []int{1, 2, 3}
 	subset := []int{4, 3}
-	helper.NewRequireHelper(mockT).Subset(test, subset)
-	require.True(t, mockT.Failed())
+	Subset(mockT, test, subset)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Subset", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -878,21 +892,22 @@ func TestHelperSubset_Fail(t *testing.T) {
 
 	require.Equal(t, "Subset", params[1].Name)
 	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperIsType_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireIsType_Success(t *testing.T) {
+	mockT := newMock()
 
 	type testStruct struct {
 	}
 	test := new(testStruct)
 
-	helper.NewRequireHelper(mockT).IsType(test, test)
-	require.False(t, mockT.Failed())
+	IsType(mockT, test, test)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Is Type", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -905,10 +920,14 @@ func TestHelperIsType_Success(t *testing.T) {
 
 	require.Equal(t, "Object", params[1].Name)
 	require.Equal(t, fmt.Sprintf("%#v", test), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperIsType_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireIsType_Fail(t *testing.T) {
+	mockT := newMock()
 
 	type testStruct struct {
 	}
@@ -917,12 +936,9 @@ func TestHelperIsType_Fail(t *testing.T) {
 	test := new(testStruct)
 	act := new(failTestStruct)
 
-	helper.NewRequireHelper(mockT).IsType(test, act)
-	require.True(t, mockT.Failed())
+	IsType(mockT, test, act)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: Is Type", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -931,21 +947,22 @@ func TestHelperIsType_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected Type", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*tests.testStruct(%#v)", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*require.testStruct(%#v)", test), params[0].Value)
 
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*tests.failTestStruct(%#v)", act), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*require.failTestStruct(%#v)", act), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperTrue_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireTrue_Success(t *testing.T) {
+	mockT := newMock()
 
-	helper.NewRequireHelper(mockT).True(true)
-	require.False(t, mockT.Failed())
+	True(mockT, true)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: True", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -955,17 +972,18 @@ func TestHelperTrue_Success(t *testing.T) {
 
 	require.Equal(t, "Actual Value", params[0].Name)
 	require.Equal(t, "bool(true)", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperTrue_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireTrue_Fail(t *testing.T) {
+	mockT := newMock()
 
-	helper.NewRequireHelper(mockT).True(false)
-	require.True(t, mockT.Failed())
+	True(mockT, false)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: True", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -975,17 +993,18 @@ func TestHelperTrue_Fail(t *testing.T) {
 
 	require.Equal(t, "Actual Value", params[0].Name)
 	require.Equal(t, "bool(false)", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
-func TestHelperFalse_Success(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireFalse_Success(t *testing.T) {
+	mockT := newMock()
 
-	helper.NewRequireHelper(mockT).False(false)
-	require.False(t, mockT.Failed())
+	False(mockT, false)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Empty(t, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: False", steps[0].Name)
 	require.Equal(t, allure.Passed, steps[0].Status)
@@ -995,17 +1014,18 @@ func TestHelperFalse_Success(t *testing.T) {
 
 	require.Equal(t, "Actual Value", params[0].Name)
 	require.Equal(t, "bool(false)", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
 }
 
-func TestHelperFalse_Fail(t *testing.T) {
-	mockT := getHelperT(t.Name())
+func TestRequireFalse_Fail(t *testing.T) {
+	mockT := newMock()
 
-	helper.NewRequireHelper(mockT).False(true)
-	require.True(t, mockT.Failed())
+	False(mockT, true)
 
-	result := mockT.(resultInterface).GetResult()
-	steps := result.Steps
-	require.Equal(t, allure.Failed, result.Status)
+	steps := mockT.steps
 	require.Len(t, steps, 1)
 	require.Equal(t, "REQUIRE: False", steps[0].Name)
 	require.Equal(t, allure.Failed, steps[0].Status)
@@ -1015,4 +1035,8 @@ func TestHelperFalse_Fail(t *testing.T) {
 
 	require.Equal(t, "Actual Value", params[0].Name)
 	require.Equal(t, "bool(true)", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
