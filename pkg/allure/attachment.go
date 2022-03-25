@@ -92,10 +92,5 @@ func (a *Attachment) GetContent() []byte {
 
 // Print - Creates a file from `Attachment.content`. The file type is determined by its `Attachment.mimeType`.
 func (a *Attachment) Print() error {
-	//file := fmt.Sprintf("%s/%s", resultsPath, a.Source)
-	//err := ioutil.WriteFile(file, a.content, fileSystemPermissionCode)
-	//if err != nil {
-	//	return errors.Wrap(err, "Failed to write in file")
-	//}
 	return NewFileManager().CreateFile(a.Source, a.content)
 }
