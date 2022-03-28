@@ -7,7 +7,7 @@ import (
 )
 
 type a struct {
-	t       TestingT
+	t       ProviderT
 	asserts wrapper.AssertsWrapper
 }
 

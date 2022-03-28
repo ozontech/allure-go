@@ -5,7 +5,7 @@ import (
 )
 
 // NewRequireHelper inits new Require interface
-func NewRequireHelper(t TestingT) AssertsHelper {
+func NewRequireHelper(t ProviderT) AssertsHelper {
 	return &a{
 		t:       t,
 		asserts: wrapper.NewRequire(t),

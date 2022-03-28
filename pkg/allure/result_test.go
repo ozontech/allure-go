@@ -27,7 +27,7 @@ func TestNewResult(t *testing.T) {
 	require.Equal(t, testFullName, result.FullName)
 	require.NotEmpty(t, result.UUID)
 	require.Equal(t, getMD5Hash(testFullName), result.TestCaseID)
-	require.True(t, result.toPrint)
+	require.True(t, result.ToPrint)
 	require.Equal(t, getMD5Hash(getMD5Hash(testFullName)), result.HistoryID)
 	require.Len(t, result.Labels, 1)
 	require.Equal(t, Language.ToString(), result.Labels[0].Name)
@@ -62,10 +62,10 @@ func TestResult_Finish(t *testing.T) {
 
 func TestResult_SkipOnPrint(t *testing.T) {
 	result := new(Result)
-	result.toPrint = true
+	result.ToPrint = true
 
 	result.SkipOnPrint()
-	require.False(t, result.toPrint)
+	require.False(t, result.ToPrint)
 }
 
 func TestResult_WithFrameWork(t *testing.T) {

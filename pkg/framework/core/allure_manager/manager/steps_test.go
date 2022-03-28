@@ -1,10 +1,12 @@
 package manager
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 type testMetaMockSteps struct {
@@ -86,8 +88,8 @@ func (m *suiteMetaMockSteps) GetAfterAll() func(provider.T) {
 
 func TestAllureManager_Step(t *testing.T) {
 	manager := allureManager{
-		testMeta:  &testMetaMockLabels{result: &allure.Result{}, container: allure.NewContainer()},
-		suiteMeta: &suiteMetaMockExecM{container: allure.NewContainer()},
+		testMeta:  &testMetaMockSteps{result: &allure.Result{}, container: allure.NewContainer()},
+		suiteMeta: &suiteMetaMockSteps{container: allure.NewContainer()},
 	}
 	testStep := allure.NewSimpleStep("Step")
 	manager.TestContext()

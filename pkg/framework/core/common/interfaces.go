@@ -7,10 +7,23 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
+type ParentT interface {
+	GetProvider() provider.Provider
+	GetResult() *allure.Result
+}
+
+type HookProvider interface {
+	BeforeEachContext()
+	AfterEachContext()
+	BeforeAllContext()
+	AfterAllContext()
+
+	GetSuiteMeta() provider.SuiteMeta
+	GetTestMeta() provider.TestMeta
+}
+
 type InternalT interface {
 	provider.T
 
-	GetProvider() provider.Provider
 	WG() *sync.WaitGroup
-	GetResult() *allure.Result
 }

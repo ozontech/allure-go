@@ -6,7 +6,6 @@ import (
 
 type SystemLabels interface {
 	Package(value string)
-	Severity(value allure.SeverityType)
 	FrameWork(value string)
 	Host(value string)
 	Thread(value string)

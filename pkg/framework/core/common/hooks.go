@@ -2,11 +2,9 @@ package common
 
 import (
 	"runtime/debug"
-
-	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func BeforeAllHook(t InternalT, provider provider.Provider) {
+func BeforeAllHook(t InternalT, provider HookProvider) {
 	t.WG().Add(1)
 	defer t.WG().Done()
 	if provider.GetSuiteMeta().GetBeforeAll() != nil {
@@ -22,7 +20,7 @@ func BeforeAllHook(t InternalT, provider provider.Provider) {
 	}
 }
 
-func AfterAllHook(t InternalT, provider provider.Provider) {
+func AfterAllHook(t InternalT, provider HookProvider) {
 	t.WG().Add(1)
 	defer t.WG().Done()
 	if provider.GetSuiteMeta().GetAfterAll() != nil {
@@ -38,16 +36,30 @@ func AfterAllHook(t InternalT, provider provider.Provider) {
 	}
 }
 
-func BeforeEachHook(t InternalT, provider provider.Provider) {
+func BeforeEachHook(t InternalT, provider HookProvider) {
 	if provider.GetTestMeta().GetBeforeEach() != nil {
 		provider.BeforeEachContext()
+		defer func() {
+			r := recover()
+			if r != nil {
+				t.Errorf("BeforeEach hook panicked:%v\n%s", r, debug.Stack())
+				t.FailNow()
+			}
+		}()
 		provider.GetTestMeta().GetBeforeEach()(t)
 	}
 }
 
-func AfterEachHook(t InternalT, provider provider.Provider) {
+func AfterEachHook(t InternalT, provider HookProvider) {
 	if provider.GetTestMeta().GetAfterEach() != nil {
 		provider.AfterEachContext()
+		defer func() {
+			r := recover()
+			if r != nil {
+				t.Errorf("AfterEach hook panicked:%v\n%s", r, debug.Stack())
+				t.FailNow()
+			}
+		}()
 		provider.GetTestMeta().GetAfterEach()(t)
 	}
 }

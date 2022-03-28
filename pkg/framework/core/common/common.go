@@ -41,7 +41,7 @@ func NewT(realT provider.TestingT, packageName, suiteName string) *Common {
 }
 
 // NewTestT returns Common instance that implementing provider.T interface, that copy labels of parent instance
-func NewTestT(realT provider.TestingT, provider provider.Provider, parentT InternalT, packageName string, testName string, tags ...string) *Common {
+func NewTestT(realT provider.TestingT, provider provider.Provider, parentT ParentT, packageName string, testName string, tags ...string) *Common {
 	newT := NewT(realT, packageName, provider.GetSuiteMeta().GetSuiteName())
 	newT.Provider.NewTest(testName, packageName, tags...)
 	newT.Provider.TestContext()
@@ -136,7 +136,7 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 			testT.wg.Wait()
 			if rec != nil {
 				errMsg := fmt.Sprintf("Test panicked: %v\n%s", rec, debug.Stack())
-				TestError(testT, c.Provider, errMsg)
+				TestError(testT, c.Provider, c.Provider.ExecutionContext().GetName(), errMsg)
 			}
 		}()
 

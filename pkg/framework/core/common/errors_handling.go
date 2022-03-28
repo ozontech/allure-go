@@ -1,19 +1,27 @@
 package common
 
 import (
-	"testing"
-
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
-	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-func TestError(t testing.TB, provider provider.Provider, errMsg string) {
+type ErrorT interface {
+	Errorf(format string, args ...interface{})
+	Logf(format string, args ...interface{})
+	FailNow()
+}
+
+type ErrorProvider interface {
+	StopResult(status allure.Status)
+	UpdateResultStatus(msg string, trace string)
+}
+
+func TestError(t ErrorT, provider ErrorProvider, contextName, errMsg string) {
 	short := errMsg
 	if len(errMsg) > 100 {
 		short = errMsg[:100]
 	}
-	switch provider.ExecutionContext().GetName() {
+	switch contextName {
 	case constants.TestContextName, constants.BeforeEachContextName:
 		provider.StopResult(allure.Broken)
 		provider.UpdateResultStatus(short, errMsg)

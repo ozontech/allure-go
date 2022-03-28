@@ -9,6 +9,26 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 )
 
+func TestNewAfterAllCtx(t *testing.T) {
+	ctx := NewAfterAllCtx(allure.NewContainer())
+	require.NotNil(t, ctx)
+}
+
+func TestNewAfterEachCtx(t *testing.T) {
+	ctx := NewAfterEachCtx(allure.NewContainer())
+	require.NotNil(t, ctx)
+}
+
+func TestNewBeforeEachCtx(t *testing.T) {
+	ctx := NewBeforeEachCtx(allure.NewContainer())
+	require.NotNil(t, ctx)
+}
+
+func TestNewBeforeAllCtx(t *testing.T) {
+	ctx := NewBeforeAllCtx(allure.NewContainer())
+	require.NotNil(t, ctx)
+}
+
 func TestHooksCtx_GetName(t *testing.T) {
 	th := hooksCtx{name: "test"}
 	require.Equal(t, "test", th.GetName())

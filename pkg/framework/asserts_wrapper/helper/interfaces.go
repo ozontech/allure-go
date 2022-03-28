@@ -6,7 +6,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/allure"
 )
 
-type TestingT interface {
+type ProviderT interface {
 	Step(step *allure.Step)
 	Errorf(format string, args ...interface{})
 	FailNow()

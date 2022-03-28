@@ -7,6 +7,11 @@ import (
 	"testing"
 )
 
+func TestNewTestCtx(t *testing.T) {
+	ctx := NewTestCtx(&allure.Result{})
+	require.NotNil(t, ctx)
+}
+
 func TestTestCtx_GetName(t *testing.T) {
 	th := testCtx{name: "test"}
 	require.Equal(t, "test", th.GetName())

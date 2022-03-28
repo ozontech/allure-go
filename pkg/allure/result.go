@@ -31,7 +31,7 @@ type Result struct {
 	Labels        []Label       `json:"labels,omitempty"`        // Array of labels
 	Links         []Link        `json:"links,omitempty"`         // Array of references
 	Steps         []*Step       `json:"steps,omitempty"`         // Array of steps
-	toPrint       bool          // If false - the report will not be saved to a file
+	ToPrint       bool          `json:"-"`                       // If false - the report will not be saved to a file
 }
 
 // NewResult Constructor Builds a new `allure.Result`. Sets the default values for the structure.
@@ -46,7 +46,7 @@ type Result struct {
 // |Container  | new empty `allure.Container`     |
 // |Labels     | add new `allure.Language` label  |
 // |Start      | allure.GetNow()                  |
-// |toPrint    | `true`                           |
+// |ToPrint    | `true`                           |
 // ================================================
 // Sets the child for the container object.
 func NewResult(testName, fullName string) *Result {
@@ -55,7 +55,7 @@ func NewResult(testName, fullName string) *Result {
 		Name:       testName,
 		FullName:   fullName,
 		TestCaseID: getMD5Hash(fullName),
-		toPrint:    true,
+		ToPrint:    true,
 	}
 	result.HistoryID = getMD5Hash(result.TestCaseID)
 	result.Labels = append(result.Labels, LanguageLabel(runtime.Version()))
@@ -200,18 +200,18 @@ func (result *Result) Finish() *Result {
 	return result
 }
 
-// SkipOnPrint Sets the `Result.toPrint` variable to false.
+// SkipOnPrint Sets the `Result.ToPrint` variable to false.
 func (result *Result) SkipOnPrint() {
-	result.toPrint = false
+	result.ToPrint = false
 }
 
-// Print If `Result.toPrint` = `true` - the method terminates without creating any files. Otherwise:
+// Print If `Result.ToPrint` = `true` - the method terminates without creating any files. Otherwise:
 //	- Calls `Result.PrintAttachments()`.
 //	- Saves the file `uuid4-Result.json`.
 //	- Calls `Result.Container.Print()`
 //	- Returns error (if any)
 func (result *Result) Print() error {
-	if !result.toPrint {
+	if !result.ToPrint {
 		return nil
 	}
 	result.PrintAttachments()
