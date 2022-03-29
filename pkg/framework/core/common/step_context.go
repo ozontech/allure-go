@@ -4,14 +4,27 @@ import (
 	"fmt"
 	"runtime/debug"
 	"sync"
-	"testing"
 
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-type internalStepCtx interface {
+type StepProvider interface {
+	StopResult(status allure.Status)
+	UpdateResultStatus(msg string, trace string)
+	ExecutionContext() provider.ExecutionContext
+}
+
+type StepT interface {
+	FailNow()
+	Error(args ...interface{})
+	Errorf(format string, args ...interface{})
+	Log(args ...interface{})
+	Logf(format string, args ...interface{})
+}
+
+type InternalStepCtx interface {
 	provider.StepCtx
 
 	ExecutionContextName() string
@@ -19,11 +32,11 @@ type internalStepCtx interface {
 }
 
 type stepCtx struct {
-	t testing.TB
-	p provider.Provider
+	t StepT
+	p StepProvider
 
 	currentStep *allure.Step
-	parentStep  internalStepCtx
+	parentStep  InternalStepCtx
 
 	asserts provider.Asserts
 	require provider.Asserts
@@ -31,7 +44,7 @@ type stepCtx struct {
 	wg sync.WaitGroup
 }
 
-func newStepCtx(t testing.TB, p provider.Provider, stepName string, params ...allure.Parameter) internalStepCtx {
+func NewStepCtx(t StepT, p StepProvider, stepName string, params ...allure.Parameter) InternalStepCtx {
 	currentStep := allure.NewSimpleStep(stepName, params...)
 	newCtx := &stepCtx{t: t, p: p, currentStep: currentStep, wg: sync.WaitGroup{}}
 	newCtx.asserts = helper.NewAssertsHelper(newCtx)
@@ -39,7 +52,7 @@ func newStepCtx(t testing.TB, p provider.Provider, stepName string, params ...al
 	return newCtx
 }
 
-func (ctx *stepCtx) newChildCtx(stepName string, params ...allure.Parameter) internalStepCtx {
+func (ctx *stepCtx) NewChildCtx(stepName string, params ...allure.Parameter) InternalStepCtx {
 	currentStep := allure.NewSimpleStep(stepName, params...)
 	newCtx := &stepCtx{t: ctx.t, p: ctx.p, currentStep: currentStep, parentStep: ctx, wg: sync.WaitGroup{}}
 	newCtx.asserts = helper.NewAssertsHelper(newCtx)
@@ -115,7 +128,7 @@ func (ctx *stepCtx) NewStep(stepName string, parameters ...allure.Parameter) {
 }
 
 func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx), params ...allure.Parameter) {
-	newCtx := ctx.newChildCtx(stepName, params...)
+	newCtx := ctx.NewChildCtx(stepName, params...)
 	defer ctx.currentStep.WithChild(newCtx.CurrentStep())
 	defer func() {
 		r := recover()
@@ -123,7 +136,7 @@ func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx)
 			ctxName := newCtx.ExecutionContextName()
 			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, r, debug.Stack())
 			newCtx.Broken()
-			TestError(ctx.t, ctx.p, ctx.p.ExecutionContext().GetName(), errMsg)
+			TestError(ctx.t, ctx.p, ctxName, errMsg)
 		}
 	}()
 	step(newCtx)

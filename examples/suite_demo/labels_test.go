@@ -20,12 +20,6 @@ func (s *LabelsDemoSuite) BeforeEach(t provider.T) {
 	t.Feature("Labels")
 	t.Story("Story Label")
 
-	//t.Host("host.example.com")
-	//t.Thread("goroutine thread-example")
-	//t.Package("package#example:example")
-	//
-	//t.FrameWork("allure-testify")
-	//t.Language(runtime.Version())
 	t.Owner("John Doe")
 	t.Lead("John Doe's Boss")
 

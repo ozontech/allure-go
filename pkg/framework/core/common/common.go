@@ -177,6 +177,10 @@ func copyLabels(input, target *allure.Result) *allure.Result {
 		target.SetLabel(leads[0])
 	}
 
+	if owners := input.GetLabel(allure.Owner); len(owners) > 0 {
+		target.SetLabel(owners[0])
+	}
+
 	return target
 }
 

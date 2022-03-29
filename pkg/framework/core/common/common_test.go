@@ -1,21 +1,52 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
+	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/stretchr/testify/require"
+	"io/ioutil"
+	"os"
 	"sync"
 	"testing"
 )
+
+type executionContextCommMock struct {
+	name        string
+	steps       []*allure.Step
+	attachments []*allure.Attachment
+}
+
+func newExecContextCommMock(name string) *executionContextCommMock {
+	return &executionContextCommMock{
+		name:        name,
+		steps:       []*allure.Step{},
+		attachments: []*allure.Attachment{},
+	}
+}
+
+func (m *executionContextCommMock) AddStep(step *allure.Step) {
+	m.steps = append(m.steps, step)
+}
+
+func (m *executionContextCommMock) AddAttachment(attachment *allure.Attachment) {
+	m.attachments = append(m.attachments, attachment)
+}
+
+func (m *executionContextCommMock) GetName() string {
+	return m.name
+}
 
 type providerMockCommon struct {
 	provider.AllureForwardFull
 
 	testMetaMock  *testMetaMockCommon
 	suiteMetaMock *suiteMetaMockCommon
+	executionMock *executionContextCommMock
 }
 
 func (m *providerMockCommon) GetResult() *allure.Result {
@@ -35,8 +66,9 @@ func (m *providerMockCommon) GetSuiteMeta() provider.SuiteMeta {
 }
 
 func (m *providerMockCommon) ExecutionContext() provider.ExecutionContext {
-	return nil
+	return m.executionMock
 }
+
 func (m *providerMockCommon) TestContext()                                         {}
 func (m *providerMockCommon) BeforeEachContext()                                   {}
 func (m *providerMockCommon) AfterEachContext()                                    {}
@@ -125,6 +157,7 @@ func (m *testMetaMockCommon) GetAfterEach() func(t provider.T) {
 
 type commonTMock struct {
 	testing.TB
+	t          *testing.T
 	steps      []*allure.Step
 	errorf     string
 	errorfFlag bool
@@ -164,6 +197,7 @@ func (m *commonTMock) Parallel() {
 
 func (m *commonTMock) Run(testName string, testBody func(t *testing.T)) bool {
 	m.run = true
+	testBody(m.t)
 	return m.run
 }
 
@@ -239,11 +273,68 @@ func TestCommon_Parallel(t *testing.T) {
 
 func TestCommon_Run(t *testing.T) {
 	mockT := newCommonTMock()
-	comm := Common{TestingT: mockT}
+	mockT.t = new(testing.T)
+	comm := Common{TestingT: mockT, Provider: &providerMockCommon{
+		testMetaMock:  &testMetaMockCommon{result: &allure.Result{}, container: allure.NewContainer()},
+		suiteMetaMock: &suiteMetaMockCommon{container: allure.NewContainer()},
+		executionMock: newExecContextCommMock(constants.TestContextName),
+	}}
 	result := comm.Run("myTest", func(t provider.T) {}, "tag1", "tag2")
 
 	require.True(t, result)
 	require.True(t, mockT.run)
+
+	allureDir := "./allure-results"
+	defer os.RemoveAll(allureDir)
+	files, _ := ioutil.ReadDir(allureDir)
+	require.Len(t, files, 1)
+
+	var resultFile *os.File
+	defer resultFile.Close()
+
+	f := files[0]
+	emptyResult := &allure.Result{}
+	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
+	bytes, readErr := ioutil.ReadAll(resultFile)
+	require.NoError(t, readErr)
+	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	require.NoError(t, unMarshallErr)
+}
+
+func TestCommon_Run_panicHandle(t *testing.T) {
+	mockT := newCommonTMock()
+	mockT.t = new(testing.T)
+	comm := Common{TestingT: mockT, Provider: &providerMockCommon{
+		testMetaMock:  &testMetaMockCommon{result: &allure.Result{}, container: allure.NewContainer()},
+		suiteMetaMock: &suiteMetaMockCommon{container: allure.NewContainer()},
+		executionMock: newExecContextCommMock(constants.TestContextName),
+	}}
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	// routine for runtime.Goexit() simulation
+	go require.NotPanics(t, func() {
+		defer wg.Done()
+		comm.Run("myTest", func(t provider.T) { panic("whoops") }, "tag1", "tag2")
+	})
+	wg.Wait()
+	require.True(t, mockT.t.Failed())
+	require.True(t, mockT.run)
+
+	allureDir := "./allure-results"
+	defer os.RemoveAll(allureDir)
+	files, _ := ioutil.ReadDir(allureDir)
+	require.Len(t, files, 1)
+
+	var resultFile *os.File
+	defer resultFile.Close()
+
+	f := files[0]
+	emptyResult := &allure.Result{}
+	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
+	bytes, readErr := ioutil.ReadAll(resultFile)
+	require.NoError(t, readErr)
+	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	require.NoError(t, unMarshallErr)
 }
 
 func TestCommon_XSkip(t *testing.T) {
@@ -326,4 +417,33 @@ func TestNewTestT(t *testing.T) {
 	require.NotNil(t, cNew.Provider.GetSuiteMeta().GetContainer())
 	require.Equal(t, "suiteName", cNew.Provider.GetSuiteMeta().GetSuiteName())
 	require.Equal(t, "packageName2", cNew.Provider.GetSuiteMeta().GetPackageName())
+}
+
+func TestCopyLabels(t *testing.T) {
+	input := &allure.Result{}
+	epic := allure.EpicLabel("EpicTest")
+	parentSuite := allure.ParentSuiteLabel("ParentSuiteTest")
+	lead := allure.LeadLabel("LeadTest")
+	owner := allure.OwnerLabel("OwnerTest")
+	input.WithLabels(epic, parentSuite, lead, owner)
+	target := &allure.Result{}
+	target = copyLabels(input, target)
+	require.NotNil(t, target.Labels)
+	require.Len(t, target.Labels, 4)
+
+	require.NotEmpty(t, target.GetLabel(allure.Epic))
+	require.Len(t, target.GetLabel(allure.Epic), 1)
+	require.Equal(t, epic, target.GetLabel(allure.Epic)[0])
+
+	require.NotEmpty(t, target.GetLabel(allure.ParentSuite))
+	require.Len(t, target.GetLabel(allure.ParentSuite), 1)
+	require.Equal(t, parentSuite, target.GetLabel(allure.ParentSuite)[0])
+
+	require.NotEmpty(t, target.GetLabel(allure.Lead))
+	require.Len(t, target.GetLabel(allure.Lead), 1)
+	require.Equal(t, lead, target.GetLabel(allure.Lead)[0])
+
+	require.NotEmpty(t, target.GetLabel(allure.Owner))
+	require.Len(t, target.GetLabel(allure.Owner), 1)
+	require.Equal(t, owner, target.GetLabel(allure.Owner)[0])
 }

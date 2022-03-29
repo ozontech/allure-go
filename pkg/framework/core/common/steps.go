@@ -11,7 +11,7 @@ import (
 // WithNewStep opens nesting for struct.Step
 // Any other struct.Step that will be added to struct.AllureResult object will be added as child step
 func (c *Common) WithNewStep(stepName string, step func(ctx provider.StepCtx), params ...allure.Parameter) {
-	stCtx := newStepCtx(c, c.Provider, stepName, params...)
+	stCtx := NewStepCtx(c, c.Provider, stepName, params...)
 	defer c.Step(stCtx.CurrentStep())
 	defer func() {
 		r := recover()
