@@ -108,14 +108,16 @@ func (c *Common) SkipOnPrint() {
 	c.GetResult().SkipOnPrint()
 }
 
-// Log ...
-func (c *Common) Log(args ...interface{}) {
+// LogStep ...
+func (c *Common) LogStep(args ...interface{}) {
 	c.Provider.Step(allure.NewSimpleStep(fmt.Sprintln(args...)))
+	c.Log(args...)
 }
 
-// Logf ...
-func (c *Common) Logf(format string, args ...interface{}) {
+// LogfStep ...
+func (c *Common) LogfStep(format string, args ...interface{}) {
 	c.Provider.Step(allure.NewSimpleStep(fmt.Sprintf(format, args...)))
+	c.Logf(format, args...)
 }
 
 // Error ...
