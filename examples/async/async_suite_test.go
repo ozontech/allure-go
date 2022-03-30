@@ -62,7 +62,7 @@ func (s *SuiteAsyncDemo) TestAsyncSuiteDemo3(t provider.T) {
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {
 		ctx.WithNewParameters("Start", startSign)
 		ctx.Logf("Test 2 Started At: %s", startSign)
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 		defer func() {
 			stopSign := fmt.Sprintf("%s", time.Now())
 			ctx.Logf("Test 2 Stopped At: %s", stopSign)
@@ -82,7 +82,7 @@ func (s *SuiteAsyncDemo) TestAsyncSuiteDemo4(t provider.T) {
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {
 		ctx.WithNewParameters("Start", startSign)
 		ctx.Logf("Test 2 Started At: %s", startSign)
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 		defer func() {
 			stopSign := fmt.Sprintf("%s", time.Now())
 			ctx.Logf("Test 2 Stopped At: %s", stopSign)

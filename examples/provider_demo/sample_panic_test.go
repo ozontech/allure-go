@@ -1,3 +1,6 @@
+//go:build provider_new
+// +build provider_new
+
 package provider_demo
 
 import (

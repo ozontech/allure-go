@@ -23,11 +23,15 @@ func (h *assertHelper) getStepName(assertName string) string {
 }
 
 func (h *assertHelper) withNewStep(t TestingT, provider Provider, assertName string, assert func(t TestingT) bool, params ...allure.Parameter) bool {
+	var result bool
 	step := allure.NewSimpleStep(h.getStepName(assertName), params...)
-	result := assert(t)
-	if !result {
-		step.Failed()
-	}
-	provider.Step(step)
+	defer func() {
+		if !result {
+			step.Failed()
+		}
+		provider.Step(step)
+	}()
+	result = assert(t)
+
 	return result
 }
