@@ -29,3 +29,16 @@ jobs:
         run: cd ./pkg/allure && make test
       - name: provider-test
         run: cd ./pkg/framework && make test
+
+  examples:
+    name: examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run examples
+        run: make examples
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: allure-results
+          path: ./examples/allure-results
