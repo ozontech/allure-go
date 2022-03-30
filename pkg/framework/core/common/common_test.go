@@ -273,7 +273,11 @@ func TestCommon_Parallel(t *testing.T) {
 
 func TestCommon_Run(t *testing.T) {
 	mockT := newCommonTMock()
+	allureDir := "./allure-results"
+	defer os.RemoveAll(allureDir)
+
 	mockT.t = new(testing.T)
+
 	comm := Common{TestingT: mockT, Provider: &providerMockCommon{
 		testMetaMock:  &testMetaMockCommon{result: &allure.Result{}, container: allure.NewContainer()},
 		suiteMetaMock: &suiteMetaMockCommon{container: allure.NewContainer()},
@@ -284,8 +288,6 @@ func TestCommon_Run(t *testing.T) {
 	require.True(t, result)
 	require.True(t, mockT.run)
 
-	allureDir := "./allure-results"
-	defer os.RemoveAll(allureDir)
 	files, _ := ioutil.ReadDir(allureDir)
 	require.Len(t, files, 1)
 
@@ -303,6 +305,10 @@ func TestCommon_Run(t *testing.T) {
 
 func TestCommon_Run_panicHandle(t *testing.T) {
 	mockT := newCommonTMock()
+	allureDir := "./allure-results"
+
+	defer os.RemoveAll(allureDir)
+
 	mockT.t = new(testing.T)
 	comm := Common{TestingT: mockT, Provider: &providerMockCommon{
 		testMetaMock:  &testMetaMockCommon{result: &allure.Result{}, container: allure.NewContainer()},
@@ -317,11 +323,10 @@ func TestCommon_Run_panicHandle(t *testing.T) {
 		comm.Run("myTest", func(t provider.T) { panic("whoops") }, "tag1", "tag2")
 	})
 	wg.Wait()
+
 	require.True(t, mockT.t.Failed())
 	require.True(t, mockT.run)
 
-	allureDir := "./allure-results"
-	defer os.RemoveAll(allureDir)
 	files, _ := ioutil.ReadDir(allureDir)
 	require.Len(t, files, 1)
 
