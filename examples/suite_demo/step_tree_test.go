@@ -1,12 +1,12 @@
-//go:build examples
-// +build examples
+//go:build examples_new
+// +build examples_new
 
 package suite_demo
 
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
@@ -14,51 +14,51 @@ type StepTreeDemoSuite struct {
 	suite.Suite
 }
 
-func (s *StepTreeDemoSuite) TestInnerSteps() {
-	s.Epic("Demo")
-	s.Feature("Inner Steps")
-	s.Title("Simple Nesting")
-	s.Description(`
+func (s *StepTreeDemoSuite) TestInnerSteps(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Inner Steps")
+	t.Title("Simple Nesting")
+	t.Description(`
 		Step A is parent step for Step B and Step C
 		Call order will be saved in allure report
 		A -> (B, C)`)
 
-	s.Tags("Steps", "Nesting")
+	t.Tags("Steps", "Nesting")
 
-	s.WithNewStep("Step A", func() {
-		s.NewStep("Step B")
-		s.NewStep("Step C")
+	t.WithNewStep("Step A", func(ctx provider.StepCtx) {
+		ctx.NewStep("Step B")
+		ctx.NewStep("Step C")
 	})
 }
 
-func (s *StepTreeDemoSuite) TestComplexStepTree() {
-	s.Epic("Demo")
-	s.Feature("Inner Steps")
-	s.Title("Complex Nesting")
-	s.Description(`
+func (s *StepTreeDemoSuite) TestComplexStepTree(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Inner Steps")
+	t.Title("Complex Nesting")
+	t.Description(`
 		Step A is parent for Step B, Step C and Step F
 		Step C is parent for Step D and Step E
 		Step F is parent for Step G and Step H
 		Call order will be saved in allure report
 		A -> (B, C -> (D, E), F -> (G, H), I)`)
 
-	s.Tags("Steps", "Nesting")
+	t.Tags("Steps", "Nesting")
 
-	s.WithNewStep("Step A", func() {
-		s.NewStep("Step B")
-		s.WithNewStep("Step C", func() {
-			s.NewStep("Step D")
-			s.NewStep("Step E")
+	t.WithNewStep("Step A", func(ctx provider.StepCtx) {
+		ctx.NewStep("Step B")
+		ctx.WithNewStep("Step C", func(ctx provider.StepCtx) {
+			ctx.NewStep("Step D")
+			ctx.NewStep("Step E")
 		})
-		s.WithNewStep("Step F", func() {
-			s.NewStep("Step G")
-			s.NewStep("Step H")
+		ctx.WithNewStep("Step F", func(ctx provider.StepCtx) {
+			ctx.NewStep("Step G")
+			ctx.NewStep("Step H")
 		})
-		s.NewStep("Step I")
+		ctx.NewStep("Step I")
 	})
 }
 
 func TestStepTree(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(StepTreeDemoSuite))
+	suite.RunSuite(t, new(StepTreeDemoSuite))
 }

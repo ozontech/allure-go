@@ -1,10 +1,7 @@
 package allure
 
-type IParameter interface {
-}
-
 // Parameter is an implementation of the Parameter entity,
-// which Allure uses as additional information describing the test step
+// which Allure uses as additional information describing the test Step
 // (for example - request host or server address)
 type Parameter struct {
 	Name  string `json:"name"`

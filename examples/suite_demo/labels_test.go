@@ -1,14 +1,13 @@
-//go:build examples
-// +build examples
+//go:build examples_new
+// +build examples_new
 
 package suite_demo
 
 import (
-	"runtime"
 	"testing"
 
 	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
@@ -16,26 +15,20 @@ type LabelsDemoSuite struct {
 	suite.Suite
 }
 
-func (s *LabelsDemoSuite) BeforeEach() {
-	s.Epic("Demo")
-	s.Feature("Labels")
-	s.Story("Story Label")
+func (s *LabelsDemoSuite) BeforeEach(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Labels")
+	t.Story("Story Label")
 
-	s.Host("host.example.com")
-	s.Thread("goroutine thread-example")
-	s.Package("package#example:example")
+	t.Owner("John Doe")
+	t.Lead("John Doe's Boss")
 
-	s.FrameWork("allure-testify")
-	s.Language(runtime.Version())
-	s.Owner("John Doe")
-	s.Lead("John Doe's Boss")
-
-	s.Tag("EachTestTag")
+	t.Tag("EachTestTag")
 }
 
-func (s *LabelsDemoSuite) TestLabelsExample1() {
-	s.Title("Labels Demo Example 1")
-	s.Description(`
+func (s *LabelsDemoSuite) TestLabelsExample1(t provider.T) {
+	t.Title("Labels Demo Example 1")
+	t.Description(`
 		This Test will have all labels from SetupTest function
 		Unique labels:
 			ID = "example1"
@@ -43,17 +36,17 @@ func (s *LabelsDemoSuite) TestLabelsExample1() {
 			Unique tag = "Example1"
 		Also this test has additional "suite" label`)
 
-	s.ID("Id example1")
-	s.Severity(allure.BLOCKER)
+	t.ID("Id example1")
+	t.Severity(allure.BLOCKER)
 
-	s.AddSuiteLabel("AnotherSuite")
+	t.AddSuiteLabel("AnotherSuite")
 
-	s.Tag("Example1")
+	t.Tag("Example1")
 }
 
-func (s *LabelsDemoSuite) TestLabelsExample2() {
-	s.Title("Labels Demo Example 2")
-	s.Description(`
+func (s *LabelsDemoSuite) TestLabelsExample2(t provider.T) {
+	t.Title("Labels Demo Example 2")
+	t.Description(`
 		This Test will have all labels from SetupTest function
 		Unique labels:
 			ID = "example2"
@@ -61,17 +54,17 @@ func (s *LabelsDemoSuite) TestLabelsExample2() {
 			Unique tag = "Example2"
 		Also this test has additional "parentSuite" label`)
 
-	s.ID("example2")
-	s.Severity(allure.CRITICAL)
+	t.ID("example2")
+	t.Severity(allure.CRITICAL)
 
-	s.AddParentSuite("AnotherParentSuite")
+	t.AddParentSuite("AnotherParentSuite")
 
-	s.Tag("Example2")
+	t.Tag("Example2")
 }
 
-func (s *LabelsDemoSuite) TestLabelsExample3() {
-	s.Title("Labels Demo Example 3")
-	s.Description(`
+func (s *LabelsDemoSuite) TestLabelsExample3(t provider.T) {
+	t.Title("Labels Demo Example 3")
+	t.Description(`
 		This Test will have all labels from SetupTest function
 		Unique labels:
 			ID = "example3"
@@ -79,45 +72,45 @@ func (s *LabelsDemoSuite) TestLabelsExample3() {
 			Unique tag = "Example3"
 		Also this test has additional "subSuite" label`)
 
-	s.ID("example3")
-	s.Severity(allure.NORMAL)
+	t.ID("example3")
+	t.Severity(allure.NORMAL)
 
-	s.AddSubSuite("SomeSubSuite")
+	t.AddSubSuite("SomeSubSuite")
 
-	s.Tag("Example3")
+	t.Tag("Example3")
 }
 
-func (s *LabelsDemoSuite) TestLabelsExample4() {
-	s.Title("Labels Demo Example 4")
-	s.Description(`
+func (s *LabelsDemoSuite) TestLabelsExample4(t provider.T) {
+	t.Title("Labels Demo Example 4")
+	t.Description(`
 		This Test will have all labels from SetupTest function
 		Unique labels:
 			ID = "example4"
 			Severity = "minor"
 			Unique tag = "Example4"`)
 
-	s.ID("example4")
-	s.Severity(allure.MINOR)
+	t.ID("example4")
+	t.Severity(allure.MINOR)
 
-	s.Tag("Example4")
+	t.Tag("Example4")
 }
 
-func (s *LabelsDemoSuite) TestLabelsExample5() {
-	s.Title("Labels Demo Example 5")
-	s.Description(`
+func (s *LabelsDemoSuite) TestLabelsExample5(t provider.T) {
+	t.Title("Labels Demo Example 5")
+	t.Description(`
 		This Test will have all labels from SetupTest function
 		Unique labels:
 			ID = "example5"
 			Severity = "trivial"
 			Unique tag = "Example5"`)
 
-	s.ID("example5")
-	s.Severity(allure.TRIVIAL)
+	t.ID("example5")
+	t.Severity(allure.TRIVIAL)
 
-	s.Tag("Example5")
+	t.Tag("Example5")
 }
 
 func TestLabels(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(LabelsDemoSuite))
+	suite.RunSuite(t, new(LabelsDemoSuite))
 }

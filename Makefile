@@ -1,5 +1,5 @@
 APP?=allure-testify
-RELEASE?=0.4.2
+RELEASE?=0.5.0
 GOOS?=darwin
 
 COMMIT?=$(shell git rev-parse --short HEAD)
@@ -53,7 +53,7 @@ install:
 
 .PHONY: examples
 examples:
-	- export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=examples,provider,allure_go
+	- export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=examples_new,provider_new,allure_go_new,async
 
 .PHONY: allure-serve
 allure-serve:
@@ -62,7 +62,7 @@ allure-serve:
 # run full lint like in pipeline
 .PHONY: lint
 lint: install-lint
-	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=examples,allure_go,provider
+	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=examples_new,provider_new,allure_go_new,async
 
 
 .PHONY: install-lint

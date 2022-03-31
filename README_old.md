@@ -1,54 +1,88 @@
-# allure-testify
+# allure-go
 
-## Оглавление
+Allure-Go - проект, предоставляющий полноценный провайдер allure в go, без перегрузки интерфейса
+использования. <br>
+Проект начинался как форк от testify, но со временем обзавелся своим раннером и своими особенностями. <br>
 
-- [Demo](#demo)
+## Other Languages README.md
+
+- [English Readme](README_en.md)
+
+## Head of contents
+
+- [Other Languages README.md](#other-languages-readmemd)
+- [Head of contents](#head-of-contents)
+- [Features](#features)
 - [Getting started](#getting-started)
+- [Demo](#demo)
+  - [Demo installation](#demo-installation)
+  - [Run examples](#run-examples)
+- [How to use](#how-to-use)
+  - [Installation](#installation)
+  - [Configure Behavior](#configure-behavior)
+  - [Configure Test](#configure-test)
+  - [Configure Suite](#configure-suite)
+  - [Configure Your Report](#configure-your-report)
+    - [Test Info](#test-info)
+    - [Labels](#labels)
+    - [Links](#links)
+    - [Allure Steps](#allure-steps)
+    - [Nested Only Functions](#nested-only-functions)
+    - [Allure Attachments](#allure-attachments)
+    - [Test Behavior](#test-behaviour)
+    - [Forwarded actions to the suite.Suite](#forward-to-suitesuite)
+- [Documentation](#documentation)
 - [Examples](#examples)
-- [Global environments keys](#global-environment-keys)
-- [How to use runner](#how-to-use-runner)
-- [How to use provider](#how-to-use-providert)
-  - [Allure info](#allure-info)
-      - [Test info](#test-info)
-      - [Label](#label)
-      - [Link](#link)
-  - [Allure Actions](#allure-actions)
-      - [Step](#step)
-      - [Attachment](#attachment)
-      - [Parameter](#parameter)
-      - [Before/After (experimental)](#beforeafter)
-  - [Test Behavior](#test-behavior)
-      - [Example t.Run()](#example-trun)
-- [How to use suite](#how-to-use-suite)
-  - [Behavior](#behavior)
-  - [Suite Before/Afters](#suite-beforeafters)
-  - [Allure forward](#allure-forward)
-- [How to use allure](#how-to-use-allure)
-    - [Allure Objects](#allure-objects)
-        - [Steps](#steps)
-        - [Attachments](#attachments)
+  - [Test with nested steps](#test-with-nested-steps)
+  - [Test with attachment](#test-with-attachment)
+  - [Run few parallel suites](#run-few-parallel-suites)
+  - [Setup hooks](#setup-hooks)
+  - [XSkip](#xskip)
 
-## Demo
+## Features
 
-Чтобы выкачать проект:
+### `pkg/allure`
 
-```bash
-git clone https://github.com/ozontech/allure-go
-```
+Пакет, содержащий модель данных для Allure. <br>
+Полный список allure-объектов:
 
-Чтобы установить необходимые для примеров инструменты (mac)
+- `Attachment`
+- `Container`
+- `Label`
+- `Link`
+- `Parameter`
+- `Result`
+- `Step`
 
-```bash
-make install
-```
+Предоставление отдельного пакета позволяет кастомизировать работу с allure.<br>
+Подробно можно почитать [тут](#how-to-use-allure). <br>
 
-Чтобы сформировать аллюр отчет из примеров:
+### `pkg/provider.T`
 
-```bash
-make demo
-``` 
+Враппер контекста теста (`testing.T`). <br>
+Основные преимущества и особенности:
 
-## Getting started
+- Имеет свой раннер тестов (`T.Run(testName string, test func(t *provider.T), tags ...string)`), что позволяет
+  использовать преимущества библиотеки `testing`.
+- Функциональность аналогов на других языках, без потери удобства и простоты использования.
+- Полностью интегрирован с `allure`. Ваши go-тесты еще никогда не были такими информативными!
+
+Подробно можно почитать [тут](#how-to-use-providert). <br>
+
+### `pkg/framework/runner`
+
+Пакет предоставляет функции для запуска тестовых структур (Suite) и отдельных тестов. <br>
+Тесты, запущенные с помощью этих функций по окончанию исполнения будут создавать allure отчет.<br>
+Подробно можно почитать [тут](#how-to-use-runner). <br>
+
+### `pkg/framework/suite`
+
+Пакет предоставляет структуру Suite, в которой можно описывать тесты, группируя их в тест-комплекты.<br>
+Это может быть удобным, если у вас много разных тестов и вам сложно в них ориентироваться, без дополнительных "уровней
+вложения" вызовов тестов. <br>
+Подробно можно почитать [тут](#how-to-use-suite). <br>
+
+## Getting Started
 
 1. Установить пакет <br>
 
@@ -72,7 +106,7 @@ import (
 package tests
 
 import (
-	"github.com/ozontech/allure-go/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 ``` 
 
@@ -85,9 +119,444 @@ import (
 
 4. Запустить go test!
 
+## Demo
+
+### Demo Installation
+
+```bash
+  git clone https://github.com/ozontech/allure-go.git
+```
+
+### Run Examples
+
+```bash
+make demo
+```
+
+## How to use
+
+### Installation
+
+```bash
+go get github.com/ozontech/allure-go
+```
+
+### Configure Behavior
+
+Путь до allure отчетов собирается из двух глобальных переменных `$ALLURE_OUTPUT_FOLDER/$ALLURE_OUTPUT_PATH`
+
+- `ALLURE_OUTPUT_FOLDER` - это имя папки, в которую будут складываться allure-отчеты (по умолчанию - `allure-results`).
+- `ALLURE_OUTPUT_PATH` - это путь, в котором будет создана `ALLURE_OUTPUT_FOLDER` (по умолчанию это корневая папка
+  запуска тестов).
+
+Так же, можно указать несколько глобальных конфигураций, для интеграции с вашей TMS или Task Tracker:
+
+- `ALLURE_ISSUE_PATTERN` - Указывает урл-паттерн для ваших Issues. Не имеет значения по умолчанию. **Обязательно**
+  должен содержать `%s`.
+
+Если `ALLURE_ISSUE_PATTERN` не задан, ссылка будет читаться целиком.
+
+Пример:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+)
+
+func TestSampleDemo(t *testing.T) {
+	runner.RunTest(t, "Just Link", func(t *provider.T) {
+		t.SetIssue("https://pkg.go.dev/github.com/stretchr/testify")
+	})
+
+	runner.RunTest(t, "With Pattern", func(t *provider.T) {
+		_ = os.Setenv("ALLURE_ISSUE_PATTERN", "https://pkg.go.dev/github.com/stretchr/%s")
+		t.SetIssue("testify")
+	})
+}
+```
+
+- `ALLURE_TESTCASE_PATTERN` - Указывает урл-паттерн для ваших TestCases. Не имеет значения по умолчанию. **Обязательно**
+  должен содержать `%s`.
+
+Если `ALLURE_TESTCASE_PATTERN` не задан, ссылка будет читаться целиком.
+
+Пример:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+)
+
+func TestSampleDemo(t *testing.T) {
+	runner.RunTest(t, "Just Link", func(t *provider.T) {
+		t.SetTestCase("https://pkg.go.dev/github.com/stretchr/testify")
+	})
+
+	runner.RunTest(t, "With Pattern", func(t *provider.T) {
+		_ = os.Setenv("ALLURE_TESTCASE_PATTERN", "https://pkg.go.dev/github.com/stretchr/%s")
+		t.SetTestCase("testify")
+	})
+}
+```
+
+- `ALLURE_LAUNCH_TAGS` - Прокидывает список тэгов, которые будут применены к каждому тесту по умолчанию. Не имеет
+  значения по умолчанию.
+
+**Совет:** `ALLURE_LAUNCH_TAGS` - очень удобен в использовании с CI/CD. Например, в нем можно определять группы тестов
+по вашим ci-jobs или же прокидывать имя ветки.
+
+### Configure Test
+
+1) Используя пакет runner:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+)
+
+func TestSampleDemo(t *testing.T) {
+	runner.RunTest(t, "My test", func(t *provider.T) {
+		// Test Body
+	})
+}
+```
+
+2) Используя декларирование контекста `TestRunner`:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+)
+
+func TestOtherSampleDemo(realT *testing.T) {
+	r := runner.NewTestRunner(realT)
+	r.Run("My test", func(t *provider.T) {
+		// Test Body
+	})
+}
+```
+
+Второй вариант позволит использовать BeforeEach/AfterEach:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+)
+
+func TestOtherSampleDemo(realT *testing.T) {
+	r := runner.NewTestRunner(realT)
+	r.WithBeforeEach(func(t *provider.T) {
+		// Before Each body 
+	})
+	r.WithAfterEach(func(t *provider.T) {
+		// After Each body
+	})
+	r.Run("My test", func(t *provider.T) {
+		// Test Body
+	})
+}
+```
+
+Так же сохранена особенность библиотеки `testing`, позволяющая запускать тесты из других тестов:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/provider"
+)
+
+func TestOtherSampleDemo(realT *testing.T) {
+	r := runner.NewTestRunner(realT)
+	r.Run("My test", func(t *provider.T) {
+		// Test Body
+		t.WithBeforeTest(func(t *provider.T) {
+			// inner Before Each body
+		})
+		t.WithAfterTest(func(t *provider.T) {
+			// inner After Each body
+		})
+		t.Run("My test", func(t *provider.T) {
+			// inner test body
+		})
+	})
+}
+```
+
+### Configure Suite
+
+Чтобы группировать тесты в тест-комплекты, необходимо:
+
+1) объявить структуру, методами которой будут ваши тесты
+
+```go
+package suite_demo
+
+type DemoSuite struct {
+}
+```
+
+2) расширить объявленную структуру структурой `suite.Suite`
+
+```go
+package suite_demo
+
+import "github.com/ozontech/allure-go/pkg/framework/suite"
+
+type DemoSuite struct {
+	suite.Suite
+}
+```
+
+3) описать тесты
+
+```go
+package suite_demo
+
+import "github.com/ozontech/allure-go/pkg/framework/suite"
+
+type DemoSuite struct {
+	suite.Suite
+}
+
+func (s *DemoSuite) TestSkip() {
+	s.Epic("Demo")
+	s.Feature("Suites")
+	s.Title("My first test")
+	s.Description(`
+		This test will be attached to the suite DemoSuite`)
+}
+```
+
+4) Запустить тесты.
+
+Для этого нужно описать функцию, которая запустить Ваш тест и вызвать `runner.RunSuite`:
+
+```go
+package suite_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type DemoSuite struct {
+	suite.Suite
+}
+
+func (s *DemoSuite) TestSkip() {
+	s.Epic("Demo")
+	s.Feature("Suites")
+	s.Title("My first test")
+	s.Description(`
+		This test will be attached to the suite DemoSuite`)
+}
+
+func TestSkipDemo(t *testing.T) {
+	t.Parallel()
+	runner.RunSuite(t, new(SkipDemoSuite))
+}
+```
+
+И запустить тесты с помощью `go test`
+
+```bash
+go test ${TEST_PATH}
+```
+
+Тогда в корневой папке тестов по окончанию прогона будет проинициализирована папка `allure-results`, содержащая в себе
+allure-отчеты.
+
+### Configure Your Report
+
+Allure-Go предоставляет широкие возможности взаимодействия с allure.<br>
+Большинство действий осуществляется с помощью структуры `provider.T`, являющейся оберткой над `testing.T`.<br>
+Так же структура `suite.Suite` позволяет использовать интерфейс Suite для взаимодействия с allure-report.
+
+#### Test Info
+
+Полный список поддерживаемых методов для проставления информации о методе:
+
+- `*T.Title`
+- `*T.Description`
+
+**Note:** По умолчанию имя теста ставится в соответствии с именем функции теста.
+
+#### Labels
+
+Полный список поддерживаемых лейблов:
+
+- `*T.Epic`
+- `*T.Feature`
+- `*T.Story`
+- `*T.ID`
+- `*T.Severity`
+- `*T.ParentSuite`
+- `*T.Suite`
+- `*T.SubSuite`
+- `*T.Package`
+- `*T.Thread`
+- `*T.Host`
+- `*T.Tag`
+- `*T.Framework`
+- `*T.Language`
+- `*T.Owner`
+- `*T.Lead`
+
+Более подробно про методы можно почитать [здесь](/pkg/allure/README.md#allurelabel)
+
+##### Default label values
+
+| Label | Default Value |
+|---|---|
+|`ParentSuite`| - Для suite.Suite ставится имя функции, в которой suite был запущен.<br><br> - Для независимых тестов - по умолчанию не ставится, однако если тест был вызван внутри другого теста, в этом лейбле будет указан тест, запустивший родительский для текущего тест.|
+|`Suite`|- Для suite.Suite ставится имя suite, которому текущий тест принадлежит. <br><br> - Для независимого теста - имя теста - родителя (из которого был запущен текущий тест).|
+|`Package`|Пакет, в котором были запущены тесты|
+|`Thread`|Ставится `Result.FullName` [[1]](#label_note_answer1).|
+|`Host`|`os.Host()`|
+|`Framework`|`Allure-Go@v0.3.x`|
+|`Language`|`runtime.Version()`|
+
+___________________________________  
+***NOTES:***
+<a name="label_note_answer1">[1]</a> - Это Knowing Issue - в golang пока не представляется целесообразным (или возможным
+адекватными способами) пытаться достать имя текущей goroutine, как и невозможно задать ей имя.
+___________________________________
+
+#### Links
+
+Полный список поддерживаемых действий:
+
+- `*T.SetIssue`
+- `*T.SetTestCase`
+- `*T.Link`
+
+Более подробно про методы можно почитать [здесь](/pkg/allure/README.md#allurelink).
+
+Про переменные, с которыми можно взаимодействовать для упрощения работы было указано [выше](#configure-behavior).
+
+#### Allure Steps
+
+Полный список поддерживаемых действий:
+
+- `*T.Step` - добавляет к отчету переданный Step.
+- `*T.NewStep` - создает новый пустой Step с переданным именем и добавляет его к отчету.
+- `*T.InnerStep` - добавляет к отчету переданный Step, проставив переданный ParentStep как родительский.
+- `*T.NewInnerStep` - создает новый пустой Step с переданным именем и добавляет его к отчету, проставляет переданный
+  ParentStep как родительский и добавляет его к отчету.
+- `*T.WithStep` - оборачивает переданную в f функцию переданным Step и добавляет Step к отчету.
+- `*T.WithNewStep` - создает новый Step, оборачивает переданную в f функцию созданным Step и добавляет его к отчету.
+
+#### Nested-Only Functions
+
+- `*T.AddAttachmentToNested` - добавляет к вложенному шагу Attachment
+- `*T.AddParameterToNested` - добавляет к вложенному шагу Parameter
+- `*T.AddParametersToNested` - добавляет к вложенному шагу все элементы массива Parameter
+- `*T.AddNewParameterToNested` - инициализирует новый Parameter и добавляет его к вложенному шагу
+- `*T.AddNewParametersToNested` - инициализирует новый массив Parameter и добавляет все его элементы к вложенному шагу
+
+**Note:** Функции с суффиксом `ToNested` могут быть вызваны **ТОЛЬКО** внутри функции `WithStep`/`WithNewStep`. В
+противном случае ничего не произойдет.
+
+#### Allure Attachments
+
+Полный список поддерживаемых действий:
+
+- `*T.Attachment` - добавляет к текущему тесту Attachment
+
+#### Test Behaviour
+
+Полный список поддерживаемых действий:
+
+- `*T.Skip` - пропускает текущий тест. В статус отчета будет указан переданный текст.
+- `*T.Errorf` - помечает выбранный тест, как Failed. В статус отчета будет прикреплен переданный текст,
+- `*T.XSkip` - пропускает выбранный тест, если в процессе его исполнения вызывается `*T.Error`/`*T.Errorf` (например,
+  падает assert)
+
+#### Forward to suite.Suite
+
+Полный список поддерживаемых действий:
+
+- [Test Info](#test-info)
+  - `*Suite.Title`
+  - `*Suite.Description`
+- [Allure Labels](#labels)
+  - `*Suite.Epic`
+  - `*Suite.Feature`
+  - `*Suite.Story`
+  - `*Suite.ID`
+  - `*Suite.Severity`
+  - `*Suite.ParentSuite`
+  - `*Suite.Suite`
+  - `*Suite.SubSuite`
+  - `*Suite.Package`
+  - `*Suite.Thread`
+  - `*Suite.Host`
+  - `*Suite.Tag`
+  - `*Suite.Framework`
+  - `*Suite.Language`
+  - `*Suite.Owner`
+  - `*Suite.Lead`
+- [Allure Links](#links)
+  - `*Suite.SetIssue`
+  - `*Suite.SetTestCase`
+  - `*Suite.Link`
+- [Allure Steps](#allure-steps)
+  - `*Suite.Step`
+  - `*Suite.NewStep`
+  - `*Suite.InnerStep`
+  - `*Suite.InnerNewStep`
+  - `*Suite.WithStep`
+  - `*Suite.WithNewStep`
+- [Nested Only Functions](#nested-only-functions)
+  - `*Suite.AddNestedAttachment`
+  - `*Suite.AddParameterToNested`
+  - `*Suite.AddParametersToNested`
+  - `*Suite.AddNewParameterToNested`
+  - `*Suite.AddNewParametersToNested`
+- [Allure Attachments](#allure-attachments)
+  - `*Suite.Attachment`
+
+## Documentation
+
+Подробная документация по каждому публичному пакету может быть найдена в каталоге этого пакета.
+
+- [allure](/pkg/allure/README.md)
+- [provider](/pkg/provider/README.md)
+- [runner](/pkg/framework/runner/README.md)
+- [suite](/pkg/framework/suite/README.md)
+
 ## Examples
 
-### [Тест с вложенными шагами](examples/suite_demo/step_tree_test.go):
+### [Test with nested steps](examples_old/suite_demo/step_tree_test.go):
 
 Код теста:
 
@@ -95,9 +564,7 @@ import (
 package examples
 
 import (
-	"testing"
-
-	"github.com/ozontech/allure-go/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type StepTreeDemoSuite struct {
@@ -124,9 +591,9 @@ func (s *StepTreeDemoSuite) TestInnerSteps() {
 
 Вывод в Allure:
 
-![](_resources/example_step_tree.png)
+![](.resources/example_step_tree.png)
 
-### [Тест с Attachment](examples/suite_demo/attachments_test.go)
+### [Test with Attachment](examples_old/suite_demo/attachments_test.go)
 
 Код теста:
 
@@ -135,10 +602,9 @@ package examples
 
 import (
 	"encoding/json"
-	"testing"
 
 	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type JSONStruct struct {
@@ -171,9 +637,9 @@ func (s *AttachmentTestDemoSuite) TestAttachment() {
 
 Вывод в Allure:
 
-![](_resources/example_attachments.png)
+![](.resources/example_attachments.png)
 
-### [Запуск нескольких suites](examples/suite_demo/running_test.go)
+### [Run few parallel suites](examples_old/suite_demo/running_test.go)
 
 Код теста:
 
@@ -183,7 +649,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type TestRunningDemoSuite struct {
@@ -217,9 +683,9 @@ func TestRunDemo(t *testing.T) {
 
 Вывод в Allure:
 
-![](_resources/example_multiple_suites_run.png)
+![](.resources/example_multiple_suites_run.png)
 
-## [Setup hooks](examples/suite_demo/befores_afters_test.go)
+### [Setup hooks](examples_old/suite_demo/befores_afters_test.go)
 
 Код теста:
 
@@ -229,7 +695,7 @@ package examples
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type BeforeAfterDemoSuite struct {
@@ -270,305 +736,45 @@ func TestBeforesAfters(t *testing.T) {
 
 Вывод в Allure:
 
-![](_resources/example_befores_afters.png)
+![](.resources/example_befores_afters.png)
 
-## Global Environment keys
+### [XSkip](examples_old/suite_demo/fails_test.go)
 
-| Key | Meaning | Default |
-|---|---|---|
-|`ALLURE_OUTPUT_PATH`|Указывает путь до папки для печати результатов.|`.` (Папка с тестами)|
-|`ALLURE_OUTPUT_FOLDER`|Указывает имя папки для печати результатов.|`/allure-results`|
-|`ALLURE_ISSUE_PATTERN`|Указывает URL паттерн для Issue. **Обязательно должен содержать один `%s`**| |
-|`ALLURE_TESTCASE_PATTERN`|Указывает URL паттерн для TestCase. **Обязательно должен содержать один `%s`**.| |
-|`ALLURE_LAUNCH_TAGS`|Указывает дефолтные тэги, которыми будут помечаться все тесты в прогоне. Тэги должны быть указаны через запятую.| |
-
-## HOW TO USE runner
-
-| Method Signature| Meaning |
-|---|---|
-|`RunSuite(*testing.T, framework.TestSuite)`| Запускает переданный Suite в контексте переданного `*testing.T` |
-|`RunTest(*testing.T, string, func(t *provider.T), ...string) bool`| Запускает переданный тест в контексте переданного `*testing.T`. Тесты запущенные через `RunTest` могут быть параллельны относительно друг друга. См пример ниже.  |
-
-## HOW TO USE provider.T
-
-### Allure info
-
-#### Test info
-
-| Method Signature| Meaning |
-|---|---|
-|`Suite.Title(string)`|устанавливает имя теста|
-|`Suite.Description(string)`|устанавливает описание теста|
-
-#### Label
-
-| Method Signature| Meaning |
-|---|---|
-|`T.Epic(string)`| устанавливает Epic для теста|
-|`T.Feature(string)`|устанавливает Feature теста|
-|`T.Story(string)`|устанавливает Story теста|
-|`T.FrameWork(string)`|устанавливает FrameWork теста (по умолчанию проставляет allure-testify)|
-|`T.Host(string)`|устанавливает Host теста|
-|`T.Thread(string)`|устанавливает Thread для теста.(по умолчанию устанавливает имя сьюта + UUID.<a name="label_note_question1">[[1]](#label_note_answer1)</a> | 
-|`T.ID(string)`|устанавливает ID теста|
-|`T.AddSuiteLabel(string)`|добавляет Suite, к которому относится тест|
-|`T.AddSubSuite(string)`|добавляет SubSuite, к которому относится тест|
-|`T.AddParentSuite(string)`|добавляет ParentSuite, к которому относится тест|
-|`T.Severity(string)`|устанавливает Severity теста (по умолчанию - `normal`)|
-|`T.Tag(string)`|добавляет Tag теста|
-|`T.Tags(...string)`|добавляет несколько Tag теста|
-|`T.Package(string)`|устанавливает Package к которому относится тест (по умолчанию выбирается Caller функция)|
-|`T.Owner(string)`|устанавливает Owner'а, которому принадлежит тест|
-|`T.Label(string, string)`|добавляет произвольный Лейбл к тесту. Имя лейбла это первый аргумент, значение - второй.|
-
-___________________________________  
-***NOTES:***
-<a name="label_note_answer1">[1]</a> - Это Knowing Issue - в golang пока не представляется целесообразным пытаться
-достать имя текущей goroutine, как и нельзя задать ей имя
-___________________________________
-
-#### Link
-
-| Method Signature| Meaning |
-|---|---|
-|`T.SetIssue(string)`|добавляет ссылку на Issue (чтобы задать паттерн, нужно установить глобальную переменную `ALLURE_ISSUE_PATTERN`)|
-|`T.SetTestCase(string)`|добавляет ссылку на TestCase (чтобы задать паттерн, нужно установить глобальную переменную `ALLURE_TEST_CASE`)|
-|`T.Link(allure.Link)`|добавляет произвольную ссылку к тесту|
-
-### Allure Actions
-
-#### Step
-
-| Method Signature| Meaning |
-|---|---|
-|`T.Step(*allure.Step)`|добавляет в текущий тест новый шаг. Принимает в себя тип `allure.Step`|
-|`T.NewStep(string)`|добавляет в текущий тест пустой шаг с именем, переданным строкой|
-|`T.InnerStep(*allure.Step, *allure.Step)`|добавляет в текущий тест шаг, переданный вторым аргументом. Первым аргументом передается родительский шаг.|
-|`T.WithStep(*allure.Step, func())`|объявляет, что все последующие шаги, объявленные в анонимной функции (второй аргумент) будут считаться вложенными в шаг, переданный первым аргументом.|
-|`T.WithNewStep(string, func())`|объявляет, что все последующие шаги будут считаться вложенными в новый шаг с именем, переданным первым аргументом.|
-
-#### Attachment
-
-| Method Signature| Meaning |
-|---|---|
-|`T.Attachment(*allure.Attachment)`|добавляет к текущему тесту `allure.Attachment`. Если вызван в функциях-hook'ах, создаст новый шаг, к которому будет прикреплен аттачмент.|
-|`T.AddNestedAttachment(*allure.Attachment)`|добавляет к текущему вложенному шагу `allure.Attachment`. Можно вызвать **ТОЛЬКО** внутри функции `WithStep`/`WithNewStep`.|
-
-#### Parameter
-
-| Method Signature| Meaning |
-|---|---|
-|`T.AddParameterToNested(*allure.Parameter)`|добавляет к текущему родительскому шагу `allure.Parameter`. Можно вызвать **ТОЛЬКО** внутри функции `WithStep`/`WithNewStep`.|
-|`T.AddParametersToNested([]allure.Parameter)`|добавляет к текущему родительскому шагу массив `allure.Parameter`. Можно вызвать **ТОЛЬКО** внутри функции `WithStep`/`WithNewStep`.|
-|`T.AddNewParameterToNested(string, string)`|добавляет к текущему родительскому шагу `allure.Parameter` с именем, переданным первым аргументом и значением, переданным вторым. Можно вызвать **ТОЛЬКО** внутри функции `WithStep`/`WithNewStep`.|
-|`T.AddNewParametersToNested(...string)`|добавляет к текущему родительскому шагу массив `allure.Parameter` с именами и значениями через запятую (`k1, v1, k2, v2... kn, vn`)|
-
-### Test behavior
-
-| Method Signature| Meaning |
-|---|---|
-|`T.Skip(...interface{})` | Позволяет пропустить тест. Причина пропуска будет залогирована в статус аллюр отчета. |
-|`T.Run(string, func(*T), ...string) bool` | Позволяет запускать тесты. Тесты запущенные через T.Run могут быть параллельны относительно друг друга. См пример ниже. |
-
-#### Example `T.Run`
-
-[Код теста:](examples/provider_demo/sample_test.go)
+Код теста:
 
 ```go
-package Test
+package examples
 
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/provider"
+	"github.com/stretchr/testify/require"
+
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-func TestOtherSampleDemo(realT *testing.T) {
-	t := provider.NewT(realT, realT.Name(), "")
-	t.Run("My test", func(t *provider.T) {
-		t.WithBeforeTest(func() {
-			t.NewStep("This is before test step")
-		})
-		defer t.WithAfterTest(func() {
-			t.NewStep("This is after test step")
-		})
+type DemoSuite struct {
+	suite.Suite
+}
 
-		t.Epic("Only Provider Demo")
-		t.Feature("T.Run()")
+func (s *DemoSuite) TestXSkipFail() {
+	s.Title("This test skipped by assert with message")
+	s.Description(`
+		This Test will be skipped with assert Error.
+		Error text: Assertion Failed`)
+	s.Tags("fail", "xskip", "assertions")
 
-		t.Title("Some Other Sample test")
-		t.Description("allure-testify allows you to use allure without suites")
+	t := s.T()
+	t.XSkip()
+	require.Equal(t, 1, 2, "Assertion Failed")
+}
 
-		t.WithNewStep("Some nested step", func() {
-			t.WithNewStep("Some inner step 1", func() {
-				t.WithNewStep("Some inner step 1.1", func() {
-
-				})
-			})
-			t.WithNewStep("Some inner step 2", func() {
-				t.WithNewStep("Some inner step 2.1", func() {
-
-				})
-			})
-		})
-	}, "Sample", "Provider-only", "with provider initialization")
+func TestDemoSuite(t *testing.T) {
+	t.Parallel()
+	suite.RunSuite(t, new(DemoSuite))
 }
 ```
 
 Вывод в Allure:
 
-![](_resources/example_sample_provider.png)
-
-### Before/After
-
-**ВАЖНО**: данный раздел является экспериментальным. Крайне не рекомендуется к необдуманному использованию.
-
-#### Test
-
-| Method Signature| Meaning |
-|---|---|
-|`T.WithBeforeTest(func())`|Все действия, производимые в прокинутой функции, будут логироваться в контейнер теста в раздел `Set Up`|
-|`T.WithAfterTest(func())`|Все действия, производимые в прокинутой функции, будут логироваться в контейнер теста в раздел `Tear Down`|
-
-#### Suite
-
-| Method Signature| Meaning |
-|---|---|
-|`T.WithBeforeSuite(func())`| Все действия, производимые в прокинутой функции, будут логироваться в контейнер сьюта в раздел `Set Up`|
-|`T.WithAfterSuite(func())`| Все действия, производимые в прокинутой функции, будут логироваться в контейнер сьюта в раздел `Tear Down`|
-
-## HOW TO USE suite
-
-### Behavior
-
-| Method Signature| Meaning |
-|---|---|
-|`Suite.T() *provider.T`|Возвращает указатель на контекст исполняемого теста|
-|`Suite.RunSuite(*provider.T, AllureSuite)`| Позволяет запустить переданный сьют от лица родительского сьюта.|
-|`Suite.RunTest(string, func(*provider.T), ...string) bool`| Позволяет запустить переданный тест в контексте `*provider.T`. **Эти тесты могут быть параллельными**. Использовать сьют, как провайдер allure для таких тестов **НЕЛЬЗЯ**.|
-|`Suite.Run(string, func(), ...string) bool`| Позволяет запустить переданный тест в контексте текущего теста. **Эти тесты __НЕ(!)__ могут быть параллельными**. Можно использовать сьют, как провайдер allure. |
-|`Suite.SkipOnPrint()`|Позволяет пропустить вывод allure.Result для текущего теста.|
-
-### Suite Before/Afters
-
-Следующие методы нужно переопределить в Вашем сьюте, чтобы повлиять на поведение исполнения тестов. [Пример](#setup-hooksexamplessuite_demobefores_afters_testgo)
-
-| Method Signature| Meaning |
-|---|---|
-|`Suite.BeforeEach()`|Этот метод будет исполнятся **перед КАЖДЫМ** запуском теста.|
-|`Suite.AfterEach()`|Этот метод будет исполнятся **после КАЖДОГО** окончания теста.|
-|`Suite.BeforeSuite()`|Этот метод исполнится **ОДИН РАЗ** перед запуском сьюта.|
-|`Suite.AfterSuite()`|Этот метод исполнится **ОДИН РАЗ** после окончания сьюта.|
-
-### Allure forward
-
-В структуру Suite прокинуты все методы `provider.T` для взаимодействия с allure-отчетом. Полный список прокинутых
-методов:
-
-| Method Signature|
-|:---:|
-|**Allure Info**|
-|[`Suite.Title(string)`](t_title)|
-|[`Suite.Description(string)`](t_description)|
-|**Allure Label**|
-|[`Suite.Epic(string)`](t_epic)|
-|[`Suite.Feature(string)`](t_feature)|
-|[`Suite.Story(string)`](t_story)|
-|[`Suite.FrameWork(string)`](t_frameWork)|
-|[`Suite.Host(string)`](t_host)|
-|[`Suite.Thread(string)`](t_thread)| 
-|[`Suite.ID(string)`](t_id)|
-|[`Sutie.AddSuiteLabel(string)`](t_addsuitelabel)|
-|[`Suite.AddSubSuite(string)`](t_addsubsuite)|
-|[`Suite.AddParentSuite(string)`](t_addparentsuite)|
-|[`Suite.Severity(string)`](t_severity)|
-|[`Suite.Tag(string)`](t_tag)|
-|[`Suite.Tags(...string)`](t_tags)|
-|[`Suite.Package(string)`](t_package)|
-|[`Suite.Owner(string)`](t_owner)|
-|[`Suite.Label(string, string)`](t_label)|
-|**Allure Links**|
-|[`Suite.SetIssue(string)`](t_setissue)|
-|[`Suite.SetTestCase(string)`](t_settestcase)|
-|[`Suite.Link(allure.Link)`](t_link)|
-|**Allure Actions**|
-|[`Suite.Step(*allure.Step)`](t_step)|
-|[`Suite.NewStep(string)`](t_newstep)|
-|[`Suite.InnerStep(*allure.Step, *allure.Step)`](t_innerstep)|
-|[`Suite.WithStep(*allure.Step, func())`](t_withstep)|
-|[`Suite.WithNewStep(string, func())`](t_withnewstep)|
-|[`Suite.Attachment(*allure.Attachment)`](t_attachment)|
-|[`Suite.AddNestedAttachment(*allure.Attachment)`](t_addnestedattachment)|
-|[`Suite.AddParameterToNested(*allure.Parameter)`](t_addparametertonested)|
-|[`Suite.AddParametersToNested([]allure.Parameter)`](t_addparameterstonested)|
-|[`Suite.AddNewParameterToNested(string, string)`](t_addnewparametertonested)|
-|[`Suite.AddNewParametersToNested(...string)`](t_addnewparameterstonested)|
-
-## HOW TO USE allure
-
-### Allure Objects
-
-#### Steps
-
-##### Static functions
-
-| Method Signature| Meaning |
-|---|---|
-|`NewStep(string, allure.Status, int64, int64, []allure.Parameter) *allure.Step`|возвращает указатель на `allure.Step`. Принимает имя, статус, время старта, время окончания и массив `allure.Parameter`|
-|`NewSimpleStep(string) *allure.Step`|возвращает указатель на `allure.Step`. Принимает имя шага. Все остальные аттрибуты конструктора `allure.Step` останутся `0`, `""` и `nil` соответственно|
-|`NewSimpleInnerStep(string, *allure.Step) *allure.Step`|возвращает указатель на `allure.Step`, у которого указан второй аргумент в качестве родителя|
-|`NewStepWithStart(string) *allure.Step`|возвращает указатель на `allure.Step`, у которого проставлен `Start` как Now()|
-
-##### Step functions
-
-| Method Signature| Meaning |
-|---|---|
-|`Step.Attachment(*allure.Attachment)`|добавляет `allure.Attachment` к шагу.|
-|`Step.AddParameter(allure.Parameter)`|добавляет `allure.Parameter` к шагу.|
-|`Step.AddParameters(...allure.Parameter)`|добавляет массив `allure.Parameter` к шагу|
-|`Step.AddNewParameter(string, string)`|добавляет `allure.Parameter` к шагу с именем первого аргумента и значением второго|
-|`Step.AddNewParameters(...string)`|добавляет массив `allure.Parameter` к шагу. Каждая четная строка - имя нового аргумента, каждая нечетная - его значение. Если передано нечетное количество аргументов, последняя строка откинется.|
-|`Step.WithAttachment(*allure.Attachment) *allure.Step`|добавляет `allure.Attachment` к шагу и возвращает указатель.|
-|`Step.WithParemeter(allure.Paramter) *allure.Step`|добавляет `allure.Parameter` к шагу и возвращает указатель.|
-|`Step.WithParameters(...allure.Parameter) *allure.Step`|добавляет массив `allure.Parameter` к шагу и возвращает указатель.|
-|`Step.WithNewParameter(string, string) *allure.Step`|добавляет `allure.Parameter` к шагу с именем первого аргумента и значением второго. Возвращает указатель.|
-|`Step.WithNewParameters(...string) *allure.Step`|добавляет массив `allure.Parameter` к шагу. Каждая четная строка - имя нового аргумента, каждая нечетная - его значение. Если передано нечетное количество аргументов, последняя строка откинется. Возвращает указатель.|
-|`Step.WithStart() *allure.Step`|проставляет `allure.Step.Start` для текущего шага как `allure.GetNow()`. Возвращает указатель.|
-|`Step.WithStop() *allure.Step`|проставляет `allure.Step.Stop` для текущего шага как `allure.GetNow()`. Возвращает указатель.|
-|`Step.WithParent(*Step) *Step`|проставляет `allure.Step.Parent` для текущего шага как `Step.GetUUID()` от аргумента. Возвращает указатель.|
-|`Step.Passed() *Step`|проставляет `allure.Step.Status` для текущего шага как `allure.Passed()`.|
-|`Step.Failed() *Step`|проставляет `allure.Step.Status` для текущего шага как `allure.Failed()`.|
-|`Step.Skipped() *Step`|проставляет `allure.Step.Status` для текущего шага как `allure.Skipped()`.|
-
-#### Attachments
-
-##### Static functions
-
-| Method Signature| Meaning |
-|---|---|
-|`NewAttachment(string, MimeType, []byte) *Attachment`|принимает имя документа, его mimeType и контент в байтах. Возвращает указатель на `allure.Attachment`.|
-
-##### Attachment functions
-
-| Method Signature| Meaning |
-|---|---|
-|`Attachment.Print()`|распечатывает `allure.Attachment` в файл.|
-
-TODO:
-
-~~1. Ронять шаг если внутри была паника или ошибка~~ Done<br>
-~~2. Релиз версии 0.0.1~~ Done<br>
-~~3. Отрефачить~~ Done<br>
-~~5. Научиться получать имя goroutine~~ Done<br>
-~~6. Научиться получать имя пакета для запуска тестов~~ Done<br>
-~~7. Readme.MD~~ Done<br>
-~~8. Добить до состояния плагина (уже почти)~~ (не наш путь!) Cancelled <br>
-~~9. Добиться частичной параллелизации~~ Done<br>
-~~10. Релиз версии 0.1.0~~ Done <br>
-~~11. Отделить зерна от плевел. Позволить получать аллюр без сьюта.~~ Done <br>
-
-1. Дописать комменты к интерфейсам <br>
-2. Довести до ума Before/After вне сьютов <br>
-3. Больше параллельности! <br>
-4. ???
-5. ~~Profit!~~ релиз версии 1.0.0
+![](.resources/example_xskip.png)

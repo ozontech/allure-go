@@ -9,20 +9,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAttachmentImplements(t *testing.T) {
-	assert.Implements(t, (*Printable)(nil), new(Attachment))
-	assert.Implements(t, (*IAttachment)(nil), new(Attachment))
-}
-
 func TestNewAttachment(t *testing.T) {
 	for mimeType, fileType := range mimeTypeMap {
-		testName := fmt.Sprintf("Test init fileType: %s", mimeType)
-		t.Run(testName, func(t *testing.T) {
+		testAttachName := fmt.Sprintf("Test init fileType: %s", mimeType)
+		t.Run(testAttachName, func(t *testing.T) {
 			content := []byte("some content")
-			attachment := NewAttachment(testName, mimeType, content)
+			attachment := NewAttachment(testAttachName, mimeType, content)
 			require.NotNil(t, attachment.uuid)
 			require.Equal(t, mimeType, attachment.Type, "mime type should be same")
-			require.Equal(t, testName, attachment.Name)
+			require.Equal(t, testAttachName, attachment.Name)
 			require.Equal(t, content, attachment.content)
 			require.Contains(t, attachment.Source, fileType)
 		})
@@ -31,18 +26,40 @@ func TestNewAttachment(t *testing.T) {
 
 func TestAttachment_Print(t *testing.T) {
 	testFolder := "./allure-results/"
-	createOutputFolder("./allure-results/")
+	isExists, err := exists(testFolder)
+	if err != nil {
+		panic(err)
+	}
+	if !isExists {
+		_ = os.MkdirAll(testFolder, os.ModePerm)
+	}
+	defer os.RemoveAll(testFolder)
 	for mimeType := range mimeTypeMap {
-		testName := fmt.Sprintf("Test init fileType: %s", mimeType)
-		t.Run(testName, func(t *testing.T) {
+		testAttachName := fmt.Sprintf("Test init fileType: %s", mimeType)
+		t.Run(testAttachName, func(t *testing.T) {
 			content := []byte("some content")
-			attachment := NewAttachment(testName, mimeType, content)
+			attachment := NewAttachment(testAttachName, mimeType, content)
 			err := attachment.Print()
 			require.Nil(t, err, "No errors expected")
 			require.FileExists(t, fmt.Sprintf("./allure-results/%s", attachment.Source))
 		})
 	}
-	_ = os.RemoveAll(testFolder)
+}
+
+func TestAttachment_GetUUID(t *testing.T) {
+	content := []byte("some content")
+	testAttachName := fmt.Sprintf("Test init fileType: %s", Text)
+
+	attachment := NewAttachment(testAttachName, Text, content)
+	require.NotNil(t, attachment.GetUUID())
+}
+
+func TestAttachment_GetContent(t *testing.T) {
+	content := []byte("some content")
+	testAttachName := fmt.Sprintf("Test init fileType: %s", Text)
+
+	attachment := NewAttachment(testAttachName, Text, content)
+	require.Equal(t, content, attachment.GetContent())
 }
 
 func TestMimeTypeMap(t *testing.T) {

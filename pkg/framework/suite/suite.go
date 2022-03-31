@@ -1,135 +1,92 @@
 package suite
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"reflect"
-	"runtime/debug"
-	"testing"
+	"regexp"
 
-	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/internal/file_manager"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider"
 )
 
-// AllureSuite is an interface that describes Suite behaviour
-type AllureSuite interface {
-	SetT(t *provider.T)
-	T() *provider.T
-	GetName() string
-	setName(string)
-	GetPackage() string
-	setPackage(string)
-	GetParent() string
-	setParent(string)
+type InternalSuite interface {
+	GetRunner() runner.TestRunner
+	SetRunner(runner runner.TestRunner)
 }
 
-// Suite is test-class like object, that allows group tests in test suites.
 type Suite struct {
-	name        string
-	parent      string
-	packageName string
-
-	t *provider.T
+	runner runner.TestRunner
 }
 
-// SetT setting t context to the suite
-func (suite *Suite) SetT(t *provider.T) {
-	suite.t = t
+func (s *Suite) GetRunner() runner.TestRunner {
+	return s.runner
 }
 
-func (suite *Suite) setName(name string) {
-	suite.name = name
+func (s *Suite) SetRunner(runner runner.TestRunner) {
+	s.runner = runner
 }
 
-func (suite *Suite) setPackage(name string) {
-	suite.packageName = name
+func (s *Suite) RunSuite(t provider.T, suite InternalSuite) {
+	t.SkipOnPrint()
+	RunSuite(t.RealT(), suite)
 }
 
-func (suite *Suite) setParent(name string) {
-	suite.parent = name
-}
+func collectTests(runner *suiteRunner, suite InternalSuite) *suiteRunner {
+	methodFinder := reflect.TypeOf(suite)
+	for i := 0; i < methodFinder.NumMethod(); i++ {
+		method := methodFinder.Method(i)
 
-// GetName returns suite's name
-func (suite *Suite) GetName() string {
-	return suite.name
-}
+		ok, err := methodFilter(method.Name)
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "allire-go: invalid regexp for -m: %s\n", err)
+			os.Exit(1)
+		}
 
-// GetPackage returns suite's package
-func (suite *Suite) GetPackage() string {
-	return suite.packageName
-}
-
-// GetParent returns suite's parent
-func (suite *Suite) GetParent() string {
-	return suite.parent
-}
-
-// SkipOnPrint makes allure-testify skip current test results printing
-func (suite *Suite) SkipOnPrint() {
-	suite.T().GetResult().SkipOnPrint()
-}
-
-// T returns suite's *provider.T
-func (suite *Suite) T() *provider.T {
-	return suite.t
-}
-
-//RunTest works with parallel parametrizing, but you cannot use s as provider
-func (suite *Suite) RunTest(testName string, test func(t *provider.T), tags ...string) bool {
-	return suite.T().Run(testName, test, tags...)
-}
-
-//Run doesn't work with parallel parametrizing
-func (suite *Suite) Run(testName string, test func(), tags ...string) bool {
-	oldT := suite.T()
-	realT := oldT.RealT()
-
-	result := allure.NewResultHelper().GetNewResult(oldT, testName, oldT.GetPackage(), tags...)
-
-	res := realT.Run(testName, func(t *testing.T) {
-		newT := provider.NewTForTest(oldT, result, allure.NewContainer())
-		// dirty magic
-		newT.T = t
-		suite.SetT(newT)
-		defer func() {
-			newT.GetResult().Finish()
-			newT.GetResult().Done()
-		}()
-		defer func() {
-			r := recover()
-			if r != nil {
-				errMsg := fmt.Sprintf("test panicked: %v\n%s", r, debug.Stack())
-				newT.BreakResult(errMsg)
-				newT.Errorf(errMsg)
-				newT.FailNow()
-			}
-		}()
-		test()
-	})
-	defer suite.SetT(oldT)
-	return res
-}
-
-// RunSuite runs child suite of current suite
-func (suite *Suite) RunSuite(t *provider.T, newSuite AllureSuite) {
-
-	newSuite.setName(getSuiteName(newSuite))
-	newSuite.setParent(suite.T().RealT().Name())
-	newSuite.setPackage(file_manager.GetPackage(2))
-	t.GetResult().SkipOnPrint()
-	kek := testing.InternalTest{Name: newSuite.GetName(), F: func(t *testing.T) {
-		runner.RunSuite(t, newSuite)
-	}}
-
-	realT := t.RealT()
-	realT.Run(kek.Name, kek.F)
-}
-
-func getSuiteName(suite interface{}) string {
-	t := reflect.TypeOf(suite)
-	if t.Kind() == reflect.Ptr {
-		return t.Elem().Name()
+		if !ok {
+			continue
+		}
+		runner.AddTest(method.Name, method)
 	}
-	return t.Name()
+	return runner
+}
+
+func collectHooks(runner *suiteRunner, suite InternalSuite) *suiteRunner {
+	if beforeAll, ok := suite.(AllureBeforeSuite); ok {
+		runner.BeforeAll(beforeAll.BeforeAll)
+	}
+
+	if beforeEach, ok := suite.(AllureBeforeTest); ok {
+		runner.BeforeEach(beforeEach.BeforeEach)
+	}
+
+	if afterAll, ok := suite.(AllureAfterSuite); ok {
+		runner.AfterAll(afterAll.AfterAll)
+	}
+
+	if afterEach, ok := suite.(AllureAfterTest); ok {
+		runner.AfterEach(afterEach.AfterEach)
+	}
+
+	return runner
+}
+
+var matchMethod = flag.String("allure-go.m", "", "regular expression to select tests of the testify suite to run")
+
+// Filtering method according to set regular expression
+// specified command-line argument -m
+func methodFilter(name string) (bool, error) {
+	if ok, _ := regexp.MatchString("^Test", name); !ok {
+		return false, nil
+	}
+	return regexp.MatchString(*matchMethod, name)
+}
+
+func RunSuite(t TestingT, suite InternalSuite) map[string]bool {
+	return NewSuiteRunner(t, getPackage(2), t.Name(), suite).RunTests()
+}
+
+func RunNamedSuite(t TestingT, suiteName string, suite InternalSuite) map[string]bool {
+	return NewSuiteRunner(t, getPackage(2), suiteName, suite).RunTests()
 }

@@ -1,5 +1,5 @@
-//go:build examples
-// +build examples
+//go:build examples_new
+// +build examples_new
 
 package suite_demo
 
@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
@@ -16,17 +16,17 @@ type StepDemoSuite struct {
 	suite.Suite
 }
 
-func (s *StepDemoSuite) TestAddSteps() {
-	s.Epic("Demo")
-	s.Feature("Steps")
-	s.Title("Base. Add steps to allure result")
-	s.Description(`
+func (s *StepDemoSuite) TestAddSteps(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Steps")
+	t.Title("Base. Add steps to allure result")
+	t.Description(`
 		Step A, Step B and Step C will be add to Allure Result`)
 
-	s.Tags("Steps")
+	t.Tags("Steps")
 
 	stepA := allure.NewSimpleStep("Step A")
-	s.Step(stepA)
+	t.Step(stepA)
 
 	stepB := allure.NewStep("Step B", // Step's Name
 		allure.Passed,                           // Step Status
@@ -34,74 +34,74 @@ func (s *StepDemoSuite) TestAddSteps() {
 		allure.GetNow(),                         // Step Finish
 		allure.NewParameters("paramB", "value")) // Step Parameters
 
-	s.Step(stepB)
+	t.Step(stepB)
 
 	stepC := allure.NewSimpleStep("Step C")
 	stepC.Start = allure.GetNow()
-	stepC.AddNewParameter("paramC", "value")
+	stepC.WithNewParameters("paramC", "value")
 	stepC.Stop = allure.GetNow()
-	s.Step(stepC)
+	t.Step(stepC)
 }
 
-func (s *StepDemoSuite) TestQuickWorkWithSteps() {
-	s.Epic("Demo")
-	s.Feature("Steps")
-	s.Title("Base. Add steps to allure result")
-	s.Description(`
+func (s *StepDemoSuite) TestQuickWorkWithSteps(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Steps")
+	t.Title("Base. Add steps to allure result")
+	t.Description(`
 		Step A, Step B, Step C and Step D will be add to Allure Result`)
 
-	s.Tags("Steps")
+	t.Tags("Steps")
 
-	s.Step(allure.NewSimpleStep("Step A").Passed())  // This step will be passed
-	s.Step(allure.NewSimpleStep("Step B").Failed())  // This step will be failed
-	s.Step(allure.NewSimpleStep("Step C").Skipped()) // This step will be skipped
+	t.Step(allure.NewSimpleStep("Step A").Passed())  // This step will be passed
+	t.Step(allure.NewSimpleStep("Step B").Failed())  // This step will be failed
+	t.Step(allure.NewSimpleStep("Step C").Skipped()) // This step will be skipped
 
-	stepD := allure.NewSimpleStep("Step D").WithStart()
+	stepD := allure.NewSimpleStep("Step D").Begin()
 	time.Sleep(1 * time.Second) // Do some
-	stepD = stepD.WithStop().Passed()
-	s.Step(stepD)
+	stepD = stepD.Finish().Passed()
+	t.Step(stepD)
 }
 
-func (s *StepDemoSuite) TestInnerStep() {
-	s.Epic("Demo")
-	s.Feature("Steps")
-	s.Title("Add child steps to existed step.")
-	s.Description(`
+func (s *StepDemoSuite) TestInnerStep(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Steps")
+	t.Title("Add child steps to existed step.")
+	t.Description(`
 		Step A is parent step for Step B and Step C
 		Step D is parent step for Step E and Step F
 		Call order will be saved in allure report
 		A -> (B, C), D -> (E, F)`)
 
-	s.Tags("Steps", "Nesting")
+	t.Tags("Steps", "Nesting")
 
 	// use allure.NewSimpleStep constructor
 	stepA := allure.NewSimpleStep("Step A")
-	s.Step(stepA)
-	stepB := allure.NewSimpleInnerStep("Step B", stepA)
-	s.Step(stepB)
-	stepC := allure.NewSimpleInnerStep("Step C", stepA)
-	s.Step(stepC)
+	stepB := allure.NewSimpleStep("Step B")
+	stepC := allure.NewSimpleStep("Step C")
+	stepA.WithChild(stepB)
+	stepA.WithChild(stepC)
+	t.Step(stepA)
 
 	// use InnerStep function
 	stepD := allure.NewSimpleStep("Step D")
-	s.Step(stepD)
-	s.InnerStep(stepD, allure.NewSimpleStep("Step E"))
+	t.Step(stepD)
+	stepD.WithChild(allure.NewSimpleStep("Step E"))
 	stepF := allure.NewStep("Step F", // Step's Name
 		allure.Passed,                           // Step Status
 		allure.GetNow(),                         // Step Start
 		allure.GetNow(),                         // Step Finish
 		allure.NewParameters("paramF", "value")) // Step Parameters
-	s.InnerStep(stepD, stepF)
+	stepF.WithParent(stepD)
 
 	// forward way
 	stepG := allure.NewSimpleStep("Step G")
 	stepH := allure.NewSimpleStep("Step H")
 	stepI := allure.NewSimpleStep("Step I")
-	stepH.Parent = stepG.GetUUID()
-	stepI.Parent = stepG.GetUUID()
+	stepG.WithChild(stepH)
+	stepG.WithChild(stepI)
 }
 
 func TestStepDemo(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(StepDemoSuite))
+	suite.RunSuite(t, new(StepDemoSuite))
 }

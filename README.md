@@ -57,7 +57,7 @@ Allure-Go - проект, предоставляющий полноценный 
 Предоставление отдельного пакета позволяет кастомизировать работу с allure.<br>
 Подробно можно почитать [тут](#how-to-use-allure). <br>
 
-### `pkg/provider.T`
+### `pkg/framework/provider/T`
 
 Враппер контекста теста (`testing.T`). <br>
 Основные преимущества и особенности:
@@ -117,7 +117,42 @@ import (
 * `TearDownTest` -> `AfterEach` <br>
 * `TearDownSuite` -> `AfterAll` <br>
 
-4. Запустить go test!
+4. С версии 0.5.0 требуется прокинуть в каждый тест и hook функцию интерфейс provider.T
+
+```go
+package tests
+
+import (
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type SomeSuite struct {
+    suite.Suite	
+}
+
+func (s *SomeSuite) BeforeAll(t provider.T) {
+	// ...
+}
+
+func (s *SomeSuite) BeforeEach(t provider.T) { 
+	// ...
+}
+
+func (s *SomeSuite) AfterEach(t provider.T) { 
+	// ...
+}
+
+func (s *SomeSuite) AfterAll(t provider.T) { 
+	// ...
+}
+
+func (s *SomeSuite) TestSome(t provider.T) { 
+	// ...
+}
+```
+
+5. Запустить go test!
 
 ## Demo
 
@@ -164,16 +199,16 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider"
+    "github.com/ozontech/allure-go/pkg/framework/provider"
+    "github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestSampleDemo(t *testing.T) {
-	runner.RunTest(t, "Just Link", func(t *provider.T) {
+	runner.Run(t, "Just Link", func(t provider.T) {
 		t.SetIssue("https://pkg.go.dev/github.com/stretchr/testify")
 	})
 
-	runner.RunTest(t, "With Pattern", func(t *provider.T) {
+	runner.Run(t, "With Pattern", func(t provider.T) {
 		_ = os.Setenv("ALLURE_ISSUE_PATTERN", "https://pkg.go.dev/github.com/stretchr/%s")
 		t.SetIssue("testify")
 	})
@@ -193,16 +228,16 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider"
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestSampleDemo(t *testing.T) {
-	runner.RunTest(t, "Just Link", func(t *provider.T) {
+	runner.Run(t, "Just Link", func(t provider.T) {
 		t.SetTestCase("https://pkg.go.dev/github.com/stretchr/testify")
 	})
 
-	runner.RunTest(t, "With Pattern", func(t *provider.T) {
+	runner.Run(t, "With Pattern", func(t provider.T) {
 		_ = os.Setenv("ALLURE_TESTCASE_PATTERN", "https://pkg.go.dev/github.com/stretchr/%s")
 		t.SetTestCase("testify")
 	})
@@ -225,12 +260,12 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider"
+    "github.com/ozontech/allure-go/pkg/framework/provider"
+    "github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestSampleDemo(t *testing.T) {
-	runner.RunTest(t, "My test", func(t *provider.T) {
+	runner.Run(t, "My test", func(t provider.T) {
 		// Test Body
 	})
 }
@@ -243,15 +278,17 @@ package provider_demo
 
 import (
 	"testing"
-
-	"github.com/ozontech/allure-go/pkg/framework/runner"
+	
+    "github.com/ozontech/allure-go/pkg/framework/provider"
+    "github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
-	r := runner.NewTestRunner(realT)
-	r.Run("My test", func(t *provider.T) {
+	r := runner.NewRunner(realT, realT.Name())
+	r.NewTest("My test", func(t provider.T) {
 		// Test Body
 	})
+	r.RunTests()
 }
 ```
 
@@ -261,22 +298,34 @@ func TestOtherSampleDemo(realT *testing.T) {
 package provider_demo
 
 import (
-	"testing"
+  "testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/runner"
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
-	r := runner.NewTestRunner(realT)
-	r.WithBeforeEach(func(t *provider.T) {
-		// Before Each body 
-	})
-	r.WithAfterEach(func(t *provider.T) {
-		// After Each body
-	})
-	r.Run("My test", func(t *provider.T) {
-		// Test Body
-	})
+  r := runner.NewRunner(realT, "SuiteName")
+  
+  r.BeforeAll(func(t provider.T) {
+	  // BeforeAll body
+  })
+  
+  r.BeforeEach(func(t provider.T) { 
+	  // Before Each body 
+  })
+  
+  r.AfterEach(func(t provider.T) { 
+	  // After Each body
+  })
+
+  r.AfterAll(func(t provider.T) { 
+	  // AfterAll body
+  })
+  
+  r.NewTest("My test", func(t *provider.T) { 
+	  // Test Body
+  })
 }
 ```
 
@@ -288,21 +337,22 @@ package provider_demo
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/provider"
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestOtherSampleDemo(realT *testing.T) {
-	r := runner.NewTestRunner(realT)
-	r.Run("My test", func(t *provider.T) {
+	r := runner.NewRunner(realT, "SuiteName")
+	r.NewTest("My test", func(t provider.T) {
+        r2 := runner.NewRunner(t, "SuiteName")
 		// Test Body
-		t.WithBeforeTest(func(t *provider.T) {
+        r2.BeforeEach(func(t provider.T) {
 			// inner Before Each body
 		})
-		t.WithAfterTest(func(t *provider.T) {
+        r2.AfterEach(func(t provider.T) {
 			// inner After Each body
 		})
-		t.Run("My test", func(t *provider.T) {
+        r2.NewTest("My test", func(t provider.T) {
 			// inner test body
 		})
 	})
@@ -327,7 +377,10 @@ type DemoSuite struct {
 ```go
 package suite_demo
 
-import "github.com/ozontech/allure-go/pkg/framework/suite"
+import (
+    "github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
+)
 
 type DemoSuite struct {
 	suite.Suite
@@ -339,17 +392,20 @@ type DemoSuite struct {
 ```go
 package suite_demo
 
-import "github.com/ozontech/allure-go/pkg/framework/suite"
+import (
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
+)
 
 type DemoSuite struct {
 	suite.Suite
 }
 
-func (s *DemoSuite) TestSkip() {
-	s.Epic("Demo")
-	s.Feature("Suites")
-	s.Title("My first test")
-	s.Description(`
+func (s *DemoSuite) TestSkip(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Suites")
+	t.Title("My first test")
+	t.Description(`
 		This test will be attached to the suite DemoSuite`)
 }
 ```
@@ -364,19 +420,20 @@ package suite_demo
 import (
 	"testing"
 
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/runner"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+    "github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type DemoSuite struct {
 	suite.Suite
 }
 
-func (s *DemoSuite) TestSkip() {
-	s.Epic("Demo")
-	s.Feature("Suites")
-	s.Title("My first test")
-	s.Description(`
+func (s *DemoSuite) TestSkip(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Suites")
+	t.Title("My first test")
+	t.Description(`
 		This test will be attached to the suite DemoSuite`)
 }
 
@@ -430,6 +487,7 @@ Allure-Go предоставляет широкие возможности вз�
 - `*T.Language`
 - `*T.Owner`
 - `*T.Lead`
+- `*T.AllureID`
 
 Более подробно про методы можно почитать [здесь](/pkg/allure/README.md#allurelabel)
 
@@ -469,19 +527,8 @@ ___________________________________
 
 - `*T.Step` - добавляет к отчету переданный Step.
 - `*T.NewStep` - создает новый пустой Step с переданным именем и добавляет его к отчету.
-- `*T.InnerStep` - добавляет к отчету переданный Step, проставив переданный ParentStep как родительский.
-- `*T.NewInnerStep` - создает новый пустой Step с переданным именем и добавляет его к отчету, проставляет переданный
-  ParentStep как родительский и добавляет его к отчету.
 - `*T.WithStep` - оборачивает переданную в f функцию переданным Step и добавляет Step к отчету.
 - `*T.WithNewStep` - создает новый Step, оборачивает переданную в f функцию созданным Step и добавляет его к отчету.
-
-#### Nested-Only Functions
-
-- `*T.AddAttachmentToNested` - добавляет к вложенному шагу Attachment
-- `*T.AddParameterToNested` - добавляет к вложенному шагу Parameter
-- `*T.AddParametersToNested` - добавляет к вложенному шагу все элементы массива Parameter
-- `*T.AddNewParameterToNested` - инициализирует новый Parameter и добавляет его к вложенному шагу
-- `*T.AddNewParametersToNested` - инициализирует новый массив Parameter и добавляет все его элементы к вложенному шагу
 
 **Note:** Функции с суффиксом `ToNested` могут быть вызваны **ТОЛЬКО** внутри функции `WithStep`/`WithNewStep`. В
 противном случае ничего не произойдет.
@@ -532,16 +579,8 @@ ___________________________________
 - [Allure Steps](#allure-steps)
     - `*Suite.Step`
     - `*Suite.NewStep`
-    - `*Suite.InnerStep`
-    - `*Suite.InnerNewStep`
     - `*Suite.WithStep`
     - `*Suite.WithNewStep`
-- [Nested Only Functions](#nested-only-functions)
-    - `*Suite.AddNestedAttachment`
-    - `*Suite.AddParameterToNested`
-    - `*Suite.AddParametersToNested`
-    - `*Suite.AddNewParameterToNested`
-    - `*Suite.AddNewParametersToNested`
 - [Allure Attachments](#allure-attachments)
     - `*Suite.Attachment`
 
@@ -550,7 +589,6 @@ ___________________________________
 Подробная документация по каждому публичному пакету может быть найдена в каталоге этого пакета.
 
 - [allure](/pkg/allure/README.md)
-- [provider](/pkg/provider/README.md)
 - [runner](/pkg/framework/runner/README.md)
 - [suite](/pkg/framework/suite/README.md)
 
@@ -564,27 +602,28 @@ ___________________________________
 package examples
 
 import (
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+    "github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type StepTreeDemoSuite struct {
 	suite.Suite
 }
 
-func (s *StepTreeDemoSuite) TestInnerSteps() {
-	s.Epic("Demo")
-	s.Feature("Inner Steps")
-	s.Title("Simple Nesting")
-	s.Description(`
+func (s *StepTreeDemoSuite) TestInnerSteps(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Inner Steps")
+	t.Title("Simple Nesting")
+	t.Description(`
 		Step A is parent step for Step B and Step C
 		Call order will be saved in allure report
 		A -> (B, C)`)
 
-	s.Tags("Steps", "Nesting")
+	t.Tags("Steps", "Nesting")
 
-	s.WithNewStep("Step A", func() {
-		s.NewStep("Step B")
-		s.NewStep("Step C")
+	t.WithNewStep("Step A", func(ctx provider.StepCtx) {
+		ctx.NewStep("Step B")
+		ctx.NewStep("Step C")
 	})
 }
 ```
@@ -604,7 +643,8 @@ import (
 	"encoding/json"
 
 	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+    "github.com/ozontech/allure-go/pkg/framework/provider"
+    "github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type JSONStruct struct {
@@ -615,23 +655,23 @@ type AttachmentTestDemoSuite struct {
 	suite.Suite
 }
 
-func (s *AttachmentTestDemoSuite) TestAttachment() {
-	s.Epic("Demo")
-	s.Feature("Attachments")
-	s.Title("Test Attachments")
-	s.Description(`
+func (s *AttachmentTestDemoSuite) TestAttachment(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Attachments")
+	t.Title("Test Attachments")
+	t.Description(`
 		Test's test body and all steps inside can contain attachments`)
 
-	s.Tags("Attachments", "BeforeAfter", "Steps")
+	t.Tags("Attachments", "BeforeAfter", "Steps")
 
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
-	s.Attachment(allure.NewAttachment("Text Attachment if TestAttachment", allure.Text, []byte(attachmentText)))
+	t.Attachment(allure.NewAttachment("Text Attachment if TestAttachment", allure.Text, []byte(attachmentText)))
 
 	step := allure.NewSimpleStep("Step A")
 	var ExampleJson = JSONStruct{"this is JSON message"}
 	attachmentJSON, _ := json.Marshal(ExampleJson)
 	step.Attachment(allure.NewAttachment("Json Attachment for Step A", allure.JSON, attachmentJSON))
-	s.Step(step)
+	t.Step(step)
 }
 ```
 
@@ -649,28 +689,26 @@ package examples
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+    "github.com/ozontech/allure-go/pkg/framework/provider"
+    "github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type TestRunningDemoSuite struct {
 	suite.Suite
 }
 
-func (s *TestRunningDemoSuite) TestBeforesAfters() {
-	t := s.T()
+func (s *TestRunningDemoSuite) TestBeforesAfters(t provider.T) {
 	t.Parallel()
 	// use RunInner to run suite of tests
 	s.RunSuite(t, new(BeforeAfterDemoSuite))
 }
 
-func (s *TestRunningDemoSuite) TestFails() {
-	t := s.T()
+func (s *TestRunningDemoSuite) TestFails(t provider.T) {
 	t.Parallel()
 	s.RunSuite(t, new(FailsDemoSuite))
 }
 
-func (s *TestRunningDemoSuite) TestLabels() {
-	t := s.T()
+func (s *TestRunningDemoSuite) TestLabels(t provider.T) {
 	t.Parallel()
 	s.RunSuite(t, new(LabelsDemoSuite))
 }
@@ -695,37 +733,38 @@ package examples
 import (
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/suite"
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type BeforeAfterDemoSuite struct {
 	suite.Suite
 }
 
-func (s *BeforeAfterDemoSuite) BeforeEach() {
-	s.NewStep("Before Test Step")
+func (s *BeforeAfterDemoSuite) BeforeEach(t provider.T) {
+	t.NewStep("Before Test Step")
 }
 
-func (s *BeforeAfterDemoSuite) AfterEach() {
-	s.NewStep("After Test Step")
+func (s *BeforeAfterDemoSuite) AfterEach(t provider.T) {
+	t.NewStep("After Test Step")
 }
 
-func (s *BeforeAfterDemoSuite) BeforeAll() {
-	s.NewStep("Before suite Step")
+func (s *BeforeAfterDemoSuite) BeforeAll(t provider.T) {
+	t.NewStep("Before suite Step")
 }
 
-func (s *BeforeAfterDemoSuite) AfterAll() {
-	s.NewStep("After suite Step")
+func (s *BeforeAfterDemoSuite) AfterAll(t provider.T) {
+	t.NewStep("After suite Step")
 }
 
-func (s *BeforeAfterDemoSuite) TestBeforeAfterTest() {
-	s.Epic("Demo")
-	s.Feature("BeforeAfter")
-	s.Title("Test wrapped with SetUp & TearDown")
-	s.Description(`
-		This test wrapped with SetUp and TearDown containers.`)
+func (s *BeforeAfterDemoSuite) TestBeforeAfterTest(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("BeforeAfter")
+	t.Title("Test wrapped with SetUp & TearDown")
+	t.Description(`
+		This test wrapped with SetUp and TearDown containert.`)
 
-	s.Tags("BeforeAfter")
+	t.Tags("BeforeAfter")
 }
 
 func TestBeforesAfters(t *testing.T) {
@@ -750,6 +789,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+    "github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
@@ -757,16 +797,15 @@ type DemoSuite struct {
 	suite.Suite
 }
 
-func (s *DemoSuite) TestXSkipFail() {
-	s.Title("This test skipped by assert with message")
-	s.Description(`
+func (s *DemoSuite) TestXSkipFail(t provider.T) {
+	t.Title("This test skipped by assert with message")
+	t.Description(`
 		This Test will be skipped with assert Error.
 		Error text: Assertion Failed`)
-	s.Tags("fail", "xskip", "assertions")
-
-	t := s.T()
+	t.Tags("fail", "xskip", "assertions")
+	
 	t.XSkip()
-	require.Equal(t, 1, 2, "Assertion Failed")
+	t.Require().Equal(1, 2, "Assertion Failed")
 }
 
 func TestDemoSuite(t *testing.T) {

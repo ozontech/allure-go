@@ -2,10 +2,9 @@ package allure
 
 import (
 	"fmt"
+	"os"
+	"strings"
 )
-
-type ILink interface {
-}
 
 // Link is an implementation of the Link entity used by Allure to specify the links needed for test reports.
 // Such as:
@@ -48,4 +47,23 @@ func IssueLink(issue string) Link {
 // LinkLink returns LINK type link
 func LinkLink(linkname, link string) Link {
 	return NewLink(linkname, LINK, link)
+}
+
+func getIssuePattern() string {
+	return getPattern(issuePatternEnvKey, "%s")
+}
+
+func getTestCasePattern() string {
+	return getPattern(testCasePatternEnvKey, "%s")
+}
+
+func getPattern(envKey string, defaultPattern string) string {
+	pattern := os.Getenv(envKey)
+	if pattern == "" && !strings.Contains(pattern, "%s") {
+		fmt.Printf("Provided pattern (%s) not contains '%%s' or empty.\n", pattern)
+		fmt.Printf("Please provide correct one. Use %s environment variable.\n", envKey)
+		fmt.Printf("Until this default pattern will be used (%s).\n", defaultPattern)
+		return defaultPattern
+	}
+	return pattern
 }

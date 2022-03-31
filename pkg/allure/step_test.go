@@ -1,18 +1,15 @@
 package allure
 
 import (
+	"fmt"
+	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestStepImplements(t *testing.T) {
-	assert.Implements(t, (*WithAttachments)(nil), new(Step))
-	assert.Implements(t, (*WithTimer)(nil), new(Step))
-	assert.Implements(t, (*IStep)(nil), new(Step))
-}
 
 func TestNewStep(t *testing.T) {
 	stepName := "Step A"
@@ -31,9 +28,8 @@ func TestNewStep(t *testing.T) {
 	require.Equal(t, 2, len(step.Parameters))
 	assert.Equal(t, parameters[0], step.Parameters[0])
 	assert.Equal(t, parameters[1], step.Parameters[1])
-	assert.Equal(t, "", step.Parent)
+	assert.Nil(t, step.GetParent())
 	assert.Nil(t, step.Attachments)
-	assert.NotNil(t, step.uuid)
 }
 
 func TestNewSimpleStep(t *testing.T) {
@@ -43,36 +39,142 @@ func TestNewSimpleStep(t *testing.T) {
 	assert.Equal(t, Passed, step.Status)
 	assert.NotEqual(t, 0, step.Start)
 	assert.NotEqual(t, 0, step.Stop)
-	assert.Equal(t, "", step.Parent)
+	assert.Nil(t, step.GetParent())
 	assert.Nil(t, step.Parameters)
 	assert.Nil(t, step.Attachments)
-	assert.NotNil(t, step.uuid)
 }
 
-func TestNewSimpleInnerStep(t *testing.T) {
-	stepNameParent := "Step A"
-	stepNameChild := "Step B"
-	stepParent := NewSimpleStep(stepNameParent)
-	stepChild := NewSimpleInnerStep(stepNameChild, stepParent)
-	assert.Equal(t, stepNameChild, stepChild.Name)
-	assert.Equal(t, Passed, stepChild.Status)
-	assert.NotEqual(t, 0, stepChild.Start)
-	assert.NotEqual(t, 0, stepChild.Stop)
-	assert.Equal(t, stepParent.GetUUID(), stepChild.Parent)
-	assert.Nil(t, stepChild.Parameters)
-	assert.Nil(t, stepChild.Attachments)
-	assert.NotNil(t, stepChild.uuid)
+func TestStep_Begin(t *testing.T) {
+	step := new(Step)
+	now := GetNow()
+	step.Begin()
+	require.Equal(t, now, step.Start)
 }
 
-func TestNewStepWithStart(t *testing.T) {
-	stepName := "Step A"
-	step := NewStepWithStart(stepName)
-	assert.Equal(t, stepName, step.Name)
-	assert.Equal(t, Passed, step.Status)
-	assert.NotEqual(t, 0, step.Start)
-	assert.Equal(t, int64(0), step.Stop)
-	assert.Equal(t, "", step.Parent)
-	assert.Nil(t, step.Parameters)
-	assert.Nil(t, step.Attachments)
-	assert.NotNil(t, step.uuid)
+func TestStep_Finish(t *testing.T) {
+	step := new(Step)
+	now := GetNow()
+	step.Finish()
+	require.Equal(t, now, step.Stop)
+}
+
+func TestStep_Passed(t *testing.T) {
+	step := new(Step)
+	step.Passed()
+	require.Equal(t, Passed, step.Status)
+}
+
+func TestStep_Failed(t *testing.T) {
+	step := new(Step)
+	step.Failed()
+	require.Equal(t, Failed, step.Status)
+}
+
+func TestStep_Skipped(t *testing.T) {
+	step := new(Step)
+	step.Skipped()
+	require.Equal(t, Skipped, step.Status)
+}
+
+func TestStep_Broken(t *testing.T) {
+	step := new(Step)
+	step.Broken()
+	require.Equal(t, Broken, step.Status)
+}
+
+func TestStep_PrintAttachments(t *testing.T) {
+	attachmentText := `THIS IS A TEXT ATTACHMENT`
+	step := new(Step)
+	step.Attachments = append(step.Attachments, NewAttachment("Text Attachment if TestAttachment", Text, []byte(attachmentText)))
+
+	step.PrintAttachments()
+
+	defer os.RemoveAll(allureDir)
+
+	files, _ := ioutil.ReadDir(allureDir)
+	require.Len(t, files, 1)
+	var attachFile *os.File
+	defer attachFile.Close()
+
+	f := files[0]
+	attachFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
+	bytes, readErr := ioutil.ReadAll(attachFile)
+	require.NoError(t, readErr)
+	require.Equal(t, attachmentText, string(bytes))
+}
+
+func TestStep_WithAttachments(t *testing.T) {
+	attachmentText := `THIS IS A TEXT ATTACHMENT`
+	attachment := NewAttachment("Text Attachment if TestAttachment", Text, []byte(attachmentText))
+	step := new(Step)
+	step.WithAttachments(attachment)
+	require.NotNil(t, step.Attachments)
+	require.Len(t, step.Attachments, 1)
+
+	att1 := step.Attachments[0]
+	require.Equal(t, attachment.Name, att1.Name)
+	require.Equal(t, attachment.Type, att1.Type)
+	require.Equal(t, attachment.Source, att1.Source)
+	require.Equal(t, attachment.content, att1.content)
+}
+
+func TestStep_WithChild(t *testing.T) {
+	childStep := NewSimpleStep("Child Step")
+	step := new(Step)
+	step.WithChild(childStep)
+
+	require.Len(t, step.Steps, 1)
+	st := step.Steps[0]
+	require.Equal(t, childStep, st)
+}
+
+func TestStep_WithNewParameters_even(t *testing.T) {
+	step := new(Step)
+	step.WithNewParameters("param1", "val1", "param2", "val2")
+	require.NotNil(t, step.Parameters)
+	require.Len(t, step.Parameters, 2)
+	require.Equal(t, "param1", step.Parameters[0].Name)
+	require.Equal(t, "val1", step.Parameters[0].Value)
+	require.Equal(t, "param2", step.Parameters[1].Name)
+	require.Equal(t, "val2", step.Parameters[1].Value)
+}
+
+func TestStep_WithNewParameters_odd(t *testing.T) {
+	step := new(Step)
+	step.WithNewParameters("param1", "val1", "param2")
+	require.NotNil(t, step.Parameters)
+	require.Len(t, step.Parameters, 1)
+	require.Equal(t, "param1", step.Parameters[0].Name)
+	require.Equal(t, "val1", step.Parameters[0].Value)
+}
+
+func TestStep_WithParameters(t *testing.T) {
+	step := new(Step)
+	step.WithParameters(NewParameter("param1", "val1"), NewParameter("param2", "val2"))
+	require.NotNil(t, step.Parameters)
+	require.Len(t, step.Parameters, 2)
+	require.Equal(t, "param1", step.Parameters[0].Name)
+	require.Equal(t, "val1", step.Parameters[0].Value)
+	require.Equal(t, "param2", step.Parameters[1].Name)
+	require.Equal(t, "val2", step.Parameters[1].Value)
+}
+
+func TestStep_WithParent(t *testing.T) {
+	parentStep := NewSimpleStep("Parent Step")
+
+	step := new(Step)
+	parentStep.WithParent(step)
+	require.Len(t, step.Steps, 1)
+	st := step.Steps[0]
+	require.Equal(t, parentStep, st)
+}
+
+func TestStep_GetParent(t *testing.T) {
+	parentStep := NewSimpleStep("Parent Step")
+
+	step := new(Step)
+	parentStep.WithParent(step)
+	require.Len(t, step.Steps, 1)
+	st := parentStep.GetParent()
+	require.Equal(t, step, st)
 }

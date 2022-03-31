@@ -2,14 +2,7 @@ package allure
 
 import (
 	"fmt"
-	"io/ioutil"
-
-	"github.com/pkg/errors"
 )
-
-type IAttachment interface {
-	Printable
-}
 
 // Attachment - is an implementation of the attachments to the report in allure. It is most often used to contain
 // screenshots, responses, files and other data obtained during the test.
@@ -79,7 +72,7 @@ var mimeTypeMap = map[MimeType]string{
 // NewAttachment - Constructor. Returns pointer to new attachment object.
 func NewAttachment(name string, mimeType MimeType, content []byte) *Attachment {
 	attachment := &Attachment{
-		uuid:    GetUUID().String(),
+		uuid:    getUUID().String(),
 		content: content,
 		Name:    name,
 		Type:    mimeType,
@@ -89,13 +82,15 @@ func NewAttachment(name string, mimeType MimeType, content []byte) *Attachment {
 	return attachment
 }
 
+func (a *Attachment) GetUUID() string {
+	return a.uuid
+}
+
+func (a *Attachment) GetContent() []byte {
+	return a.content
+}
+
 // Print - Creates a file from `Attachment.content`. The file type is determined by its `Attachment.mimeType`.
 func (a *Attachment) Print() error {
-	createOutputFolder(getResultPath())
-	file := fmt.Sprintf("%s/%s", resultsPath, a.Source)
-	err := ioutil.WriteFile(file, a.content, fileSystemPermissionCode)
-	if err != nil {
-		return errors.Wrap(err, "Failed to write in file")
-	}
-	return nil
+	return NewFileManager().CreateFile(a.Source, a.content)
 }
