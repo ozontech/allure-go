@@ -8,8 +8,8 @@ replace (
 )
 
 require (
-	github.com/ozontech/allure-go/pkg/allure v0.5.0
-	github.com/ozontech/allure-go/pkg/framework v0.5.0
+	github.com/ozontech/allure-go/pkg/allure v0.5.1
+	github.com/ozontech/allure-go/pkg/framework v0.5.1
 )
 
 require (
