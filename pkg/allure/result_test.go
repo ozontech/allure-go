@@ -226,13 +226,17 @@ func TestResult_SetNewLabelMap(t *testing.T) {
 	}
 	result := new(Result)
 	result.SetNewLabelMap(labelMap)
-	label := result.Labels
-	require.NotNil(t, label)
-	require.Len(t, label, 2)
-	require.Equal(t, Framework.ToString(), label[0].Name)
-	require.Equal(t, labelValue1, label[0].Value)
-	require.Equal(t, Host.ToString(), label[1].Name)
-	require.Equal(t, labelValue2, label[1].Value)
+	labelFramework := result.GetLabel(Framework)
+	require.NotNil(t, labelFramework)
+	require.Len(t, labelFramework, 1)
+	require.Equal(t, Framework.ToString(), labelFramework[0].Name)
+	require.Equal(t, labelValue1, labelFramework[0].Value)
+
+	labelHost := result.GetLabel(Host)
+	require.NotNil(t, labelFramework)
+	require.Len(t, labelFramework, 1)
+	require.Equal(t, Host.ToString(), labelHost[0].Name)
+	require.Equal(t, labelValue2, labelHost[0].Value)
 }
 
 func TestResult_WithLaunchTags_noTags(t *testing.T) {

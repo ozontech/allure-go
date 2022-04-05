@@ -106,7 +106,7 @@ func (ctx *stepCtx) WithParameters(parameters ...allure.Parameter) {
 	ctx.currentStep.WithParameters(parameters...)
 }
 
-func (ctx *stepCtx) WithNewParameters(kv ...string) {
+func (ctx *stepCtx) WithNewParameters(kv ...interface{}) {
 	ctx.currentStep.WithNewParameters(kv...)
 }
 

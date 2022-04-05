@@ -61,7 +61,7 @@ func (s *Step) WithParameters(params ...Parameter) *Step {
 // parameter value. If an odd number of lines is passed, the last line is discarded.
 // Adds to the array `Step.Parameters` all `allure.Parameter` received after conversion `kv`.
 // Returns pointer to the current Step (for Fluent Interface).
-func (s *Step) WithNewParameters(kv ...string) *Step {
+func (s *Step) WithNewParameters(kv ...interface{}) *Step {
 	s.Parameters = append(s.Parameters, NewParameters(kv...)...)
 	return s
 }

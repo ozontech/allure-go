@@ -1,5 +1,10 @@
 package allure
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Parameter is an implementation of the Parameter entity,
 // which Allure uses as additional information describing the test Step
 // (for example - request host or server address)
@@ -10,10 +15,11 @@ type Parameter struct {
 
 // NewParameter Constructor. Builds and returns a new `Parameter` object,
 // using `name` as the parameter name and `value`, as the value.
-func NewParameter(name string, value string) Parameter {
+func NewParameter(name string, value ...interface{}) Parameter {
+	val := trimBrackets(messageFromMsgAndArgs(value))
 	return Parameter{
 		Name:  name,
-		Value: value,
+		Value: val,
 	}
 }
 
@@ -21,13 +27,38 @@ func NewParameter(name string, value string) Parameter {
 // Each even string is considered a parameter name, and each  odd-value of the parameter.
 // If an odd number of lines is passed, the last line is discarded.
 // Returns the list of parameters received after processing the passed list.
-func NewParameters(kv ...string) []Parameter {
+func NewParameters(kv ...interface{}) []Parameter {
 	if len(kv)%2 != 0 {
 		kv = kv[:len(kv)-1]
 	}
 	result := make([]Parameter, len(kv)/2)
 	for i := 0; i < len(kv); i += 2 {
-		result[i/2] = NewParameter(kv[i], kv[i+1])
+		val := trimBrackets(messageFromMsgAndArgs(kv[i+1]))
+		result[i/2] = NewParameter(messageFromMsgAndArgs(kv[i]), val)
 	}
 	return result
+}
+
+func trimBrackets(val string) string {
+	if strings.HasSuffix(val, "]") && strings.HasPrefix(val, "[") {
+		return strings.TrimSuffix(strings.TrimPrefix(val, "["), "]")
+	}
+	return val
+}
+
+func messageFromMsgAndArgs(msgAndArgs ...interface{}) string {
+	if len(msgAndArgs) == 0 || msgAndArgs == nil {
+		return ""
+	}
+	if len(msgAndArgs) == 1 {
+		msg := msgAndArgs[0]
+		if msgAsStr, ok := msg.(string); ok {
+			return msgAsStr
+		}
+		return fmt.Sprintf("%+v", msg)
+	}
+	if len(msgAndArgs) > 1 {
+		return fmt.Sprintf(msgAndArgs[0].(string), msgAndArgs[1:]...)
+	}
+	return ""
 }
