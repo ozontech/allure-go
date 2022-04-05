@@ -47,8 +47,8 @@ func (a *asserts) Equal(provider Provider, expected interface{}, actual interfac
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Equal(a.t, expected, actual, msgAndArgs...) },
-		allure.NewParameter("Expected", expString),
-		allure.NewParameter("Actual", actString),
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -64,8 +64,8 @@ func (a *asserts) NotEqual(provider Provider, expected interface{}, actual inter
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.NotEqual(t, expected, actual, msgAndArgs...) },
-		allure.NewParameter("Expected", expString),
-		allure.NewParameter("Actual", actString),
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -80,7 +80,8 @@ func (a *asserts) Error(provider Provider, err error, msgAndArgs ...interface{})
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Error(t, err, msgAndArgs...) },
-		allure.NewParameter("Actual", fmt.Sprintf("%+v", err)),
+		allure.NewParameters("Actual", fmt.Sprintf("%+v", err)),
+		msgAndArgs...,
 	)
 
 	if !success && a.resultHelper.required {
@@ -96,7 +97,8 @@ func (a *asserts) NoError(provider Provider, err error, msgAndArgs ...interface{
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.NoError(t, err, msgAndArgs...) },
-		allure.NewParameter("Actual", fmt.Sprintf("%+v", err)),
+		allure.NewParameters("Actual", fmt.Sprintf("%+v", err)),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -112,7 +114,8 @@ func (a *asserts) Nil(provider Provider, object interface{}, msgAndArgs ...inter
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Nil(t, object, msgAndArgs...) },
-		allure.NewParameter("Actual", objString),
+		allure.NewParameters("Actual", objString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -128,7 +131,8 @@ func (a *asserts) NotNil(provider Provider, object interface{}, msgAndArgs ...in
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.NotNil(t, object, msgAndArgs...) },
-		allure.NewParameter("Actual", objString),
+		allure.NewParameters("Actual", objString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -144,8 +148,8 @@ func (a *asserts) Len(provider Provider, object interface{}, length int, msgAndA
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Len(t, object, length, msgAndArgs...) },
-		allure.NewParameter("Actual", objString),
-		allure.NewParameter("Expected Len", lenString),
+		allure.NewParameters("Actual", objString, "Expected Len", lenString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -161,8 +165,8 @@ func (a *asserts) Contains(provider Provider, s interface{}, contains interface{
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Contains(t, s, contains, msgAndArgs...) },
-		allure.NewParameter("Target Struct", sString),
-		allure.NewParameter("Should Contains", containsString),
+		allure.NewParameters("Target Struct", sString, "Should Contains", containsString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -178,8 +182,8 @@ func (a *asserts) NotContains(provider Provider, s interface{}, contains interfa
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.NotContains(t, s, contains, msgAndArgs...) },
-		allure.NewParameter("Target Struct", sString),
-		allure.NewParameter("Should Not Contains", containsString),
+		allure.NewParameters("Target Struct", sString, "Should Not Contains", containsString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -195,8 +199,8 @@ func (a *asserts) Greater(provider Provider, e1 interface{}, e2 interface{}, msg
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Greater(t, e1, e2, msgAndArgs...) },
-		allure.NewParameter("First Element", e1String),
-		allure.NewParameter("Second Element", e2String),
+		allure.NewParameters("First Element", e1String, "Second Element", e2String),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -212,8 +216,8 @@ func (a *asserts) GreaterOrEqual(provider Provider, e1 interface{}, e2 interface
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.GreaterOrEqual(t, e1, e2, msgAndArgs...) },
-		allure.NewParameter("First Element", e1String),
-		allure.NewParameter("Second Element", e2String),
+		allure.NewParameters("First Element", e1String, "Second Element", e2String),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -229,8 +233,8 @@ func (a *asserts) Less(provider Provider, e1 interface{}, e2 interface{}, msgAnd
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Less(t, e1, e2, msgAndArgs...) },
-		allure.NewParameter("First Element", e1String),
-		allure.NewParameter("Second Element", e2String),
+		allure.NewParameters("First Element", e1String, "Second Element", e2String),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -246,8 +250,8 @@ func (a *asserts) LessOrEqual(provider Provider, e1 interface{}, e2 interface{},
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.LessOrEqual(t, e1, e2, msgAndArgs...) },
-		allure.NewParameter("First Element", e1String),
-		allure.NewParameter("Second Element", e2String),
+		allure.NewParameters("First Element", e1String, "Second Element", e2String),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -263,8 +267,8 @@ func (a *asserts) Implements(provider Provider, interfaceObject interface{}, obj
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Implements(t, interfaceObject, object, msgAndArgs...) },
-		allure.NewParameter("Interface Object", interfaceObjectString),
-		allure.NewParameter("Object", objectString),
+		allure.NewParameters("Interface Object", interfaceObjectString, "Object", objectString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -280,7 +284,8 @@ func (a *asserts) Empty(provider Provider, object interface{}, msgAndArgs ...int
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Empty(t, object, msgAndArgs...) },
-		allure.NewParameter("Object", objectString),
+		allure.NewParameters("Object", objectString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -296,7 +301,8 @@ func (a *asserts) NotEmpty(provider Provider, object interface{}, msgAndArgs ...
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.NotEmpty(t, object, msgAndArgs...) },
-		allure.NewParameter("Object", objectString),
+		allure.NewParameters("Object", objectString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -312,9 +318,8 @@ func (a *asserts) WithinDuration(provider Provider, expected, actual time.Time, 
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.WithinDuration(t, expected, actual, delta, msgAndArgs...) },
-		allure.NewParameter("Expected", expected.String()),
-		allure.NewParameter("Actual", actual.String()),
-		allure.NewParameter("Delta", delta.String()),
+		allure.NewParameters("Expected", expected.String(), "Actual", actual.String(), "Delta", delta.String()),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -329,8 +334,8 @@ func (a *asserts) JSONEq(provider Provider, expected, actual string, msgAndArgs 
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.JSONEq(t, expected, actual, msgAndArgs...) },
-		allure.NewParameter("Expected", expected),
-		allure.NewParameter("Actual", actual),
+		allure.NewParameters("Expected", expected, "Actual", actual),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -346,8 +351,8 @@ func (a *asserts) Subset(provider Provider, list, subset interface{}, msgAndArgs
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Subset(t, list, subset, msgAndArgs...) },
-		allure.NewParameter("List", listString),
-		allure.NewParameter("Subset", subsetString),
+		allure.NewParameters("List", listString, "Subset", subsetString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -363,8 +368,8 @@ func (a *asserts) IsType(provider Provider, expectedType interface{}, object int
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.IsType(t, expectedType, object, msgAndArgs...) },
-		allure.NewParameter("Expected Type", expectedTypeString),
-		allure.NewParameter("Object", objectString),
+		allure.NewParameters("Expected Type", expectedTypeString, "Object", objectString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -380,7 +385,8 @@ func (a *asserts) True(provider Provider, value bool, msgAndArgs ...interface{})
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.True(t, value, msgAndArgs...) },
-		allure.NewParameter("Actual Value", valueString),
+		allure.NewParameters("Actual Value", valueString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
@@ -396,7 +402,8 @@ func (a *asserts) False(provider Provider, value bool, msgAndArgs ...interface{}
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.False(t, value, msgAndArgs...) },
-		allure.NewParameter("Actual Value", valueString),
+		allure.NewParameters("Actual Value", valueString),
+		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
