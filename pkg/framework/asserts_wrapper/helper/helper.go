@@ -33,7 +33,7 @@ func (a *a) NoError(err error, msgAndArgs ...interface{}) {
 
 // Nil ...
 func (a *a) Nil(object interface{}, msgAndArgs ...interface{}) {
-	a.asserts.Nil(a.t, object, msgAndArgs)
+	a.asserts.Nil(a.t, object, msgAndArgs...)
 }
 
 // NotNil ...
