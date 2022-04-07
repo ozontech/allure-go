@@ -41,6 +41,7 @@ type StepCtx interface {
 	WithAttachments(attachments ...*allure.Attachment)
 	WithNewAttachment(name string, mimeType allure.MimeType, content []byte)
 	NewStep(stepName string, parameters ...allure.Parameter)
+	Step(step *allure.Step)
 	Fail()
 	Broken()
 
