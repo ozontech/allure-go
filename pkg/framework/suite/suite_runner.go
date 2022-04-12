@@ -65,18 +65,21 @@ func (r *suiteRunner) RunTests() map[string]bool {
 		started = false
 		suiteWG = sync.WaitGroup{}
 		result  = make(map[string]bool)
+		counter = 0
 	)
 	parentT := r.T()
 	common.BeforeAllHook(parentT, parentT.GetProvider())
 	// wait for all BeforeAll's hooks over
 	parentT.WG().Wait()
+
+	suiteWG.Add(len(r.tests))
 	for fullName, testData := range r.tests {
-		suiteWG.Add(1)
+		counter++
 		result[fullName] = parentT.RealT().Run(testData.testName, func(realT *testing.T) {
 			testT := common.NewTestT(realT, parentT.GetProvider(), parentT, r.packageName, testData.testName, testData.tags...)
 			defer func() {
 				suiteWG.Done()
-				if !started {
+				if !started && counter == len(r.tests) {
 					started = true
 					suiteWG.Wait()
 					common.AfterAllHook(parentT, parentT.GetProvider())
