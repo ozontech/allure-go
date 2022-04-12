@@ -9,7 +9,7 @@ replace (
 
 require (
 	github.com/ozontech/allure-go/pkg/allure v0.5.1
-	github.com/ozontech/allure-go/pkg/framework v0.5.3
+	github.com/ozontech/allure-go/pkg/framework v0.5.4
 )
 
 require (
