@@ -132,6 +132,7 @@ func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx)
 	defer ctx.currentStep.WithChild(newCtx.CurrentStep())
 	defer func() {
 		r := recover()
+		newCtx.CurrentStep().Finish()
 		if r != nil {
 			ctxName := newCtx.ExecutionContextName()
 			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, r, debug.Stack())
