@@ -129,4 +129,10 @@ func (s *Step) PrintAttachments() {
 	for _, a := range s.Attachments {
 		_ = a.Print()
 	}
+	if s.Steps == nil {
+		return
+	}
+	for _, step := range s.Steps {
+		step.PrintAttachments()
+	}
 }
