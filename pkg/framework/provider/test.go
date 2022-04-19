@@ -34,15 +34,21 @@ type StepCtx interface {
 	Error(args ...interface{})
 	Errorf(format string, args ...interface{})
 
+	Step(step *allure.Step)
+	NewStep(stepName string, parameters ...allure.Parameter)
 	WithNewStep(stepName string, step func(ctx StepCtx), params ...allure.Parameter)
 	WithNewAsyncStep(stepName string, step func(ctx StepCtx), params ...allure.Parameter)
+
 	WithParameters(parameters ...allure.Parameter)
 	WithNewParameters(kv ...interface{})
+
+	Attachment(attachment *allure.Attachment)
+	NewAttachment(name string, mimeType allure.MimeType, content []byte)
 	WithAttachments(attachments ...*allure.Attachment)
 	WithNewAttachment(name string, mimeType allure.MimeType, content []byte)
-	NewStep(stepName string, parameters ...allure.Parameter)
-	Step(step *allure.Step)
+
 	Fail()
+	FailNow()
 	Broken()
 
 	Assert() Asserts
