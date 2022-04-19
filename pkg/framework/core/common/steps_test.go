@@ -30,8 +30,8 @@ func (m *executionContextstepsCommMock) AddStep(step *allure.Step) {
 	m.steps = append(m.steps, step)
 }
 
-func (m *executionContextstepsCommMock) AddAttachment(attachment *allure.Attachment) {
-	m.attachments = append(m.attachments, attachment)
+func (m *executionContextstepsCommMock) AddAttachments(attachments ...*allure.Attachment) {
+	m.attachments = append(m.attachments, attachments...)
 }
 
 func (m *executionContextstepsCommMock) GetName() string {

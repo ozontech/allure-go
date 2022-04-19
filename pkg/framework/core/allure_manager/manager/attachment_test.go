@@ -27,8 +27,8 @@ func (m *execMockAttach) AddStep(step *allure.Step) {
 	m.steps = append(m.steps, step)
 }
 
-func (m *execMockAttach) AddAttachment(attachment *allure.Attachment) {
-	m.attach = append(m.attach, attachment)
+func (m *execMockAttach) AddAttachments(attachments ...*allure.Attachment) {
+	m.attach = append(m.attach, attachments...)
 }
 
 func (m *execMockAttach) GetName() string {
@@ -40,7 +40,7 @@ func TestAllureManager_Attachment(t *testing.T) {
 	attach := allure.NewAttachment("testAttach", allure.Text, []byte("test"))
 	manager := allureManager{executionContext: mock}
 
-	manager.Attachment(attach)
+	manager.WithAttachments(attach)
 	require.NotEmpty(t, mock.attach)
 	require.Len(t, mock.attach, 1)
 	require.Equal(t, mock.attach[0], attach)
@@ -49,7 +49,7 @@ func TestAllureManager_Attachment(t *testing.T) {
 func TestAllureManager_NewAttachment(t *testing.T) {
 	mock := newExecMockAttach(constants.TestContextName)
 	manager := allureManager{executionContext: mock}
-	manager.NewAttachment("testAttach", allure.Text, []byte("test"))
+	manager.WithNewAttachment("testAttach", allure.Text, []byte("test"))
 	require.NotEmpty(t, mock.attach)
 	require.Len(t, mock.attach, 1)
 	require.Equal(t, "testAttach", mock.attach[0].Name)

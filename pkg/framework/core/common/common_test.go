@@ -3,16 +3,17 @@ package common
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"sync"
+	"testing"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
-	"os"
-	"sync"
-	"testing"
 )
 
 type executionContextCommMock struct {
@@ -33,8 +34,8 @@ func (m *executionContextCommMock) AddStep(step *allure.Step) {
 	m.steps = append(m.steps, step)
 }
 
-func (m *executionContextCommMock) AddAttachment(attachment *allure.Attachment) {
-	m.attachments = append(m.attachments, attachment)
+func (m *executionContextCommMock) AddAttachments(attachments ...*allure.Attachment) {
+	m.attachments = append(m.attachments, attachments...)
 }
 
 func (m *executionContextCommMock) GetName() string {

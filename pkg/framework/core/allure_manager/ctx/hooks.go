@@ -48,13 +48,13 @@ func (ctx *hooksCtx) GetName() string {
 	return ctx.name
 }
 
-// AddAttachment adds attachment to the execution context
-func (ctx *hooksCtx) AddAttachment(attachment *allure.Attachment) {
+// AddAttachments adds attachment to the execution context
+func (ctx *hooksCtx) AddAttachments(attachments ...*allure.Attachment) {
 	newStep := allure.NewSimpleStep(
-		fmt.Sprintf("Attachment %s", attachment.Name),
-		allure.NewParameter("name", attachment.Name),
-		allure.NewParameter("type", string(attachment.Type)),
-		allure.NewParameter("source", attachment.Source))
-	newStep.WithAttachments(attachment)
+		fmt.Sprintf("Attachment %s", attachments[0].Name),
+		allure.NewParameter("name", attachments[0].Name),
+		allure.NewParameter("type", string(attachments[0].Type)),
+		allure.NewParameter("source", attachments[0].Source))
+	newStep.WithAttachments(attachments...)
 	ctx.AddStep(newStep)
 }

@@ -32,8 +32,8 @@ func (m *executionContextRunnerMock) AddStep(step *allure.Step) {
 	m.steps = append(m.steps, step)
 }
 
-func (m *executionContextRunnerMock) AddAttachment(attachment *allure.Attachment) {
-	m.attachments = append(m.attachments, attachment)
+func (m *executionContextRunnerMock) AddAttachments(attachments ...*allure.Attachment) {
+	m.attachments = append(m.attachments, attachments...)
 }
 
 func (m *executionContextRunnerMock) GetName() string {

@@ -64,7 +64,7 @@ func TestHooksCtx_AddStep(t *testing.T) {
 func TestHooksCtx_AddAttachment(t *testing.T) {
 	attach := allure.NewAttachment("testAttach", allure.Text, []byte("test"))
 	beforeAll := hooksCtx{name: constants.BeforeAllContextName, container: &allure.Container{}}
-	beforeAll.AddAttachment(attach)
+	beforeAll.AddAttachments(attach)
 	require.NotEmpty(t, beforeAll.container.Befores)
 	require.Len(t, beforeAll.container.Befores, 1)
 	require.NotEmpty(t, beforeAll.container.Befores[0].Attachments)
@@ -72,7 +72,7 @@ func TestHooksCtx_AddAttachment(t *testing.T) {
 	require.Equal(t, attach, beforeAll.container.Befores[0].Attachments[0])
 
 	beforeEach := hooksCtx{name: constants.BeforeEachContextName, container: &allure.Container{}}
-	beforeEach.AddAttachment(attach)
+	beforeEach.AddAttachments(attach)
 	require.NotEmpty(t, beforeEach.container.Befores)
 	require.Len(t, beforeEach.container.Befores, 1)
 	require.NotEmpty(t, beforeEach.container.Befores[0].Attachments)
@@ -80,7 +80,7 @@ func TestHooksCtx_AddAttachment(t *testing.T) {
 	require.Equal(t, attach, beforeEach.container.Befores[0].Attachments[0])
 
 	afterAll := hooksCtx{name: constants.AfterAllContextName, container: &allure.Container{}}
-	afterAll.AddAttachment(attach)
+	afterAll.AddAttachments(attach)
 	require.NotEmpty(t, afterAll.container.Afters)
 	require.Len(t, afterAll.container.Afters, 1)
 	require.NotEmpty(t, afterAll.container.Afters[0].Attachments)
@@ -88,7 +88,7 @@ func TestHooksCtx_AddAttachment(t *testing.T) {
 	require.Equal(t, attach, afterAll.container.Afters[0].Attachments[0])
 
 	afterEach := hooksCtx{name: constants.AfterEachContextName, container: &allure.Container{}}
-	afterEach.AddAttachment(attach)
+	afterEach.AddAttachments(attach)
 	require.NotEmpty(t, afterEach.container.Afters)
 	require.Len(t, afterEach.container.Afters, 1)
 	require.NotEmpty(t, afterEach.container.Afters[0].Attachments)

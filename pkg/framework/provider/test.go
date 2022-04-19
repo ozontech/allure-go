@@ -42,9 +42,7 @@ type StepCtx interface {
 	WithParameters(parameters ...allure.Parameter)
 	WithNewParameters(kv ...interface{})
 
-	Attachment(attachment *allure.Attachment)
-	NewAttachment(name string, mimeType allure.MimeType, content []byte)
-	WithAttachments(attachments ...*allure.Attachment)
+	WithAttachments(attachment ...*allure.Attachment)
 	WithNewAttachment(name string, mimeType allure.MimeType, content []byte)
 
 	Fail()

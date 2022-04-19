@@ -114,16 +114,7 @@ func (ctx *stepCtx) WithAttachments(attachments ...*allure.Attachment) {
 	ctx.currentStep.WithAttachments(attachments...)
 }
 
-// WithNewAttachment TODO mark deprecated or remove?
 func (ctx *stepCtx) WithNewAttachment(name string, mimeType allure.MimeType, content []byte) {
-	ctx.currentStep.WithAttachments(allure.NewAttachment(name, mimeType, content))
-}
-
-func (ctx *stepCtx) Attachment(attachment *allure.Attachment) {
-	ctx.currentStep.WithAttachments(attachment)
-}
-
-func (ctx *stepCtx) NewAttachment(name string, mimeType allure.MimeType, content []byte) {
 	ctx.currentStep.WithAttachments(allure.NewAttachment(name, mimeType, content))
 }
 

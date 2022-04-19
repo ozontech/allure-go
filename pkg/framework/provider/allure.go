@@ -51,8 +51,8 @@ type AllureSteps interface {
 }
 
 type Attachments interface {
-	Attachment(attachment *allure.Attachment)
-	NewAttachment(name string, mimeType allure.MimeType, content []byte)
+	WithAttachments(attachment ...*allure.Attachment)
+	WithNewAttachment(name string, mimeType allure.MimeType, content []byte)
 }
 
 type AllureForward interface {
