@@ -1,10 +1,11 @@
 package ctx
 
 import (
+	"testing"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestNewTestCtx(t *testing.T) {
@@ -29,7 +30,7 @@ func TestTestCtx_AddStep(t *testing.T) {
 func TestTestCtx_AddAttachment(t *testing.T) {
 	attach := allure.NewAttachment("testAttach", allure.Text, []byte("test"))
 	test := testCtx{name: constants.TestContextName, result: &allure.Result{}}
-	test.AddAttachment(attach)
+	test.AddAttachments(attach)
 	require.NotEmpty(t, test.result.Attachments)
 	require.Len(t, test.result.Attachments, 1)
 	require.Equal(t, attach, test.result.Attachments[0])

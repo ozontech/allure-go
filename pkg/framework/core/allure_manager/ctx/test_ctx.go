@@ -23,6 +23,6 @@ func (ctx *testCtx) GetName() string {
 	return ctx.name
 }
 
-func (ctx *testCtx) AddAttachment(attachment *allure.Attachment) {
-	ctx.result.Attachments = append(ctx.result.Attachments, attachment)
+func (ctx *testCtx) AddAttachments(attachments ...*allure.Attachment) {
+	ctx.result.Attachments = append(ctx.result.Attachments, attachments...)
 }

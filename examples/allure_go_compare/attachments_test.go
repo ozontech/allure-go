@@ -18,7 +18,7 @@ type AllureGoAttachments struct {
 /* Allure-Go style:
 func TestTextAttachment(t *testing.T) {
 	allure.Test(t, allure.Description("Testing a text attachment"), allure .Action(func() {
-		_ = allure.AddAttachment("text!", allure.TextPlain, []byte("Some text!"))
+		_ = allure.AddAttachments("text!", allure.TextPlain, []byte("Some text!"))
 	}))
 }
 */
@@ -26,14 +26,14 @@ func TestTextAttachment(t *testing.T) {
 func (s *AllureGoAttachments) TestTextAttachment(t provider.T) {
 	t.Epic("Compare with allure-go")
 	t.Description("Testing a text attachment")
-	t.Attachment(allure.NewAttachment("text!", allure.Text, []byte("Some text!")))
+	t.WithAttachments(allure.NewAttachment("text!", allure.Text, []byte("Some text!")))
 }
 
 /* TestTextAttachmentToStep Allure-Go style:
 func TestTextAttachmentToStep(t *testing.T) {
 	allure.Test(t, allure.Description("Testing a text attachment"), allure.Action(func() {
 		allure.Step(allure.Description("adding a text attachment"), allure.Action(func() {
-			_ = allure.AddAttachment("text!", allure.TextPlain, []byte("Some text!"))
+			_ = allure.AddAttachments("text!", allure.TextPlain, []byte("Some text!"))
 		}))
 	}))
 }

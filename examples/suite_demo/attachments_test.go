@@ -30,7 +30,7 @@ func (s *AttachmentTestDemoSuite) TestAttachment(t provider.T) {
 	t.Tags("Attachments", "BeforeAfter", "Steps")
 
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
-	t.Attachment(allure.NewAttachment("Text Attachment if TestAttachment", allure.Text, []byte(attachmentText)))
+	t.WithAttachments(allure.NewAttachment("Text Attachment if TestAttachment", allure.Text, []byte(attachmentText)))
 
 	step := allure.NewSimpleStep("Step A")
 	var ExampleJson = JSONStruct{"this is JSON message"}
@@ -46,7 +46,7 @@ type AttachmentDemoSuite struct {
 func (s *AttachmentDemoSuite) BeforeAll(t provider.T) {
 	// this action will create a step in Set up
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
-	t.Attachment(allure.NewAttachment("Text Attachment for Before suite", allure.Text, []byte(attachmentText)))
+	t.WithAttachments(allure.NewAttachment("Text Attachment for Before suite", allure.Text, []byte(attachmentText)))
 
 	step := allure.NewSimpleStep("Before suite Step")
 	var ExampleJson = JSONStruct{"This is BeforeAll JSON message"}
@@ -58,7 +58,7 @@ func (s *AttachmentDemoSuite) BeforeAll(t provider.T) {
 func (s *AttachmentDemoSuite) BeforeEach(t provider.T) {
 	// this action will create a step in Set up
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
-	t.Attachment(allure.NewAttachment("Text Attachment for Before Test", allure.Text, []byte(attachmentText)))
+	t.WithAttachments(allure.NewAttachment("Text Attachment for Before Test", allure.Text, []byte(attachmentText)))
 
 	step := allure.NewSimpleStep("Before Test Step")
 	var ExampleJson = JSONStruct{"This is BeforeEach JSON message"}
@@ -70,7 +70,7 @@ func (s *AttachmentDemoSuite) BeforeEach(t provider.T) {
 func (s *AttachmentDemoSuite) AfterAll(t provider.T) {
 	// this action will create a step in Tear down
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
-	t.Attachment(allure.NewAttachment("Text Attachment for After suite", allure.Text, []byte(attachmentText)))
+	t.WithAttachments(allure.NewAttachment("Text Attachment for After suite", allure.Text, []byte(attachmentText)))
 
 	step := allure.NewSimpleStep("After suite Step")
 	var ExampleJson = JSONStruct{"This is AfterAll JSON message"}
@@ -82,7 +82,7 @@ func (s *AttachmentDemoSuite) AfterAll(t provider.T) {
 func (s *AttachmentDemoSuite) AfterEach(t provider.T) {
 	// this action will create a step in Tear down
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
-	t.Attachment(allure.NewAttachment("Text Attachment for After Test", allure.Text, []byte(attachmentText)))
+	t.WithAttachments(allure.NewAttachment("Text Attachment for After Test", allure.Text, []byte(attachmentText)))
 
 	step := allure.NewSimpleStep("After Test Step")
 	var ExampleJson = JSONStruct{"This is AfterEach JSON message"}

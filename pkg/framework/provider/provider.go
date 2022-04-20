@@ -52,6 +52,6 @@ type SuiteMeta interface {
 
 type ExecutionContext interface {
 	AddStep(step *allure.Step)
-	AddAttachment(attachment *allure.Attachment)
+	AddAttachments(attachment ...*allure.Attachment)
 	GetName() string
 }

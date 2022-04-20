@@ -1,13 +1,14 @@
 package common
 
 import (
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"sync"
-	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -88,8 +89,8 @@ func (m *executionCtxMock) AddStep(step *allure.Step) {
 	m.steps = append(m.steps, step)
 }
 
-func (m *executionCtxMock) AddAttachment(attachment *allure.Attachment) {
-	m.attachments = append(m.attachments, attachment)
+func (m *executionCtxMock) AddAttachments(attachments ...*allure.Attachment) {
+	m.attachments = append(m.attachments, attachments...)
 }
 
 func (m *executionCtxMock) GetName() string {
