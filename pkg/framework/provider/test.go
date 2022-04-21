@@ -26,15 +26,15 @@ type T interface {
 	Require() Asserts
 	Run(testName string, testBody func(T), tags ...string) bool
 
-	WithNewStep(stepName string, step func(ctx StepCtx), params ...allure.Parameter)
-	WithNewAsyncStep(stepName string, step func(ctx StepCtx), params ...allure.Parameter)
+	WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
+	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
 }
 
 type StepCtx interface {
 	Step(step *allure.Step)
 	NewStep(stepName string, parameters ...allure.Parameter)
-	WithNewStep(stepName string, step func(ctx StepCtx), params ...allure.Parameter)
-	WithNewAsyncStep(stepName string, step func(ctx StepCtx), params ...allure.Parameter)
+	WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
+	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
 
 	WithParameters(parameters ...allure.Parameter)
 	WithNewParameters(kv ...interface{})
