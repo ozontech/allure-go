@@ -20,6 +20,7 @@ type providerTMockStep struct {
 	log     bool
 	logf    bool
 	failNow bool
+	name    string
 }
 
 func newStepProviderMock() *providerTMockStep {
@@ -48,6 +49,10 @@ func (m *providerTMockStep) Log(args ...interface{}) {
 
 func (m *providerTMockStep) Logf(format string, args ...interface{}) {
 	m.logf = true
+}
+
+func (m *providerTMockStep) Name() string {
+	return m.name
 }
 
 type providerMockStep struct {
@@ -445,4 +450,19 @@ func TestStepCtx_WithNewAsyncStep_panic(t *testing.T) {
 	require.Len(t, ctx.currentStep.Steps[0].Parameters, 1)
 	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Name, "p1")
 	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Value, "v1")
+}
+
+func TestStepCtx_Name(t *testing.T) {
+	mockT := newStepProviderMock()
+	mockT.name = "test"
+	var actualName string
+
+	stepF := func(ctx provider.StepCtx) {
+		t.Logf(ctx.Name())
+		actualName = ctx.Name()
+	}
+	step := allure.NewSimpleStep("testStep")
+	ctx := stepCtx{t: mockT, p: &providerMockStep{executionContext: newExecutionCtxMock(constants.TestContextName)}, currentStep: step}
+	ctx.WithNewStep("new step", stepF)
+	require.Equal(t, mockT.name, actualName)
 }

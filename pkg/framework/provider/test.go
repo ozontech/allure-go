@@ -31,9 +31,6 @@ type T interface {
 }
 
 type StepCtx interface {
-	Error(args ...interface{})
-	Errorf(format string, args ...interface{})
-
 	Step(step *allure.Step)
 	NewStep(stepName string, parameters ...allure.Parameter)
 	WithNewStep(stepName string, step func(ctx StepCtx), params ...allure.Parameter)
@@ -45,16 +42,20 @@ type StepCtx interface {
 	WithAttachments(attachment ...*allure.Attachment)
 	WithNewAttachment(name string, mimeType allure.MimeType, content []byte)
 
-	Fail()
-	FailNow()
-	Broken()
-
 	Assert() Asserts
 	Require() Asserts
 
 	CurrentStep() *allure.Step
+
+	Broken()
+
+	Fail()
+	FailNow()
 	Log(args ...interface{})
 	Logf(format string, args ...interface{})
+	Error(args ...interface{})
+	Errorf(format string, args ...interface{})
+	Name() string
 }
 
 // Asserts ...

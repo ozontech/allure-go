@@ -22,6 +22,7 @@ type StepT interface {
 	Errorf(format string, args ...interface{})
 	Log(args ...interface{})
 	Logf(format string, args ...interface{})
+	Name() string
 }
 
 type InternalStepCtx interface {
@@ -58,6 +59,10 @@ func (ctx *stepCtx) NewChildCtx(stepName string, params ...allure.Parameter) Int
 	newCtx.asserts = helper.NewAssertsHelper(newCtx)
 	newCtx.require = helper.NewRequireHelper(newCtx)
 	return newCtx
+}
+
+func (ctx *stepCtx) Name() string {
+	return ctx.t.Name()
 }
 
 func (ctx *stepCtx) Assert() provider.Asserts {
