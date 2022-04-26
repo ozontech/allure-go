@@ -61,11 +61,11 @@ func (s *SuiteAsyncDemo) TestAsyncSuiteDemo3(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {
 		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Test 2 Started At: %s", startSign)
+		ctx.Logf("Test 3 Started At: %s", startSign)
 		time.Sleep(1 * time.Second)
 		defer func() {
 			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Test 2 Stopped At: %s", stopSign)
+			ctx.Logf("Test 3 Stopped At: %s", stopSign)
 			ctx.WithNewParameters("Stop", stopSign)
 		}()
 		ctx.Require().False(true)
@@ -81,11 +81,11 @@ func (s *SuiteAsyncDemo) TestAsyncSuiteDemo4(t provider.T) {
 	t.Parallel()
 	t.WithNewStep("Sync Step Demo", func(ctx provider.StepCtx) {
 		ctx.WithNewParameters("Start", startSign)
-		ctx.Logf("Test 2 Started At: %s", startSign)
-		time.Sleep(1 * time.Second)
+		ctx.Logf("Test 4 Started At: %s", startSign)
+		time.Sleep(2 * time.Second)
 		defer func() {
 			stopSign := fmt.Sprintf("%s", time.Now())
-			ctx.Logf("Test 2 Stopped At: %s", stopSign)
+			ctx.Logf("Test 4 Stopped At: %s", stopSign)
 			ctx.WithNewParameters("Stop", stopSign)
 		}()
 		panic("Whoops")
