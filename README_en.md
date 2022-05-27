@@ -419,7 +419,7 @@ This test will be attached to the suite DemoSuite`)
 
 4) Run the tests.
 
-To do this, you need to describe a function that will run your test and call ``runner.RunSuite``:
+To do this, you need to describe a function that will run your test and call ``suite.RunSuite``:
 
 ```go
 package suite_demo
@@ -428,7 +428,6 @@ import (
 	"testing"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"github.com/ozontech/allure-go/pkg/framework/runner"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
@@ -446,7 +445,7 @@ func (s *DemoSuite) TestSkip(t provider.T) {
 
 func TestSkipDemo(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(SkipDemoSuite))
+	suite.RunSuite(t, new(DemoSuite))
 }
 ```
 

@@ -412,7 +412,7 @@ func (s *DemoSuite) TestSkip(t provider.T) {
 
 4) Запустить тесты.
 
-Для этого нужно описать функцию, которая запустить Ваш тест и вызвать `runner.RunSuite`:
+Для этого нужно описать функцию, которая запустить Ваш тест и вызвать `suite.RunSuite`:
 
 ```go
 package suite_demo
@@ -421,8 +421,7 @@ import (
 	"testing"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"github.com/ozontech/allure-go/pkg/framework/runner"
-    "github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type DemoSuite struct {
@@ -439,7 +438,7 @@ func (s *DemoSuite) TestSkip(t provider.T) {
 
 func TestSkipDemo(t *testing.T) {
 	t.Parallel()
-	runner.RunSuite(t, new(SkipDemoSuite))
+	suite.RunSuite(t, new(DemoSuite))
 }
 ```
 
