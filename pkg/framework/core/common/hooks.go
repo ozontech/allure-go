@@ -2,16 +2,18 @@ package common
 
 import (
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"runtime/debug"
 	"sync"
 	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 type HookFunc func(t InternalT, provider HookProvider, wg *sync.WaitGroup) (bool, error)
 
 type HookType string
 
+// HookType constants
 const (
 	BeforeAll  HookType = "BeforeAll"
 	AfterAll   HookType = "AfterAll"

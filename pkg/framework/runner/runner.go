@@ -2,16 +2,17 @@ package runner
 
 import (
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/allure"
-	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/adapter"
-	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
-	"github.com/ozontech/allure-go/pkg/framework/core/common"
-	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"runtime"
 	"runtime/debug"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/adapter"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
+	"github.com/ozontech/allure-go/pkg/framework/core/common"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
 type InternalT interface {
@@ -191,7 +192,7 @@ func (r *runner) RunTests() map[string]bool {
 
 	// after all hook
 	defer func() {
-		runHook(r.internalT, wg, afterAllHook)
+		_, _ = runHook(r.internalT, wg, afterAllHook)
 	}()
 	for _, testMeta := range r.tests {
 		r.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(testMeta.testMeta.GetResult().UUID)
@@ -222,7 +223,9 @@ func (r *runner) RunTests() map[string]bool {
 
 			testT := setupTest(t, testData.testMeta)
 			// after each hook
-			defer runHook(testT, testT.WG(), afterEachHook)
+			defer func() {
+				_, _ = runHook(testT, testT.WG(), afterEachHook)
+			}()
 			defer func() {
 				rec := recover()
 				if rec != nil {

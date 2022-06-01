@@ -3,12 +3,12 @@ package runner
 import (
 	"flag"
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/adapter"
 	"os"
 	"reflect"
 	"regexp"
 	"strings"
 
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/adapter"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
 	"github.com/ozontech/allure-go/pkg/framework/core/common"
 	"github.com/ozontech/allure-go/pkg/framework/provider"

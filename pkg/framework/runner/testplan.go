@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,7 +13,7 @@ import (
 const testPlanPath = "ALLURE_TESTPLAN_PATH"
 
 type TestCase struct {
-	Id       string `json:"id"`
+	ID       string `json:"id"`
 	Selector string `json:"selector"`
 }
 
@@ -30,7 +31,7 @@ func NewTestPlan() (*TestPlan, error) {
 		return nil, fmt.Errorf("%s environment variable has a wrong format. Please, set path to .json file. Current path:%s", testPlanPath, filePath)
 	}
 
-	testPlanRaw, err := ioutil.ReadFile(filePath)
+	testPlanRaw, err := ioutil.ReadFile(filepath.Clean(filePath))
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +46,7 @@ func NewTestPlan() (*TestPlan, error) {
 
 func (p *TestPlan) IsSelected(id, selector string) bool {
 	for _, t := range p.Tests {
-		if t.Id == id || t.Selector == selector {
+		if t.ID == id || t.Selector == selector {
 			return true
 		}
 	}

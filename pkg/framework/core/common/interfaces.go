@@ -1,9 +1,10 @@
 package common
 
 import (
+	"sync"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"sync"
 )
 
 type ParentT interface {
