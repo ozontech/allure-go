@@ -22,6 +22,8 @@ func (s *SuiteAsyncDemo) BeforeEach(t provider.T) {
 	t.Tags("async", "suite", "steps")
 }
 
+func (s *SuiteAsyncDemo) AfterAll(t provider.T) {}
+
 func (s *SuiteAsyncDemo) TestAsyncSuiteDemo1(t provider.T) {
 	t.Title("Async Test 1")
 

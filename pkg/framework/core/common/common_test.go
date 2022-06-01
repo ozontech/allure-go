@@ -45,7 +45,7 @@ func (m *executionContextCommMock) GetName() string {
 type providerMockCommon struct {
 	provider.AllureForwardFull
 
-	testMetaMock  *testMetaMockCommon
+	testMetaMock  provider.TestMeta
 	suiteMetaMock *suiteMetaMockCommon
 	executionMock *executionContextCommMock
 }
@@ -68,6 +68,10 @@ func (m *providerMockCommon) GetSuiteMeta() provider.SuiteMeta {
 
 func (m *providerMockCommon) ExecutionContext() provider.ExecutionContext {
 	return m.executionMock
+}
+
+func (m *providerMockCommon) SetTestMeta(meta provider.TestMeta) {
+	m.testMetaMock = meta
 }
 
 func (m *providerMockCommon) TestContext()                                         {}
@@ -377,7 +381,8 @@ func TestCommon_GetResult(t *testing.T) {
 
 func TestNewT(t *testing.T) {
 	mockT := new(testing.T)
-	c := NewT(mockT, "packageName", "suiteName")
+	c := NewT(mockT)
+
 	require.NotNil(t, c)
 	require.NotNil(t, c.wg)
 
@@ -385,44 +390,7 @@ func TestNewT(t *testing.T) {
 	require.NotNil(t, c.assert)
 	require.False(t, c.xSkip)
 
-	require.NotNil(t, c.Provider)
-	require.NotNil(t, c.Provider.GetTestMeta())
-	require.NotNil(t, c.Provider.GetSuiteMeta())
-	require.NotNil(t, c.Provider.GetSuiteMeta().GetContainer())
-	require.Equal(t, "suiteName", c.Provider.GetSuiteMeta().GetSuiteName())
-	require.Equal(t, "packageName", c.Provider.GetSuiteMeta().GetPackageName())
-}
-
-func TestNewTestT(t *testing.T) {
-	mockT := new(testing.T)
-	c := NewT(mockT, "packageName", "suiteName")
-	newMockT := new(testing.T)
-	cNew := NewTestT(newMockT, c.Provider, c, "packageName2", "testName")
-	require.NotNil(t, cNew)
-	require.NotNil(t, cNew.wg)
-
-	require.NotNil(t, cNew.require)
-	require.NotNil(t, cNew.assert)
-	require.False(t, cNew.xSkip)
-
-	require.NotNil(t, cNew.Provider)
-	require.NotNil(t, cNew.Provider.GetTestMeta())
-	require.NotNil(t, cNew.Provider.GetTestMeta().GetResult())
-	require.NotNil(t, cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Suite))
-	require.NotEmpty(t, cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Suite))
-	require.Len(t, cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Suite), 1)
-	require.Equal(t, "suiteName", cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Suite)[0].Value)
-
-	require.Equal(t, "testName", cNew.Provider.GetTestMeta().GetResult().Name)
-	require.NotNil(t, cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Package))
-	require.NotEmpty(t, cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Package))
-	require.Len(t, cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Package), 1)
-	require.Equal(t, "packageName2", cNew.Provider.GetTestMeta().GetResult().GetLabel(allure.Package)[0].Value)
-
-	require.NotNil(t, cNew.Provider.GetSuiteMeta())
-	require.NotNil(t, cNew.Provider.GetSuiteMeta().GetContainer())
-	require.Equal(t, "suiteName", cNew.Provider.GetSuiteMeta().GetSuiteName())
-	require.Equal(t, "packageName2", cNew.Provider.GetSuiteMeta().GetPackageName())
+	require.Nil(t, c.Provider)
 }
 
 func TestCopyLabels(t *testing.T) {

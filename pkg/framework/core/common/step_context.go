@@ -153,9 +153,9 @@ func (ctx *stepCtx) WithNewAsyncStep(stepName string, step func(ctx provider.Ste
 	wg = &ctx.wg
 	if ctx.parentStep != nil {
 		wg = ctx.parentStep.WG()
-		defer wg.Wait()
 	}
 	wg.Add(1)
+	defer wg.Wait()
 
 	go func() {
 		defer wg.Done()

@@ -35,7 +35,7 @@ func (s *BeforeAfterDemoSuite) TestBeforeAfterTest(t provider.T) {
 	t.Feature("BeforeAfter")
 	t.Title("Test wrapped with SetUp & TearDown")
 	t.Description(`
-		This test wrapped with SetUp and TearDown containert.`)
+		This test wrapped with SetUp and TearDown container.`)
 
 	t.Tags("BeforeAfter")
 }

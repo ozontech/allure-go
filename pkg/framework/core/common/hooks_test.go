@@ -99,10 +99,29 @@ func (m *testMetaMockHooks) GetAfterEach() func(t provider.T) {
 	return m.ae
 }
 
+type realTMock struct {
+	testing.TB
+	parallelFlag bool
+	runTest      bool
+	testName     string
+}
+
+func (m *realTMock) Parallel() {
+	m.parallelFlag = true
+}
+
+func (m *realTMock) Run(testName string, testBody func(t *testing.T)) bool {
+	m.testName = testName
+	m.runTest = true
+	return true
+}
+
 type hookTMock struct {
 	provider.T
 
+	realT   *realTMock
 	errorF  bool
+	realTF  bool
 	failNow bool
 	wgFlag  bool
 	wg      *sync.WaitGroup
@@ -119,6 +138,14 @@ func (m *hookTMock) FailNow() {
 
 func (m *hookTMock) Errorf(format string, args ...interface{}) {
 	m.errorF = true
+}
+
+func (m *hookTMock) SetRealT(t provider.TestingT) {
+	m.realTF = true
+}
+
+func (m *hookTMock) RealT() provider.TestingT {
+	return m.realT
 }
 
 type hookProviderMock struct {
@@ -156,19 +183,22 @@ func (m *hookProviderMock) GetTestMeta() provider.TestMeta {
 }
 
 func TestBeforeAllHook(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
+	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
+	hookBody := func(t provider.T) {}
 	providerMock := &hookProviderMock{
-		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) {}},
+		suiteMeta: &suiteMetaMockHooks{hook: hookBody},
 		testMeta:  &testMetaMockHooks{},
 	}
-	BeforeAllHook(tMock, providerMock)
+
+	hookFunc := CarriedHook(BeforeAll, providerMock.GetSuiteMeta().GetBeforeAll)
+	hookFunc(tMock, providerMock, &sync.WaitGroup{})
 
 	require.True(t, tMock.wgFlag)
+	require.True(t, tMock.realTF)
 
-	require.True(t, providerMock.beforeAll)
-	require.False(t, providerMock.beforeEach)
-	require.False(t, providerMock.afterAll)
-	require.False(t, providerMock.afterEach)
+	require.True(t, tMock.realT.runTest)
+	require.False(t, tMock.realT.parallelFlag)
+	require.Equal(t, string(BeforeAll), tMock.realT.testName)
 
 	require.True(t, providerMock.suiteMeta.baFlag)
 	require.False(t, providerMock.suiteMeta.aaFlag)
@@ -178,19 +208,21 @@ func TestBeforeAllHook(t *testing.T) {
 }
 
 func TestBeforeEachHook(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
+	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
 	providerMock := &hookProviderMock{
 		suiteMeta: &suiteMetaMockHooks{},
 		testMeta:  &testMetaMockHooks{be: func(t provider.T) {}},
 	}
-	BeforeEachHook(tMock, providerMock)
 
-	require.False(t, providerMock.beforeAll)
-	require.True(t, providerMock.beforeEach)
-	require.False(t, providerMock.afterAll)
-	require.False(t, providerMock.afterEach)
+	hookFunc := CarriedHook(BeforeEach, providerMock.GetTestMeta().GetBeforeEach)
+	hookFunc(tMock, providerMock, &sync.WaitGroup{})
 
-	require.False(t, tMock.wgFlag)
+	require.True(t, tMock.wgFlag)
+	require.True(t, tMock.realTF)
+
+	require.True(t, tMock.realT.runTest)
+	require.Equal(t, string(BeforeEach), tMock.realT.testName)
+
 	require.False(t, providerMock.suiteMeta.baFlag)
 	require.False(t, providerMock.suiteMeta.aaFlag)
 
@@ -199,19 +231,21 @@ func TestBeforeEachHook(t *testing.T) {
 }
 
 func TestAfterAllHook(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
+	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
 	providerMock := &hookProviderMock{
 		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) {}},
 		testMeta:  &testMetaMockHooks{},
 	}
-	AfterAllHook(tMock, providerMock)
 
-	require.False(t, providerMock.beforeAll)
-	require.False(t, providerMock.beforeEach)
-	require.True(t, providerMock.afterAll)
-	require.False(t, providerMock.afterEach)
+	hookFunc := CarriedHook(AfterAll, providerMock.GetSuiteMeta().GetAfterAll)
+	hookFunc(tMock, providerMock, &sync.WaitGroup{})
 
 	require.True(t, tMock.wgFlag)
+	require.True(t, tMock.realTF)
+
+	require.True(t, tMock.realT.runTest)
+	require.Equal(t, string(AfterAll), tMock.realT.testName)
+
 	require.False(t, providerMock.suiteMeta.baFlag)
 	require.True(t, providerMock.suiteMeta.aaFlag)
 
@@ -220,19 +254,21 @@ func TestAfterAllHook(t *testing.T) {
 }
 
 func TestAfterEachHook(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
+	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
 	providerMock := &hookProviderMock{
 		suiteMeta: &suiteMetaMockHooks{},
 		testMeta:  &testMetaMockHooks{ae: func(t provider.T) {}},
 	}
-	AfterEachHook(tMock, providerMock)
 
-	require.False(t, providerMock.beforeAll)
-	require.False(t, providerMock.beforeEach)
-	require.False(t, providerMock.afterAll)
-	require.True(t, providerMock.afterEach)
+	hookFunc := CarriedHook(AfterEach, providerMock.GetTestMeta().GetAfterEach)
+	hookFunc(tMock, providerMock, &sync.WaitGroup{})
 
-	require.False(t, tMock.wgFlag)
+	require.True(t, tMock.wgFlag)
+	require.True(t, tMock.realTF)
+
+	require.True(t, tMock.realT.runTest)
+	require.Equal(t, string(AfterEach), tMock.realT.testName)
+
 	require.False(t, providerMock.suiteMeta.baFlag)
 	require.False(t, providerMock.suiteMeta.aaFlag)
 
@@ -240,98 +276,107 @@ func TestAfterEachHook(t *testing.T) {
 	require.True(t, providerMock.testMeta.aeFlag)
 }
 
-func TestBeforeAllHook_panic(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
-	providerMock := &hookProviderMock{
-		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) { panic("whoops") }},
-		testMeta:  &testMetaMockHooks{},
-	}
-	BeforeAllHook(tMock, providerMock)
-
-	require.True(t, tMock.wgFlag)
-	require.True(t, tMock.failNow)
-	require.True(t, tMock.errorF)
-
-	require.True(t, providerMock.beforeAll)
-	require.False(t, providerMock.beforeEach)
-	require.False(t, providerMock.afterAll)
-	require.False(t, providerMock.afterEach)
-
-	require.True(t, providerMock.suiteMeta.baFlag)
-	require.False(t, providerMock.suiteMeta.aaFlag)
-
-	require.False(t, providerMock.testMeta.beFlag)
-	require.False(t, providerMock.testMeta.aeFlag)
-}
-
-func TestBeforeEachHook_panic(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
-	providerMock := &hookProviderMock{
-		suiteMeta: &suiteMetaMockHooks{},
-		testMeta:  &testMetaMockHooks{be: func(t provider.T) { panic("whoops") }},
-	}
-	BeforeEachHook(tMock, providerMock)
-
-	require.False(t, tMock.wgFlag)
-	require.True(t, tMock.failNow)
-	require.True(t, tMock.errorF)
-
-	require.False(t, providerMock.beforeAll)
-	require.True(t, providerMock.beforeEach)
-	require.False(t, providerMock.afterAll)
-	require.False(t, providerMock.afterEach)
-
-	require.False(t, providerMock.suiteMeta.baFlag)
-	require.False(t, providerMock.suiteMeta.aaFlag)
-
-	require.True(t, providerMock.testMeta.beFlag)
-	require.False(t, providerMock.testMeta.aeFlag)
-}
-
-func TestAfterAllHook_panic(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
-	providerMock := &hookProviderMock{
-		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) { panic("whoops") }},
-		testMeta:  &testMetaMockHooks{},
-	}
-	AfterAllHook(tMock, providerMock)
-
-	require.True(t, tMock.wgFlag)
-	require.True(t, tMock.failNow)
-	require.True(t, tMock.errorF)
-
-	require.False(t, providerMock.beforeAll)
-	require.False(t, providerMock.beforeEach)
-	require.True(t, providerMock.afterAll)
-	require.False(t, providerMock.afterEach)
-
-	require.False(t, providerMock.suiteMeta.baFlag)
-	require.True(t, providerMock.suiteMeta.aaFlag)
-
-	require.False(t, providerMock.testMeta.beFlag)
-	require.False(t, providerMock.testMeta.aeFlag)
-}
-
-func TestAfterEachHook_panic(t *testing.T) {
-	tMock := &hookTMock{wg: &sync.WaitGroup{}}
-	providerMock := &hookProviderMock{
-		suiteMeta: &suiteMetaMockHooks{},
-		testMeta:  &testMetaMockHooks{ae: func(t provider.T) { panic("whoops") }},
-	}
-	AfterEachHook(tMock, providerMock)
-
-	require.False(t, tMock.wgFlag)
-	require.True(t, tMock.failNow)
-	require.True(t, tMock.errorF)
-
-	require.False(t, providerMock.beforeAll)
-	require.False(t, providerMock.beforeEach)
-	require.False(t, providerMock.afterAll)
-	require.True(t, providerMock.afterEach)
-
-	require.False(t, providerMock.suiteMeta.baFlag)
-	require.False(t, providerMock.suiteMeta.aaFlag)
-
-	require.False(t, providerMock.testMeta.beFlag)
-	require.True(t, providerMock.testMeta.aeFlag)
-}
+//
+//func TestBeforeAllHook_panic(t *testing.T) {
+//	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
+//	providerMock := &hookProviderMock{
+//		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) { panic("whoops") }},
+//		testMeta:  &testMetaMockHooks{},
+//	}
+//
+//	hookFunc := CarriedHook(BeforeAll, providerMock.GetSuiteMeta().GetBeforeAll)
+//	hookFunc(tMock, providerMock, &sync.WaitGroup{})
+//
+//	require.True(t, tMock.wgFlag)
+//	require.True(t, tMock.failNow)
+//	require.True(t, tMock.errorF)
+//	require.True(t, tMock.realTF)
+//
+//	require.True(t, tMock.realT.runTest)
+//	require.False(t, tMock.realT.parallelFlag)
+//	require.Equal(t, string(BeforeAll), tMock.realT.testName)
+//
+//	require.True(t, providerMock.suiteMeta.baFlag)
+//	require.False(t, providerMock.suiteMeta.aaFlag)
+//
+//	require.False(t, providerMock.testMeta.beFlag)
+//	require.False(t, providerMock.testMeta.aeFlag)
+//}
+//
+//func TestBeforeEachHook_panic(t *testing.T) {
+//	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
+//	providerMock := &hookProviderMock{
+//		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) {}},
+//		testMeta:  &testMetaMockHooks{},
+//	}
+//
+//	hookFunc := CarriedHook(BeforeEach, providerMock.GetTestMeta().GetBeforeEach)
+//	hookFunc(tMock, providerMock, &sync.WaitGroup{})
+//
+//	require.False(t, tMock.wgFlag)
+//	require.True(t, tMock.failNow)
+//	require.True(t, tMock.errorF)
+//	require.True(t, tMock.realTF)
+//
+//	require.True(t, tMock.realT.runTest)
+//	require.False(t, tMock.realT.parallelFlag)
+//	require.Equal(t, string(BeforeEach), tMock.realT.testName)
+//
+//	require.False(t, providerMock.suiteMeta.baFlag)
+//	require.False(t, providerMock.suiteMeta.aaFlag)
+//
+//	require.True(t, providerMock.testMeta.beFlag)
+//	require.False(t, providerMock.testMeta.aeFlag)
+//}
+//
+//func TestAfterAllHook_panic(t *testing.T) {
+//	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
+//	providerMock := &hookProviderMock{
+//		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) {}},
+//		testMeta:  &testMetaMockHooks{},
+//	}
+//
+//	hookFunc := CarriedHook(AfterAll, providerMock.GetSuiteMeta().GetAfterAll)
+//	hookFunc(tMock, providerMock, &sync.WaitGroup{})
+//
+//	require.True(t, tMock.wgFlag)
+//	require.True(t, tMock.failNow)
+//	require.True(t, tMock.errorF)
+//	require.True(t, tMock.realTF)
+//
+//	require.True(t, tMock.realT.runTest)
+//	require.True(t, tMock.realT.parallelFlag)
+//	require.Equal(t, string(AfterAll), tMock.realT.testName)
+//
+//	require.False(t, providerMock.suiteMeta.baFlag)
+//	require.True(t, providerMock.suiteMeta.aaFlag)
+//
+//	require.False(t, providerMock.testMeta.beFlag)
+//	require.False(t, providerMock.testMeta.aeFlag)
+//}
+//
+//func TestAfterEachHook_panic(t *testing.T) {
+//	tMock := &hookTMock{wg: &sync.WaitGroup{}, realT: &realTMock{}}
+//	providerMock := &hookProviderMock{
+//		suiteMeta: &suiteMetaMockHooks{hook: func(t provider.T) {}},
+//		testMeta:  &testMetaMockHooks{},
+//	}
+//
+//	hookFunc := CarriedHook(AfterEach, providerMock.GetTestMeta().GetAfterEach)
+//	hookFunc(tMock, providerMock, &sync.WaitGroup{})
+//
+//	require.False(t, tMock.wgFlag)
+//	require.True(t, tMock.failNow)
+//	require.True(t, tMock.errorF)
+//	require.True(t, tMock.realTF)
+//
+//	require.True(t, tMock.realT.runTest)
+//	require.False(t, tMock.realT.parallelFlag)
+//	require.Equal(t, string(AfterEach), tMock.realT.testName)
+//
+//	require.False(t, providerMock.suiteMeta.baFlag)
+//	require.False(t, providerMock.suiteMeta.aaFlag)
+//
+//	require.False(t, providerMock.testMeta.beFlag)
+//	require.True(t, providerMock.testMeta.aeFlag)
+//}

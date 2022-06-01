@@ -40,6 +40,10 @@ func (a *allureManager) GetResult() *allure.Result {
 	return a.testMeta.GetResult()
 }
 
+func (a *allureManager) SetTestMeta(meta provider.TestMeta) {
+	a.testMeta = meta
+}
+
 func (a *allureManager) GetTestMeta() provider.TestMeta {
 	return a.testMeta
 }

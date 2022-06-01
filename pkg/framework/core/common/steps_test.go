@@ -41,9 +41,13 @@ func (m *executionContextstepsCommMock) GetName() string {
 type providerMockstepsCommon struct {
 	provider.AllureForwardFull
 	steps         []*allure.Step
-	testMetaMock  *testMetaMockstepsCommon
+	testMetaMock  provider.TestMeta
 	suiteMetaMock *suiteMetaMockstepsCommon
 	executionMock *executionContextstepsCommMock
+}
+
+func (m *providerMockstepsCommon) SetTestMeta(meta provider.TestMeta) {
+	m.testMetaMock = meta
 }
 
 func (m *providerMockstepsCommon) GetResult() *allure.Result {

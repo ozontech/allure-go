@@ -1,65 +1,155 @@
 package common
 
 import (
+	"fmt"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"runtime/debug"
+	"sync"
+	"testing"
 )
 
-func BeforeAllHook(t InternalT, provider HookProvider) {
-	t.WG().Add(1)
-	defer t.WG().Done()
-	if provider.GetSuiteMeta().GetBeforeAll() != nil {
-		provider.BeforeAllContext()
-		defer func() {
-			r := recover()
-			if r != nil {
-				t.Errorf("BeforeAll hook panicked:%v\n%s", r, debug.Stack())
-				t.FailNow()
-			}
-		}()
-		provider.GetSuiteMeta().GetBeforeAll()(t)
+type HookFunc func(t InternalT, provider HookProvider, wg *sync.WaitGroup) (bool, error)
+
+type HookType string
+
+const (
+	BeforeAll  HookType = "BeforeAll"
+	AfterAll   HookType = "AfterAll"
+	BeforeEach HookType = "BeforeEach"
+	AfterEach  HookType = "AfterEach"
+)
+
+func CarriedHook(hook HookType, getHookBody func() func(t provider.T)) HookFunc {
+	return func(t InternalT, provider HookProvider, wg *sync.WaitGroup) (result bool, err error) {
+		t.WG().Add(1)
+		defer t.WG().Done()
+		result = true
+		if hookBody := getHookBody(); hookBody != nil {
+			//oldT := t.RealT()
+			//defer t.SetRealT(oldT)
+			// VERY dirt hack.
+			// That allows let testing library control routines to avoid deadlocks and appropriate waiting
+			result = t.RealT().Run(string(hook), func(realT *testing.T) {
+				switch hook {
+				case BeforeAll:
+					provider.BeforeAllContext()
+				case AfterAll:
+					provider.AfterAllContext()
+					realT.Parallel()
+					wg.Wait()
+				case BeforeEach:
+					provider.BeforeEachContext()
+				case AfterEach:
+					provider.AfterEachContext()
+				}
+				defer func() {
+					r := recover()
+					if r != nil {
+						err = fmt.Errorf("%s hook panicked:%v\n%s", hook, r, debug.Stack())
+						t.Errorf("%s hook panicked:%v\n%s", hook, r, debug.Stack())
+						t.FailNow()
+					}
+				}()
+				//t.SetRealT(realT)
+				hookBody(t)
+			})
+		}
+		return
 	}
 }
 
-func AfterAllHook(t InternalT, provider HookProvider) {
-	t.WG().Add(1)
-	defer t.WG().Done()
-	if provider.GetSuiteMeta().GetAfterAll() != nil {
-		provider.AfterAllContext()
-		defer func() {
-			r := recover()
-			if r != nil {
-				t.Errorf("AfterAll hook panicked:%v\n%s", r, debug.Stack())
-				t.FailNow()
-			}
-		}()
-		provider.GetSuiteMeta().GetAfterAll()(t)
-	}
-}
-
-func BeforeEachHook(t InternalT, provider HookProvider) {
-	if provider.GetTestMeta().GetBeforeEach() != nil {
-		provider.BeforeEachContext()
-		defer func() {
-			r := recover()
-			if r != nil {
-				t.Errorf("BeforeEach hook panicked:%v\n%s", r, debug.Stack())
-				t.FailNow()
-			}
-		}()
-		provider.GetTestMeta().GetBeforeEach()(t)
-	}
-}
-
-func AfterEachHook(t InternalT, provider HookProvider) {
-	if provider.GetTestMeta().GetAfterEach() != nil {
-		provider.AfterEachContext()
-		defer func() {
-			r := recover()
-			if r != nil {
-				t.Errorf("AfterEach hook panicked:%v\n%s", r, debug.Stack())
-				t.FailNow()
-			}
-		}()
-		provider.GetTestMeta().GetAfterEach()(t)
-	}
-}
+//
+//func BeforeAllHook(t InternalT, provider HookProvider, wg *sync.WaitGroup) (err error) {
+//	t.WG().Add(1)
+//	defer t.WG().Done()
+//
+//	if provider.GetSuiteMeta().GetBeforeAll() != nil {
+//		provider.BeforeAllContext()
+//		oldT := t.RealT()
+//		defer t.SetRealT(oldT)
+//
+//		t.RealT().Run("BeforeAll", func(realT *testing.T) {
+//			t.SetRealT(realT)
+//			defer func() {
+//				r := recover()
+//				if r != nil {
+//					err = fmt.Errorf("BeforeAll hook panicked:%v\n%s", r, debug.Stack())
+//					t.Errorf("BeforeAll hook panicked:%v\n%s", r, debug.Stack())
+//					t.FailNow()
+//				}
+//			}()
+//			provider.GetSuiteMeta().GetBeforeAll()(t)
+//		})
+//	}
+//	return
+//}
+//
+//func AfterAllHook(t InternalT, provider HookProvider, wg *sync.WaitGroup) (err error) {
+//	t.WG().Add(1)
+//	defer t.WG().Done()
+//	if provider.GetSuiteMeta().GetAfterAll() != nil {
+//		provider.AfterAllContext()
+//		oldT := t.RealT()
+//		defer t.SetRealT(oldT)
+//
+//		// VERY dirt hack
+//		t.RealT().Run("AfterAll", func(realT *testing.T) {
+//			realT.Parallel()
+//			wg.Wait()
+//			t.SetRealT(realT)
+//			defer func() {
+//				r := recover()
+//				if r != nil {
+//					err = fmt.Errorf("AfterAll hook panicked:%v\n%s", r, debug.Stack())
+//					t.Errorf("AfterAll hook panicked:%v\n%s", r, debug.Stack())
+//					t.FailNow()
+//				}
+//			}()
+//			provider.GetSuiteMeta().GetAfterAll()(t)
+//		})
+//	}
+//	return
+//}
+//
+//func BeforeEachHook(t InternalT, provider HookProvider, wg *sync.WaitGroup) (err error) {
+//	if provider.GetTestMeta().GetBeforeEach() != nil {
+//		provider.BeforeEachContext()
+//		oldT := t.RealT()
+//		defer t.SetRealT(oldT)
+//		t.RealT().Run("BeforeEach", func(realT *testing.T) {
+//			t.SetRealT(realT)
+//			defer func() {
+//				r := recover()
+//				if r != nil {
+//					err = fmt.Errorf("BeforeEach hook panicked:%v\n%s", r, debug.Stack())
+//					t.Errorf("BeforeEach hook panicked:%v\n%s", r, debug.Stack())
+//					t.FailNow()
+//				}
+//			}()
+//			provider.GetTestMeta().GetBeforeEach()(t)
+//		})
+//	}
+//	return
+//}
+//
+//func AfterEachHook(t InternalT, provider HookProvider, wg *sync.WaitGroup) (err error) {
+//	if provider.GetTestMeta().GetAfterEach() != nil {
+//		provider.AfterEachContext()
+//		oldT := t.RealT()
+//		defer t.SetRealT(oldT)
+//
+//		hookResult := t.RealT().Run("AfterEach", func(realT *testing.T) {
+//			t.SetRealT(realT)
+//			defer func() {
+//				r := recover()
+//				if r != nil {
+//					err = fmt.Errorf("AfterEach hook panicked:%v\n%s", r, debug.Stack())
+//					t.Errorf("AfterEach hook panicked:%v\n%s", r, debug.Stack())
+//					t.FailNow()
+//				}
+//			}()
+//			provider.GetTestMeta().GetAfterEach()(t)
+//		})
+//	}
+//	return
+//}

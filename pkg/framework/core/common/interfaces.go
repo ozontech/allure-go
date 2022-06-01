@@ -1,10 +1,9 @@
 package common
 
 import (
-	"sync"
-
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"sync"
 )
 
 type ParentT interface {
@@ -24,6 +23,6 @@ type HookProvider interface {
 
 type InternalT interface {
 	provider.T
-
+	SetRealT(realT provider.TestingT)
 	WG() *sync.WaitGroup
 }
