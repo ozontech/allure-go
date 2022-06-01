@@ -28,6 +28,7 @@ func (s *BeforeAfterDemoSuite) BeforeAll(t provider.T) {
 
 func (s *BeforeAfterDemoSuite) AfterAll(t provider.T) {
 	t.NewStep("After suite Step")
+	t.Logf("HI")
 }
 
 func (s *BeforeAfterDemoSuite) TestBeforeAfterTest(t provider.T) {
