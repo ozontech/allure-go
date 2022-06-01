@@ -36,28 +36,6 @@ func (m *suiteRunnerTMock) Run(testName string, testBody func(t *testing.T)) boo
 	return true
 }
 
-//func TestSuiteRunner_AddTest(t *testing.T) {
-//	r := runner.suiteRunner{
-//		runner: runner.NewRunner(t, "TestSuite"),
-//		tests:      map[string]*suiteTest{},
-//	}
-//	method := reflect.Method{
-//		Name:    "test",
-//		PkgPath: "",
-//		Type:    nil,
-//		Func:    reflect.Value{},
-//		Index:   0,
-//	}
-//	tags := []string{"tag1", "tag2"}
-//	testName := fmt.Sprintf("%s/%s", t.Name(), "test")
-//	r.AddTest("test", method, tags...)
-//
-//	require.NotNil(t, r.tests[testName])
-//	require.Equal(t, "test", r.tests[testName].testName)
-//	require.Equal(t, method, r.tests[testName].testBody)
-//	require.Equal(t, tags, r.tests[testName].tags)
-//}
-
 type TestSuiteRunner struct {
 	Suite
 	testSome1 bool
