@@ -173,14 +173,13 @@ func (r *runner) RunTests() map[string]bool {
 		allureResult.SetStatusTrace(fmt.Sprintf("%s. Reason:\n%s", msg, err.Error()))
 	}
 
+	finishTest := func(meta provider.TestMeta) {
+		meta.GetResult().Done()
+		meta.GetContainer().Finish()
+		_ = meta.GetContainer().Print()
+	}
+
 	defer finishSuite(r.internalT.GetProvider())
-	defer func() {
-		for _, testMeta := range r.tests {
-			testMeta.testMeta.GetResult().Done()
-			testMeta.testMeta.GetContainer().Finish()
-			_ = testMeta.testMeta.GetContainer().Print()
-		}
-	}()
 	defer func() {
 		rec := recover()
 		if rec != nil {
@@ -203,12 +202,14 @@ func (r *runner) RunTests() map[string]bool {
 	if err != nil {
 		for _, testMeta := range r.tests {
 			handleError("Suite Setup failed", err, testMeta.testMeta.GetResult())
+			finishTest(testMeta.testMeta)
 		}
 		return result
 	}
 	if !ok {
 		for _, testMeta := range r.tests {
 			handleError("Suite Setup failed", fmt.Errorf("some assertion error during Suite Setup"), testMeta.testMeta.GetResult())
+			finishTest(testMeta.testMeta)
 		}
 		return result
 	}
@@ -217,8 +218,9 @@ func (r *runner) RunTests() map[string]bool {
 		wg.Add(1)
 		result[fullName] = r.realT().Run(testData.testMeta.GetResult().Name, func(t *testing.T) {
 			defer wg.Done()
-			testT := setupTest(t, testData.testMeta)
+			defer finishTest(testData.testMeta)
 
+			testT := setupTest(t, testData.testMeta)
 			// after each hook
 			defer runHook(testT, testT.WG(), afterEachHook)
 			defer func() {

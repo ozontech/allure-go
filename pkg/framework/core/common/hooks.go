@@ -25,8 +25,8 @@ func CarriedHook(hook HookType, getHookBody func() func(t provider.T)) HookFunc 
 		defer t.WG().Done()
 		result = true
 		if hookBody := getHookBody(); hookBody != nil {
-			//oldT := t.RealT()
-			//defer t.SetRealT(oldT)
+			oldT := t.RealT()
+			defer t.SetRealT(oldT)
 			// VERY dirt hack.
 			// That allows let testing library control routines to avoid deadlocks and appropriate waiting
 			result = t.RealT().Run(string(hook), func(realT *testing.T) {
@@ -50,7 +50,7 @@ func CarriedHook(hook HookType, getHookBody func() func(t provider.T)) HookFunc 
 						t.FailNow()
 					}
 				}()
-				//t.SetRealT(realT)
+				t.SetRealT(realT)
 				hookBody(t)
 			})
 		}
