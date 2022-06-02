@@ -181,7 +181,7 @@ func (r *runner) RunTests() map[string]bool {
 	if plan := r.testPlan; plan != nil {
 		var tests = make(map[string]*test)
 		for fullName, testData := range r.tests {
-			if plan.IsSelected(testData.testMeta.GetResult().TestCaseID, fullName) {
+			if plan.IsSelected(testData.testMeta.GetResult().TestCaseID, testData.testMeta.GetResult().FullName) {
 				tests[fullName] = testData
 			}
 		}
