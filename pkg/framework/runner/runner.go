@@ -178,6 +178,16 @@ func (r *runner) RunTests() map[string]bool {
 		_ = meta.GetContainer().Print()
 	}
 
+	if plan := r.testPlan; plan != nil {
+		var tests map[string]*test
+		for fullName, testData := range r.tests {
+			if plan.IsSelected(testData.testMeta.GetResult().TestCaseID, fullName) {
+				tests[fullName] = testData
+			}
+		}
+		r.tests = tests
+	}
+
 	defer finishSuite(r.internalT.GetProvider())
 	defer func() {
 		rec := recover()

@@ -65,7 +65,7 @@ func NewSuiteRunner(realT TestingT, packageName, suiteName string, suite Interna
 
 	testPlan := testplan.GetTestPlan()
 	if testPlan != nil {
-		fmt.Printf("Test plan found. It will be used for test filters")
+		fmt.Printf("Test plan found. It will be used for test filters\n")
 	}
 
 	testRunner := &runner{
