@@ -20,7 +20,7 @@ var (
 const testPlanPath = "ALLURE_TESTPLAN_PATH"
 
 type TestCase struct {
-	ID       string `json:"id"`
+	ID       int    `json:"id"`
 	Selector string `json:"selector"`
 }
 
@@ -69,7 +69,7 @@ func newTestPlan() (*TestPlan, error) {
 
 func (p *TestPlan) IsSelected(id, selector string) bool {
 	for _, t := range p.Tests {
-		if t.ID == id || t.Selector == selector {
+		if t.Selector == selector {
 			return true
 		}
 	}
