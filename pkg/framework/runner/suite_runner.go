@@ -3,6 +3,7 @@ package runner
 import (
 	"flag"
 	"fmt"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"os"
 	"reflect"
 	"regexp"
@@ -62,7 +63,7 @@ func NewSuiteRunner(realT TestingT, packageName, suiteName string, suite Interna
 		WithRunner(callers[0])
 	newT.SetProvider(manager.NewProvider(providerCfg))
 
-	testPlan, _ := NewTestPlan()
+	testPlan := testplan.GetTestPlan()
 	if testPlan != nil {
 		fmt.Printf("Test plan found. It will be used for test filters")
 	}

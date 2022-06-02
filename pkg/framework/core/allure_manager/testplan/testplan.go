@@ -1,4 +1,4 @@
-package runner
+package testplan
 
 import (
 	"encoding/json"
@@ -7,6 +7,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
+)
+
+var (
+	testPlan *TestPlan
+
+	lock = &sync.Mutex{}
 )
 
 // Path to testplan.json
@@ -22,7 +29,23 @@ type TestPlan struct {
 	Tests   []*TestCase `json:"tests"`
 }
 
-func NewTestPlan() (*TestPlan, error) {
+func GetTestPlan() *TestPlan {
+	var err error
+
+	lock.Lock()
+	defer lock.Unlock()
+
+	if testPlan == nil {
+		testPlan, err = newTestPlan()
+		if err != nil {
+			fmt.Printf("%s\n", err.Error())
+		}
+	}
+
+	return testPlan
+}
+
+func newTestPlan() (*TestPlan, error) {
 	filePath := os.Getenv(testPlanPath)
 	if filePath == "" {
 		return nil, fmt.Errorf("{%s} environment variable not set", testPlanPath)

@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -136,8 +137,12 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 					WithRunner(callers[0])
 			newProvider = manager.NewProvider(providerCfg)
 		)
-
 		newProvider.NewTest(testName, packageName, tags...)
+		if testPlan := testplan.GetTestPlan(); testPlan != nil {
+			if !testPlan.IsSelected(newProvider.GetTestMeta().GetResult().TestCaseID, newProvider.GetResult().FullName) {
+				realT.Skip("Test is not Selected in Test Plan")
+			}
+		}
 		newProvider.TestContext()
 
 		testT.SetProvider(newProvider)

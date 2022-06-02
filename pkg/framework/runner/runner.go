@@ -2,6 +2,7 @@ package runner
 
 import (
 	"fmt"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -56,7 +57,7 @@ type TestRunner interface {
 
 type runner struct {
 	internalT InternalT
-	testPlan  *TestPlan
+	testPlan  *testplan.TestPlan
 	tests     map[string]*test
 }
 
@@ -71,10 +72,7 @@ func NewRunner(realT TestingT, suiteName string) TestRunner {
 		WithRunner(callers[0])
 	newT.SetProvider(manager.NewProvider(providerCfg))
 
-	testPlan, err := NewTestPlan()
-	if err != nil {
-		fmt.Printf("Cannot find test plan. Reason: %s\n", err.Error())
-	}
+	testPlan := testplan.GetTestPlan()
 	return &runner{internalT: newT, tests: make(map[string]*test), testPlan: testPlan}
 }
 
