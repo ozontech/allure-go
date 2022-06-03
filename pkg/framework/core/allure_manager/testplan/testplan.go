@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	testPlan *TestPlan
+	once = sync.Once{}
 
-	lock = &sync.Mutex{}
+	testPlan *TestPlan
 )
 
 // Path to testplan.json
@@ -30,18 +30,18 @@ type TestPlan struct {
 }
 
 func GetTestPlan() *TestPlan {
-	var err error
+	var (
+		err error
+	)
 
-	lock.Lock()
-	defer lock.Unlock()
-
-	if testPlan == nil {
+	testPlanOnce := func() {
 		testPlan, err = newTestPlan()
 		if err != nil {
 			fmt.Printf("%s\n", err.Error())
 		}
 	}
 
+	once.Do(testPlanOnce)
 	return testPlan
 }
 
@@ -59,8 +59,8 @@ func newTestPlan() (*TestPlan, error) {
 		return nil, err
 	}
 
-	testPlan := &TestPlan{}
-	err = json.Unmarshal(testPlanRaw, testPlan)
+	plan := &TestPlan{}
+	err = json.Unmarshal(testPlanRaw, plan)
 	if err != nil {
 		return nil, err
 	}
