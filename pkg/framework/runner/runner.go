@@ -2,7 +2,6 @@ package runner
 
 import (
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/adapter"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"github.com/ozontech/allure-go/pkg/framework/core/common"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -135,49 +135,6 @@ func (r *runner) RunTests() map[string]bool {
 		afterEachHook  = common.CarriedHook(common.AfterEach, r.internalT.GetProvider().GetTestMeta().GetAfterEach)
 	)
 
-	finishSuite := func(p provider.Provider) {
-		p.GetSuiteMeta().GetContainer().Finish()
-		_ = p.GetSuiteMeta().GetContainer().Print()
-	}
-
-	runHook := func(t InternalT, wg *sync.WaitGroup, hookFunc common.HookFunc) (bool, error) {
-		defer t.WG().Wait()
-		return hookFunc(t, t.GetProvider(), wg)
-	}
-
-	setupTest := func(t *testing.T, meta provider.TestMeta) *common.Common {
-		testT := common.NewT(t)
-		packageName := r.internalT.GetProvider().GetSuiteMeta().GetPackageName()
-		suiteName := r.internalT.GetProvider().GetSuiteMeta().GetSuiteName()
-		callers := strings.Split(t.Name(), "/")
-		cfg := manager.NewProviderConfig().
-			WithFullName(t.Name()).
-			WithPackageName(packageName).
-			WithSuiteName(suiteName).
-			WithRunner(callers[0])
-		testT.SetProvider(manager.NewProvider(cfg))
-
-		testT.Provider.TestContext()
-		meta.SetBeforeEach(r.internalT.GetProvider().GetTestMeta().GetBeforeEach())
-		meta.SetAfterEach(r.internalT.GetProvider().GetTestMeta().GetAfterEach())
-		meta.SetResult(copyLabels(r.internalT.GetResult(), meta.GetResult()))
-		testT.Provider.SetTestMeta(meta)
-
-		return testT
-	}
-
-	handleError := func(msg string, err error, allureResult *allure.Result) {
-		allureResult.Status = allure.Unknown
-		allureResult.SetStatusMessage(msg)
-		allureResult.SetStatusTrace(fmt.Sprintf("%s. Reason:\n%s", msg, err.Error()))
-	}
-
-	finishTest := func(meta provider.TestMeta) {
-		meta.GetResult().Done()
-		meta.GetContainer().Finish()
-		_ = meta.GetContainer().Print()
-	}
-
 	if plan := r.testPlan; plan != nil {
 		var tests = make(map[string]*test)
 		for fullName, testData := range r.tests {
@@ -200,14 +157,15 @@ func (r *runner) RunTests() map[string]bool {
 
 	// after all hook
 	defer func() {
-		_, _ = runHook(r.internalT, wg, afterAllHook)
+		wg.Wait()
+		_, _ = runHook(r.internalT, afterAllHook)
 	}()
 	for _, testMeta := range r.tests {
 		r.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(testMeta.testMeta.GetResult().UUID)
 	}
 
 	// before all hook
-	ok, err := runHook(r.internalT, wg, beforeAllHook)
+	ok, err := runHook(r.internalT, beforeAllHook)
 	if err != nil {
 		for _, testMeta := range r.tests {
 			handleError("Suite Setup failed", err, testMeta.testMeta.GetResult())
@@ -223,42 +181,53 @@ func (r *runner) RunTests() map[string]bool {
 		return result
 	}
 
-	for fullName, testData := range r.tests {
-		wg.Add(1)
-		result[fullName] = r.realT().Run(testData.testMeta.GetResult().Name, func(t *testing.T) {
-			defer wg.Done()
-			defer finishTest(testData.testMeta)
+	// THE MOST dirty hack in history
+	// t.Parallel() waits for parent-test reach its defer function
+	// Unfortunately it's impossible to reach this function if parent-test waits for other tests complete
+	// So if we run child test from test-runner
+	// tests from suite will wait defer func of test-runner child instead of test-runner itself
+	r.internalT.RealT().Run(fmt.Sprintf("%s_Tests", r.internalT.Name()), func(t *testing.T) {
+		oldT := r.internalT.RealT()
+		r.internalT.SetRealT(t)
+		defer r.internalT.SetRealT(oldT)
 
-			testT := setupTest(t, testData.testMeta)
-			// after each hook
-			defer func() {
-				_, _ = runHook(testT, testT.WG(), afterEachHook)
-			}()
-			defer func() {
-				rec := recover()
-				if rec != nil {
-					ctxName := testT.GetProvider().ExecutionContext().GetName()
-					errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
-					common.TestError(testT, testT.Provider, testT.Provider.ExecutionContext().GetName(), errMsg)
+		for fullName, testData := range r.tests {
+			wg.Add(1)
+			result[fullName] = r.realT().Run(testData.testMeta.GetResult().Name, func(t *testing.T) {
+				defer wg.Done()
+				defer finishTest(testData.testMeta)
+
+				testT := setupTest(t, r.internalT.GetProvider(), testData.testMeta)
+				// after each hook
+				defer func() {
+					_, _ = runHook(testT, afterEachHook)
+				}()
+				defer func() {
+					rec := recover()
+					if rec != nil {
+						ctxName := testT.GetProvider().ExecutionContext().GetName()
+						errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
+						common.TestError(testT, testT.Provider, testT.Provider.ExecutionContext().GetName(), errMsg)
+					}
+				}()
+
+				// before each hook
+				ok, err = runHook(testT, beforeEachHook)
+				if err != nil {
+					handleError("Test Setup failed", err, testData.testMeta.GetResult())
+					return
 				}
-			}()
+				if !ok {
+					handleError("Test Setup failed", fmt.Errorf("assertion error due test setup"), testData.testMeta.GetResult())
+					return
+				}
 
-			// before each hook
-			ok, err = runHook(testT, r.internalT.WG(), beforeEachHook)
-			if err != nil {
-				handleError("Test Setup failed", err, testData.testMeta.GetResult())
-				return
-			}
-			if !ok {
-				handleError("Test Setup failed", fmt.Errorf("assertion error due test setup"), testData.testMeta.GetResult())
-				return
-			}
-
-			testT.GetProvider().TestContext()
-			testData.testBody(testT)
-			testT.WG().Wait()
-		})
-	}
+				testT.GetProvider().TestContext()
+				defer testT.WG().Wait()
+				testData.testBody(testT)
+			})
+		}
+	})
 	return result
 }
 
@@ -277,6 +246,54 @@ func Run(t *testing.T, testName string, testBody func(provider.T), tags ...strin
 	newT.Provider.TestContext()
 
 	return newT.Run(testName, testBody, tags...)
+}
+
+func finishSuite(p provider.Provider) {
+	p.GetSuiteMeta().GetContainer().Finish()
+	_ = p.GetSuiteMeta().GetContainer().Print()
+}
+
+func runHook(t InternalT, hookFunc common.HookFunc) (bool, error) {
+	return hookFunc(t, t.GetProvider())
+}
+
+func setupTest(t *testing.T, parentProvider provider.Provider, meta provider.TestMeta) *common.Common {
+	var (
+		testT = common.NewT(t)
+
+		parentSuiteMeta = parentProvider.GetSuiteMeta()
+		parentTestMeta  = parentProvider.GetTestMeta()
+		packageName     = parentSuiteMeta.GetPackageName()
+		suiteName       = parentSuiteMeta.GetSuiteName()
+
+		callers = strings.Split(t.Name(), "/")
+		cfg     = manager.NewProviderConfig().
+			WithFullName(t.Name()).
+			WithPackageName(packageName).
+			WithSuiteName(suiteName).
+			WithRunner(callers[0])
+	)
+	testT.SetProvider(manager.NewProvider(cfg))
+
+	testT.Provider.TestContext()
+	meta.SetBeforeEach(parentTestMeta.GetBeforeEach())
+	meta.SetAfterEach(parentTestMeta.GetAfterEach())
+	meta.SetResult(copyLabels(parentProvider.GetResult(), meta.GetResult()))
+	testT.Provider.SetTestMeta(meta)
+
+	return testT
+}
+
+func finishTest(meta provider.TestMeta) {
+	meta.GetResult().Done()
+	meta.GetContainer().Finish()
+	_ = meta.GetContainer().Print()
+}
+
+func handleError(msg string, err error, allureResult *allure.Result) {
+	allureResult.Status = allure.Unknown
+	allureResult.SetStatusMessage(msg)
+	allureResult.SetStatusTrace(fmt.Sprintf("%s. Reason:\n%s", msg, err.Error()))
 }
 
 func getPackage(depth int) string {

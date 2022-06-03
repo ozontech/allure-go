@@ -72,7 +72,7 @@ func TestSuite_RunSuite(t *testing.T) {
 
 	suite := new(TestSuiteRunSuite)
 	mockT := &suiteRunnerTMock{t: t}
-	r := NewSuiteRunner(mockT, "packageName", "suiteName", suite)
+	r := runner.NewSuiteRunner(mockT, "packageName", "suiteName", suite)
 	r.RunTests()
 
 	// subtests have been run
