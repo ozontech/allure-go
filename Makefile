@@ -8,6 +8,7 @@ BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
 export GO111MODULE=on
 export GOSUMDB=off
 LOCAL_BIN:=$(CURDIR)/bin
+EXAMPLES_TAGS:=examples_new,provider_new,allure_go_new,async
 
 ##################### GOLANG-CI RELATED CHECKS #####################
 # Check global GOLANGCI-LINT
@@ -53,7 +54,13 @@ install:
 
 .PHONY: examples
 examples:
-	- export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=examples_new,provider_new,allure_go_new,async
+ifeq ($(OS),Windows_NT)
+	$(info Copying custom header)
+	set ALLURE_TESTPLAN_PATH=$(CURDIR)/examples/testplan.json&&set ALLURE_OUTPUT_PATH=../&& go test ./examples/... --tags=$(EXAMPLES_TAGS)
+else
+	export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=$(EXAMPLES_TAGS)
+endif
+
 
 .PHONY: allure-serve
 allure-serve:
@@ -62,8 +69,7 @@ allure-serve:
 # run full lint like in pipeline
 .PHONY: lint
 lint: install-lint
-	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=examples_new,provider_new,allure_go_new,async
-
+	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=$(EXAMPLES_TAGS)
 
 .PHONY: install-lint
 install-lint:
