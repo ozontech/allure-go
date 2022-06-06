@@ -49,18 +49,41 @@ full-demo: install demo
 demo: examples allure-serve
 
 .PHONY: install
-install:
-	go mod tidy && go mod download && brew install allure
+install: .install_deps .install_allure
+
+.PHONY: .install_deps
+.install_deps:
+	go mod tidy && go mod download
+
+.PHONY: .install_allure
+.install_allure:
+ifeq ($(OS),Windows_NT)
+	$(info Run Windows run pattern...)
+	$(info Make sure scoop installed at your system. Check for more information: https://github.com/ScoopInstaller/Scoop#installation)
+	scoop install allure
+endif
+ifeq ($(OS),Linux)
+	$(info Run Linux run pattern...)
+	$(info Make sure you have sudo rights for the system.)
+	sudo apt-add-repository ppa:qameta/allure
+	sudo apt-get update
+	sudo apt-get install allure
+endif
+ifeq ($(OS),Darwin)
+	$(info Run installation for Darwin OS)
+	$(info Make sure brew installed at your system. Check for more information: https://docs.brew.sh/Installation)
+	brew install allure
+endif
 
 .PHONY: examples
 examples:
 ifeq ($(OS),Windows_NT)
-	$(info Copying custom header)
-	set ALLURE_TESTPLAN_PATH=$(CURDIR)/examples/testplan.json&&set ALLURE_OUTPUT_PATH=../&& go test ./examples/... --tags=$(EXAMPLES_TAGS)
+	$(info Run windows pattern...)
+	set ALLURE_OUTPUT_PATH=../&& go test ./examples/... --tags=$(EXAMPLES_TAGS)
 else
+	$(info Run default pattern...)
 	export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=$(EXAMPLES_TAGS)
 endif
-
 
 .PHONY: allure-serve
 allure-serve:
