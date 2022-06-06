@@ -145,6 +145,11 @@ func (r *runner) RunTests() map[string]bool {
 		r.tests = tests
 	}
 
+	if len(r.tests) == 0 {
+		r.internalT.Logf("No tests to run for suite %s", r.internalT.Name())
+		return result
+	}
+
 	defer finishSuite(r.internalT.GetProvider())
 	defer func() {
 		rec := recover()
