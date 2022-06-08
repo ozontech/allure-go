@@ -103,6 +103,9 @@ func findTestPlan(path string) (testPlanRaw []byte, readFileErr error) {
 	if strings.HasSuffix(pathParts[0], ":") {
 		pathParts[0] = pathParts[0] + "/"
 	}
+	if pathParts[0] == "" {
+		pathParts[0] = pathParts[0] + "/"
+	}
 
 	// os.Getwd() returns current test folder.
 	// trying to walk up the absolute path to find testplan.json
@@ -119,7 +122,9 @@ func findTestPlan(path string) (testPlanRaw []byte, readFileErr error) {
 				return
 			}
 			tmpPathParts = tmpPathParts[:len(tmpPathParts)-1]
+			continue
 		}
+		break
 	}
 	return
 }
