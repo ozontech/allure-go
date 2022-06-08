@@ -103,8 +103,8 @@ func findTestPlan(path string) (testPlanRaw []byte, readFileErr error) {
 	if strings.HasSuffix(pathParts[0], ":") {
 		pathParts[0] = pathParts[0] + "/"
 	}
-	if pathParts[0] == "" {
-		pathParts[0] = pathParts[0] + "/"
+	if pathParts[0] == "" && len(pathParts) > 1 {
+		pathParts[1] = "/" + pathParts[1]
 	}
 
 	// os.Getwd() returns current test folder.
