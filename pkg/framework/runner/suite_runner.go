@@ -52,14 +52,24 @@ type suiteRunner struct {
 	suite       InternalSuite
 }
 
+func NewSuiteRunnerWithParent(realT TestingT, packageName, suiteName, parentSuite string, suite InternalSuite) TestRunner {
+	return newSuiteRunner(realT, packageName, suiteName, parentSuite, suite)
+}
+
 func NewSuiteRunner(realT TestingT, packageName, suiteName string, suite InternalSuite) TestRunner {
+	return newSuiteRunner(realT, packageName, suiteName, "", suite)
+}
+
+func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, suite InternalSuite) TestRunner {
 	newT := common.NewT(realT)
 
 	callers := strings.Split(realT.Name(), "/")
+	fullName := fmt.Sprintf("%s/%s", realT.Name(), suiteName)
 	providerCfg := manager.NewProviderConfig().
-		WithFullName(realT.Name()).
+		WithFullName(fullName).
 		WithPackageName(packageName).
 		WithSuiteName(suiteName).
+		WithParentSuite(parentSuite).
 		WithRunner(callers[0])
 	newT.SetProvider(manager.NewProvider(providerCfg))
 

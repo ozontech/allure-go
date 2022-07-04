@@ -134,104 +134,111 @@ func (r *runner) RunTests() map[string]bool {
 		beforeEachHook = common.CarriedHook(common.BeforeEach, r.internalT.GetProvider().GetTestMeta().GetBeforeEach)
 		afterEachHook  = common.CarriedHook(common.AfterEach, r.internalT.GetProvider().GetTestMeta().GetAfterEach)
 	)
-
-	if plan := r.testPlan; plan != nil {
-		var tests = make(map[string]*test)
-		for fullName, testData := range r.tests {
-			if plan.IsSelected(testData.testMeta.GetResult().TestCaseID, testData.testMeta.GetResult().FullName) {
-				tests[fullName] = testData
-			}
-		}
-		r.tests = tests
-	}
-
-	if len(r.tests) == 0 {
-		r.internalT.Skip("No tests to run for suite %s", r.internalT.Name())
-		return result
-	}
-
-	defer finishSuite(r.internalT.GetProvider())
-	defer func() {
-		rec := recover()
-		if rec != nil {
-			ctxName := r.internalT.GetProvider().ExecutionContext().GetName()
-			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
-			common.TestError(r.internalT, r.internalT.GetProvider(), r.internalT.GetProvider().ExecutionContext().GetName(), errMsg)
-		}
-	}()
-
-	// after all hook
-	defer func() {
-		wg.Wait()
-		_, _ = runHook(r.internalT, afterAllHook)
-	}()
-	for _, testMeta := range r.tests {
-		r.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(testMeta.testMeta.GetResult().UUID)
-	}
-
-	// before all hook
-	ok, err := runHook(r.internalT, beforeAllHook)
-	if err != nil {
-		for _, testMeta := range r.tests {
-			handleError("Suite Setup failed", err, testMeta.testMeta.GetResult())
-			finishTest(testMeta.testMeta)
-		}
-		return result
-	}
-	if !ok {
-		for _, testMeta := range r.tests {
-			handleError("Suite Setup failed", fmt.Errorf("some assertion error during Suite Setup"), testMeta.testMeta.GetResult())
-			finishTest(testMeta.testMeta)
-		}
-		return result
-	}
-
-	// THE MOST dirty hack in history
-	// t.Parallel() waits for parent-test reach its defer function
-	// Unfortunately it's impossible to reach this function if parent-test waits for other tests complete
-	// So if we run child test from test-runner
-	// tests from suite will wait defer func of test-runner child instead of test-runner itself
-	r.internalT.RealT().Run(fmt.Sprintf("%s_Tests", r.internalT.Name()), func(t *testing.T) {
-		oldT := r.internalT.RealT()
+	r.realT().Run(r.internalT.GetProvider().GetSuiteMeta().GetSuiteName(), func(t *testing.T) {
+		oldT := r.realT()
 		r.internalT.SetRealT(t)
 		defer r.internalT.SetRealT(oldT)
 
-		for fullName, testData := range r.tests {
-			wg.Add(1)
-			result[fullName] = r.realT().Run(testData.testMeta.GetResult().Name, func(t *testing.T) {
-				defer wg.Done()
-				defer finishTest(testData.testMeta)
-
-				testT := setupTest(t, r.internalT.GetProvider(), testData.testMeta)
-				// after each hook
-				defer func() {
-					_, _ = runHook(testT, afterEachHook)
-				}()
-				defer func() {
-					rec := recover()
-					if rec != nil {
-						ctxName := testT.GetProvider().ExecutionContext().GetName()
-						errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
-						common.TestError(testT, testT.Provider, testT.Provider.ExecutionContext().GetName(), errMsg)
-					}
-				}()
-
-				// before each hook
-				ok, err = runHook(testT, beforeEachHook)
-				if err != nil {
-					handleError("Test Setup failed", err, testData.testMeta.GetResult())
-					return
+		if plan := r.testPlan; plan != nil {
+			var tests = make(map[string]*test)
+			for fullName, testData := range r.tests {
+				if plan.IsSelected(testData.testMeta.GetResult().TestCaseID, testData.testMeta.GetResult().FullName) {
+					tests[fullName] = testData
 				}
-				if !ok {
-					handleError("Test Setup failed", fmt.Errorf("assertion error due test setup"), testData.testMeta.GetResult())
-					return
-				}
-
-				testT.GetProvider().TestContext()
-				defer testT.WG().Wait()
-				testData.testBody(testT)
-			})
+			}
+			r.tests = tests
 		}
+
+		if len(r.tests) == 0 {
+			r.internalT.Skip("No tests to run for suite %s", r.internalT.Name())
+			//return result
+		}
+
+		defer finishSuite(r.internalT.GetProvider())
+		defer func() {
+			rec := recover()
+			if rec != nil {
+				ctxName := r.internalT.GetProvider().ExecutionContext().GetName()
+				errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
+				common.TestError(r.internalT, r.internalT.GetProvider(), r.internalT.GetProvider().ExecutionContext().GetName(), errMsg)
+			}
+		}()
+
+		// after all hook
+		defer func() {
+			wg.Wait()
+			_, _ = runHook(r.internalT, afterAllHook)
+		}()
+
+		for _, testMeta := range r.tests {
+			r.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(testMeta.testMeta.GetResult().UUID)
+		}
+
+		// before all hook
+		ok, err := runHook(r.internalT, beforeAllHook)
+		if err != nil {
+			for _, testMeta := range r.tests {
+				handleError("Suite Setup failed", err, testMeta.testMeta.GetResult())
+				finishTest(testMeta.testMeta)
+			}
+			//return result
+		}
+		if !ok {
+			for _, testMeta := range r.tests {
+				handleError("Suite Setup failed", fmt.Errorf("some assertion error during Suite Setup"), testMeta.testMeta.GetResult())
+				finishTest(testMeta.testMeta)
+			}
+			//return result
+		}
+
+		// THE MOST dirty hack in history
+		// t.Parallel() waits for parent-test reach its defer function
+		// Unfortunately it's impossible to reach this function if parent-test waits for other tests complete
+		// So if we run child test from test-runner
+		// tests from suite will wait defer func of test-runner child instead of test-runner itself
+		r.internalT.RealT().Run(fmt.Sprintf("Tests"), func(t *testing.T) {
+			oldT := r.internalT.RealT()
+			r.internalT.SetRealT(t)
+			defer r.internalT.SetRealT(oldT)
+
+			for fullName, testData := range r.tests {
+				wg.Add(1)
+				result[fullName] = r.realT().Run(testData.testMeta.GetResult().Name, func(t *testing.T) {
+					defer wg.Done()
+					defer finishTest(testData.testMeta)
+
+					testT := setupTest(t, r.internalT.GetProvider(), testData.testMeta)
+					// after each hook
+					defer func() {
+						_, _ = runHook(testT, afterEachHook)
+					}()
+
+					defer func() {
+						rec := recover()
+						if rec != nil {
+							ctxName := testT.GetProvider().ExecutionContext().GetName()
+							errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
+							common.TestError(testT, testT.Provider, testT.Provider.ExecutionContext().GetName(), errMsg)
+						}
+					}()
+
+					// before each hook
+					ok, err = runHook(testT, beforeEachHook)
+					if err != nil {
+						handleError("Test Setup failed", err, testData.testMeta.GetResult())
+						return
+					}
+					if !ok {
+						handleError("Test Setup failed", fmt.Errorf("assertion error due test setup"), testData.testMeta.GetResult())
+						return
+					}
+
+					testT.GetProvider().TestContext()
+					defer testT.WG().Wait()
+					testData.testBody(testT)
+				})
+			}
+		})
 	})
 	return result
 }
@@ -276,6 +283,7 @@ func setupTest(t *testing.T, parentProvider provider.Provider, meta provider.Tes
 			WithFullName(t.Name()).
 			WithPackageName(packageName).
 			WithSuiteName(suiteName).
+			WithParentSuite(parentSuiteMeta.GetParentSuite()).
 			WithRunner(callers[0])
 	)
 	testT.SetProvider(manager.NewProvider(cfg))
@@ -283,6 +291,9 @@ func setupTest(t *testing.T, parentProvider provider.Provider, meta provider.Tes
 	testT.Provider.TestContext()
 	meta.SetBeforeEach(parentTestMeta.GetBeforeEach())
 	meta.SetAfterEach(parentTestMeta.GetAfterEach())
+	if parentSuite := testT.Provider.GetSuiteMeta().GetParentSuite(); parentSuite != "" {
+		meta.GetResult().WithParentSuite(parentSuite)
+	}
 	meta.SetResult(copyLabels(parentProvider.GetResult(), meta.GetResult()))
 	testT.Provider.SetTestMeta(meta)
 

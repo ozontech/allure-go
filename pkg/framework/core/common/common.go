@@ -124,8 +124,9 @@ func (c *Common) Errorf(format string, args ...interface{}) {
 func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
 	return c.TestingT.Run(testName, func(realT *testing.T) {
 		var (
-			suiteName   = c.Provider.GetSuiteMeta().GetSuiteName()
+			suiteName   = c.Provider.GetTestMeta().GetResult().Name
 			packageName = c.Provider.GetSuiteMeta().GetPackageName()
+			parentSuite = c.Provider.GetSuiteMeta().GetSuiteName()
 
 			testT = NewT(realT)
 
@@ -134,6 +135,7 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 					WithFullName(realT.Name()).
 					WithPackageName(packageName).
 					WithSuiteName(suiteName).
+					WithParentSuite(parentSuite).
 					WithRunner(callers[0])
 			newProvider = manager.NewProvider(providerCfg)
 		)
@@ -156,7 +158,7 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 			testT.wg.Wait()
 			if rec != nil {
 				errMsg := fmt.Sprintf("Test panicked: %v\n%s", rec, debug.Stack())
-				TestError(testT, c.Provider, c.Provider.ExecutionContext().GetName(), errMsg)
+				TestError(testT, testT.Provider, testT.Provider.ExecutionContext().GetName(), errMsg)
 			}
 		}()
 

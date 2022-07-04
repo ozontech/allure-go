@@ -9,6 +9,7 @@ const (
 	FullName    ConfigKey = "fullName"
 	SuitePath   ConfigKey = "suitePath"
 	Runner      ConfigKey = "runner"
+	ParentSuite ConfigKey = "parentSuite"
 )
 
 // ProviderConfig describes configuration interface
@@ -17,12 +18,14 @@ type ProviderConfig interface {
 	SuiteName() string
 	FullName() string
 	PackageName() string
+	ParentSuite() string
 	Runner() string
 
 	WithSuitePath(suitePath string) ProviderConfig
 	WithSuiteName(suiteName string) ProviderConfig
 	WithFullName(fullName string) ProviderConfig
 	WithPackageName(packageName string) ProviderConfig
+	WithParentSuite(parentSuite string) ProviderConfig
 	WithRunner(runner string) ProviderConfig
 }
 
@@ -60,6 +63,11 @@ func (cfg *providerConfig) Runner() string {
 	return cfg.cfg[Runner]
 }
 
+// ParentSuite ...
+func (cfg *providerConfig) ParentSuite() string {
+	return cfg.cfg[ParentSuite]
+}
+
 // WithSuitePath ...
 func (cfg *providerConfig) WithSuitePath(suitePath string) ProviderConfig {
 	cfg.cfg[SuitePath] = suitePath
@@ -87,5 +95,11 @@ func (cfg *providerConfig) WithFullName(fullName string) ProviderConfig {
 // WithRunner ...
 func (cfg *providerConfig) WithRunner(runner string) ProviderConfig {
 	cfg.cfg[Runner] = runner
+	return cfg
+}
+
+// WithParentSuite ...
+func (cfg *providerConfig) WithParentSuite(parentSuite string) ProviderConfig {
+	cfg.cfg[ParentSuite] = parentSuite
 	return cfg
 }

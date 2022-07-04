@@ -12,6 +12,7 @@ type SuiteAdapter struct {
 	runner        string
 	fullSuiteName string
 	suiteName     string
+	parentSuite   string
 
 	beforeAll func(provider.T)
 	afterAll  func(provider.T)
@@ -30,6 +31,17 @@ func NewSuiteMeta(packageName, runner, fullSuiteName, suiteName string) *SuiteAd
 	}
 }
 
+func NewSuiteMetaWithParent(packageName, runner, fullSuiteName, suiteName, parentSuite string) *SuiteAdapter {
+	return &SuiteAdapter{
+		packageName:   packageName,
+		runner:        runner,
+		fullSuiteName: fullSuiteName,
+		suiteName:     suiteName,
+		parentSuite:   parentSuite,
+		container:     allure.NewContainer(),
+	}
+}
+
 // GetPackageName returns package name
 func (ctx *SuiteAdapter) GetPackageName() string {
 	return ctx.packageName
@@ -43,6 +55,11 @@ func (ctx *SuiteAdapter) GetRunner() string {
 // GetSuiteName returns suite name
 func (ctx *SuiteAdapter) GetSuiteName() string {
 	return ctx.suiteName
+}
+
+// GetParentSuite returns suite name
+func (ctx *SuiteAdapter) GetParentSuite() string {
+	return ctx.parentSuite
 }
 
 // GetSuiteFullName returns full name

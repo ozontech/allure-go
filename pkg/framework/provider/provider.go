@@ -42,6 +42,7 @@ type SuiteMeta interface {
 	GetPackageName() string
 	GetRunner() string
 	GetSuiteName() string
+	GetParentSuite() string
 	GetSuiteFullName() string
 	GetContainer() *allure.Container
 
