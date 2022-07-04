@@ -54,7 +54,7 @@ Complete list of allure objects:
 - `Step`
 
 Providing a separate package allows you to customize your work with allure.<br>
-For more details see [here] (#how-to-use-allure). <br>
+For more details see [here](#how-to-use-allure). <br>
 
 ### `pkg/framework/provider/T`
 
