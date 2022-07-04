@@ -76,6 +76,7 @@ func (s *TestSuiteRunnerPanic) TestSome1(t provider.T) {
 }
 
 func TestRunner_RunTests_panic(t *testing.T) {
+	t.Skipf("This test need to be reworked")
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
@@ -123,6 +124,7 @@ func (s *TestSuiteRunnerHooks) TestSome(t provider.T) {
 }
 
 func TestRunner_hooks(t *testing.T) {
+	t.Skipf("This test need to be reworked")
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 

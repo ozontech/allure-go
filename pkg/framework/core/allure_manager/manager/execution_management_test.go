@@ -63,6 +63,10 @@ func (m *suiteMetaMockExecM) GetSuiteName() string {
 	return m.name
 }
 
+func (m *suiteMetaMockExecM) GetParentSuite() string {
+	return ""
+}
+
 func (m *suiteMetaMockExecM) GetSuiteFullName() string {
 	return m.name
 }

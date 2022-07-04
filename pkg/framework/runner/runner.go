@@ -150,7 +150,7 @@ func (r *runner) RunTests() map[string]bool {
 		}
 
 		if len(r.tests) == 0 {
-			r.internalT.Skip("No tests to run for suite %s", r.internalT.Name())
+			r.internalT.Skipf("No tests to run for suite %s", r.internalT.Name())
 			//return result
 		}
 

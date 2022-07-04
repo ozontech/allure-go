@@ -107,16 +107,18 @@ func findTestPlan(path string) (testPlanRaw []byte, readFileErr error) {
 	// os.Getwd() returns current test folder.
 	// trying to walk up the absolute path to find testplan.json
 	tmpPathParts := pathParts
-	for _, _ = range pathParts {
+	for range pathParts {
 		basicPath := filepath.Join(tmpPathParts...)
 		absolutePath := filepath.Join(basicPath, filepath.Clean(path))
 		if pathParts[0] == "" && len(pathParts) > 1 {
 			absolutePath = "/" + absolutePath
 		}
 
+		//nolint:gosec // already cleared
 		testPlanRaw, readFileErr = ioutil.ReadFile(absolutePath)
 		if readFileErr != nil {
 			// stop looking if project root found
+			//nolint:gosec // already cleared
 			_, gErr := ioutil.ReadFile(filepath.Join(basicPath, "go.mod"))
 			if gErr == nil {
 				return

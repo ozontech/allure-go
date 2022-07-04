@@ -44,11 +44,12 @@ func RunNamedSuite(t provider.TestingT, suiteName string, suite runner.InternalS
 }
 
 func getSuiteName(suite interface{}) string {
-	if s := reflect.TypeOf(suite); s.Kind() == reflect.Ptr {
+	s := reflect.TypeOf(suite)
+	if s.Kind() == reflect.Ptr {
 		return s.Elem().Name()
-	} else {
-		return s.Name()
 	}
+	return s.Name()
+
 }
 
 func cleanName(fullName string) string {

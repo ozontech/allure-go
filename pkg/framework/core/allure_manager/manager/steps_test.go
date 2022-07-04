@@ -62,6 +62,10 @@ func (m *suiteMetaMockSteps) GetSuiteName() string {
 	return m.name
 }
 
+func (m *suiteMetaMockSteps) GetParentSuite() string {
+	return ""
+}
+
 func (m *suiteMetaMockSteps) GetSuiteFullName() string {
 	return m.name
 }

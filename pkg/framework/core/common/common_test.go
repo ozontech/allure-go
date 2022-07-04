@@ -101,6 +101,10 @@ func (m *suiteMetaMockCommon) GetSuiteName() string {
 	return m.name
 }
 
+func (m *suiteMetaMockCommon) GetParentSuite() string {
+	return ""
+}
+
 func (m *suiteMetaMockCommon) GetSuiteFullName() string {
 	return fmt.Sprintf("%s/%s", m.namePrefix, m.name)
 }
