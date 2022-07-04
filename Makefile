@@ -82,7 +82,7 @@ ifeq ($(OS),Windows_NT)
 	set ALLURE_OUTPUT_PATH=../&& go test ./examples/... --tags=$(EXAMPLES_TAGS)
 else
 	$(info Run default pattern...)
-	export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=$(EXAMPLES_TAGS)
+	export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=$(EXAMPLES_TAGS) || true
 endif
 
 .PHONY: allure-serve
