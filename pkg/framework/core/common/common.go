@@ -136,7 +136,10 @@ func (c *Common) Fatalf(format string, args ...interface{}) {
 
 // Name ...
 func (c *Common) Name() string {
-	return c.GetProvider().GetResult().Name
+	if c.GetProvider() != nil && c.GetProvider().GetResult() != nil {
+		return c.GetProvider().GetResult().Name
+	}
+	return c.TestingT.Name()
 }
 
 // Fail ...
