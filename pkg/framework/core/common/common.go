@@ -134,6 +134,53 @@ func (c *Common) Fatalf(format string, args ...interface{}) {
 	c.TestingT.Fatalf(format, args...)
 }
 
+// Name ...
+func (c *Common) Name() string {
+	return c.GetProvider().GetResult().Name
+}
+
+// Fail ...
+func (c *Common) Fail() {
+	c.GetProvider().GetResult().Status = allure.Failed
+	c.TestingT.Fail()
+}
+
+// FailNow ...
+func (c *Common) FailNow() {
+	c.GetProvider().GetResult().Status = allure.Failed
+	c.TestingT.FailNow()
+}
+
+// Skip ...
+func (c *Common) Skip(args ...interface{}) {
+	c.safely(func(result *allure.Result) {
+		skipMessage := fmt.Sprintln(args...)
+		if len(skipMessage) > 100 {
+			result.StatusDetails.Message = skipMessage[:100]
+		} else {
+			result.StatusDetails.Message = skipMessage
+		}
+		result.StatusDetails.Trace = skipMessage
+		result.Status = allure.Skipped
+	})
+	c.TestingT.Skip(args...)
+}
+
+// Skipf ...
+func (c *Common) Skipf(format string, args ...interface{}) {
+	c.safely(func(result *allure.Result) {
+		skipMessage := fmt.Sprintf(format, args...)
+		if len(skipMessage) > 100 {
+			result.StatusDetails.Message = skipMessage[:100]
+		} else {
+			result.StatusDetails.Message = skipMessage
+		}
+		result.StatusDetails.Trace = skipMessage
+		result.Status = allure.Skipped
+	})
+	c.TestingT.Skipf(format, args...)
+}
+
 // Run runs test body as test with passed tags
 func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
 	return c.TestingT.Run(testName, func(realT *testing.T) {
@@ -179,21 +226,6 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 		testT.Provider.TestContext()
 		testBody(testT)
 	})
-}
-
-// Skip ...
-func (c *Common) Skip(args ...interface{}) {
-	c.safely(func(result *allure.Result) {
-		skipMessage := fmt.Sprintln(args...)
-		if len(skipMessage) > 100 {
-			result.StatusDetails.Message = skipMessage[:100]
-		} else {
-			result.StatusDetails.Message = skipMessage
-		}
-		result.StatusDetails.Trace = skipMessage
-		result.Status = allure.Skipped
-	})
-	c.TestingT.Skip(args...)
 }
 
 func (c *Common) SetRealT(realT provider.TestingT) {
