@@ -23,14 +23,14 @@ func (s *Suite) SetRunner(runner runner.TestRunner) {
 
 func (s *Suite) RunSuite(t provider.T, suite runner.InternalSuite) map[string]bool {
 	t.SkipOnPrint()
-	parts := strings.Split(t.Name(), "/")
+	parts := strings.Split(t.RealT().Name(), "/")
 	parentName := parts[len(parts)-3]
 	return runner.NewSuiteRunnerWithParent(t.RealT(), getPackage(2), cleanName(getSuiteName(suite)), parentName, suite).RunTests()
 }
 
 func (s *Suite) RunNamedSuite(t provider.T, suiteName string, suite runner.InternalSuite) map[string]bool {
 	t.SkipOnPrint()
-	parts := strings.Split(t.Name(), "/")
+	parts := strings.Split(t.RealT().Name(), "/")
 	parentName := parts[len(parts)-3]
 	return runner.NewSuiteRunnerWithParent(t.RealT(), getPackage(2), suiteName, parentName, suite).RunTests()
 }
