@@ -33,7 +33,7 @@ func CarriedHook(hook HookType, getHookBody func() func(t provider.T)) HookFunc 
 
 			// VERY dirt hack.
 			// That allows let testing library control routines to avoid deadlocks and appropriate waiting
-			result = t.RealT().Run(fmt.Sprintf("%s", hook), func(realT *testing.T) {
+			result = t.RealT().Run(string(hook), func(realT *testing.T) {
 				defer t.WG().Done()
 				switch hook {
 				case BeforeAll:

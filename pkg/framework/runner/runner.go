@@ -196,7 +196,7 @@ func (r *runner) RunTests() map[string]bool {
 		// Unfortunately it's impossible to reach this function if parent-test waits for other tests complete
 		// So if we run child test from test-runner
 		// tests from suite will wait defer func of test-runner child instead of test-runner itself
-		r.internalT.RealT().Run(fmt.Sprintf("Tests"), func(t *testing.T) {
+		r.internalT.RealT().Run("Tests", func(t *testing.T) {
 			oldT := r.internalT.RealT()
 			r.internalT.SetRealT(t)
 			defer r.internalT.SetRealT(oldT)

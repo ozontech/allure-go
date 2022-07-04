@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
