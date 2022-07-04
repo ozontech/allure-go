@@ -120,6 +120,20 @@ func (c *Common) Errorf(format string, args ...interface{}) {
 	c.TestingT.Errorf(format, args...)
 }
 
+// Fatal ...
+func (c *Common) Fatal(args ...interface{}) {
+	fullMessage := fmt.Sprintf("%s", args...)
+	c.registerError(fullMessage)
+	c.TestingT.Fatal(args...)
+}
+
+// Fatalf ...
+func (c *Common) Fatalf(format string, args ...interface{}) {
+	fullMessage := fmt.Sprintf(format, args...)
+	c.registerError(fullMessage)
+	c.TestingT.Fatalf(format, args...)
+}
+
 // Run runs test body as test with passed tags
 func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
 	return c.TestingT.Run(testName, func(realT *testing.T) {
