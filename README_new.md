@@ -29,19 +29,24 @@ Complete list of allure objects:
 The package provides a fully integrated with Allure JUNIT-like framework for working with tests.<br>
 Main features:
 
-+ **Allure support**
-    + Test plan support (Allure TestOps feature)
-    + Tests as code
-    + Extensive configuration options for test steps
-    + Testify's asserts already wrapped with `allure.Step`!
-    + xSkip support (you can mark test as `t.XSkip()` and it will be skipped on fail)
-+ **Suite support**
-    + Before/After feature
-    + Suite as go-struct
-    + Suite as sub-test
-+ **Parallel running**
-    + Parallel tests in suite structs
-    + Parallel steps in test functions
+:white_check_mark:**Allure support**
+
++ Test plan support (Allure TestOps feature)
++ Tests as code
++ Extensive configuration options for test steps
++ Testify's asserts already wrapped with `allure.Step`!
++ xSkip support (you can mark test as `t.XSkip()` and it will be skipped on fail)
+
+:white_check_mark: **Suite support**
+
++ Before/After feature
++ Suite as go-struct
++ Suite as sub-test
+
+:white_check_mark: **Parallel running**
+
++ Parallel tests in suite structs
++ Parallel steps in test functions
 
 ## Getting Started with framework!
 
@@ -240,6 +245,92 @@ func TestRunner(t *testing.T) {
 ```bash
 go test ./test/... 
 ```
+
+## Configure your environment!
+
+### Configure Behavior
+
+The path to allure reports is gathered from the two global variables: `${ALLURE_OUTPUT_FOLDER}/${ALLURE_OUTPUT_PATH}` 
+
+:zap: The `ALLURE_OUTPUT_FOLDER` is the name of the folder where the allure reports will be stored (by
+  default, `allure-results`).
+---
+:zap: The `ALLURE_OUTPUT_PATH` is the path where the `ALLURE_OUTPUT_FOLDER` will be created (by default this is the root
+  folder root folder of the test launcher).
+---
+You can also specify several global configurations to integrate with your TMS or Task Tracker:
+
+:zap: `ALLURE_ISSUE_PATTERN` - Specifies the url pattern for your Issues. Has no default value. **Mandatory**. Must
+  contain `%s`.
+
+If `ALLURE_ISSUE_PATTERN` is not specified, the link will be read in its entirety.
+
+Example:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+)
+
+func TestSampleDemo(t *testing.T) {
+	runner.Run(t, "Just Link", func(t provider.T) {
+		t.SetIssue("https://pkg.go.dev/github.com/stretchr/testify")
+	})
+
+	runner.Run(t, "With Pattern", func(t provider.T) {
+		_ = os.Setenv("ALLURE_ISSUE_PATTERN", "https://pkg.go.dev/github.com/stretchr/%s")
+		t.SetIssue("testify")
+	})
+
+}
+
+```
+---
+:zap: `ALLURE_TESTCASE_PATTERN` - Specifies the url pattern for your TestCases. Has no default value. **Mandatory**. Must
+  contain `%s`.
+
+If `ALLURE_TESTCASE_PATTERN` is not specified, the link will be read in its entirety.
+
+Example:
+
+```go
+package provider_demo
+
+import (
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+)
+
+func TestSampleDemo(t *testing.T) {
+	runner.Run(t, "Just Link", func(t provider.T) {
+		t.SetTestCase("https://pkg.go.dev/github.com/stretchr/testify")
+	})
+
+	runner.Run(t, "With Pattern", func(t provider.T) {
+		_ = os.Setenv("ALLURE_TESTCASE_PATTERN", "https://pkg.go.dev/github.com/stretchr/%s")
+		t.SetTestCase("testify")
+	})
+
+}
+
+```
+---
+:zap: `ALLURE_LAUNCH_TAGS` - Sheds a list of tags that will be applied to each test by default. It has no default value.
+
+:information_source: **Tip:** `ALLURE_LAUNCH_TAGS` - Very handy to use with CI/CD. For example, you can define test groups in it by your
+ci-jobs, or you can roll the name of a branch.
+
+---
+:zap: `ALLURE_TESTPLAN_PATH` - describes path to your test plan json. 
+
+:information_source: **Tip:** To use this feature you need to work with [Allure TestOps](https://docs.qameta.io/allure-testops/ecosystem/allurectl/#tests-rerun-and-selective-run-with-allurectl)
 
 ## Going Deeper...
 
