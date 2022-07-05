@@ -336,11 +336,15 @@ ci-jobs, or you can roll the name of a branch.
 
 ### pkg/allure
 
-TBD
+:page_facing_up: [pkg/allure documentation](./pkg/allure/README.md)
 
 ### pkg/framework
 
-TBD
+:page_facing_up: [pkg/framework documentation](./pkg/framework/README.md)
+
+### cute
+
+:full_moon_with_face: [You can find cute here!](https://github.com/ozontech/cute)
 
 ## Few more examples
 
