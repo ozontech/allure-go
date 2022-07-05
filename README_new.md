@@ -5,13 +5,33 @@
 Allure-Go - the project that provides a complete allure provider in go, without overloading the interface of usage. <br>
 The project started as a fork of testify, but over time it got its own runner and its own features. <br>
 
-## Head of contents
+## :mortar_board: Head of contents
 
-## Features
++ [:mortar_board: Head of contents](#mortar_board-head-of-contents)
++ [:zap: Features](#zap-features)
+  + [pkg/allure](#sparkles-pkgallure)
+  + [pkg/framework](#sparkles-pkgframework)
++ [:beginner: Getting Started with framework!](#beginner-getting-started-with-framework)
+  + [No Suite tests](#no-suite-tests)
+  + [Runner](#runner)
+  + [Suite](#suite)
++ [:wrench: Configure your environment!](#wrench-configure-your-environment)
++ [:smirk: Going Deeper...](#smirk-going-deeper)
+  + [pkg/allure](#pkgallure)
+  + [pkg/framework](#pkgframework)
+  + [cute](#cute)
++ [:school_satchel: Few more examples](#school_satchel-few-more-examples)
+  + [Test with nested steps](#test-with-nested-stepsexamplessuite_demostep_tree_testgo)
+  + [Test with attachments](#test-with-attachmentexamplessuite_demoattachments_testgo)
+  + [Run few parallel suites](#run-few-parallel-suitesexamplessuite_demorunning_testgo)
+  + [Setup hooks](#setup-hooksexamplessuite_demobefores_afters_testgo)
+  + [XSkip](#xskipexamplessuite_demofails_testgo)
+
+## :zap: Features
 
 Providing a separate package allows you to customize your work with allure.<br>
 
-### pkg/allure
+### :sparkles: pkg/allure
 
 The package containing the data model for Allure. <br>
 Complete list of allure objects:
@@ -24,7 +44,7 @@ Complete list of allure objects:
 + `Result`
 + `Step`
 
-### pkg/framework
+### :sparkles: pkg/framework
 
 The package provides a fully integrated with Allure JUNIT-like framework for working with tests.<br>
 Main features:
@@ -48,7 +68,7 @@ Main features:
 + Parallel tests in suite structs
 + Parallel steps in test functions
 
-## Getting Started with framework!
+## :beginner: Getting Started with framework!
 
 **Step 0.** Install package
 
@@ -246,7 +266,7 @@ func TestRunner(t *testing.T) {
 go test ./test/... 
 ```
 
-## Configure your environment!
+## :wrench: Configure your environment!
 
 ### Configure Behavior
 
@@ -335,7 +355,7 @@ ci-jobs, or you can roll the name of a branch.
 
 :information_source: **Tip:** To use this feature you need to work with [Allure TestOps](https://docs.qameta.io/allure-testops/ecosystem/allurectl/#tests-rerun-and-selective-run-with-allurectl)
 
-## Going Deeper...
+## :smirk: Going Deeper...
 
 ### pkg/allure
 
@@ -349,7 +369,18 @@ ci-jobs, or you can roll the name of a branch.
 
 :full_moon_with_face: [You can find cute here!](https://github.com/ozontech/cute)
 
-## Few more examples
+Cute - is library for simply creating HTTP tests in Go with Allure reports.
+
+Main features:<br>
+:zap: Full integration with Allure <br>
+:zap: Expressive and intuitive syntax <br>
+:zap: Built-in JSON support <br>
+:zap: Custom asserts <br>
+:zap: One step to BDD <br>
+
+Cute can simply improve your allure-go testing experience! Try it :wink:
+
+## :school_satchel: Few more examples
 
 ### [Test with nested steps](examples/suite_demo/step_tree_test.go):
 
