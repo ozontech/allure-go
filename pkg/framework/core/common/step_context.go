@@ -82,6 +82,7 @@ func (ctx *stepCtx) ExecutionContextName() string {
 }
 
 func (ctx *stepCtx) FailNow() {
+	ctx.Fail()
 	ctx.t.FailNow()
 }
 
