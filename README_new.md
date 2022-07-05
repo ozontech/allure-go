@@ -254,9 +254,12 @@ The path to allure reports is gathered from the two global variables: `${ALLURE_
 
 :zap: The `ALLURE_OUTPUT_FOLDER` is the name of the folder where the allure reports will be stored (by
   default, `allure-results`).
+
 ---
+
 :zap: The `ALLURE_OUTPUT_PATH` is the path where the `ALLURE_OUTPUT_FOLDER` will be created (by default this is the root
   folder root folder of the test launcher).
+
 ---
 You can also specify several global configurations to integrate with your TMS or Task Tracker:
 
