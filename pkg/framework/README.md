@@ -2,8 +2,8 @@
 
 ## Head of contents
 
-+ [Head of contents](#head-of-contents)
-+ [Interfaces](#interfaces)
++ [:mortar_board: Head of contents](#head-of-contents)
++ [:video_game: Interfaces](#interfaces)
   + [provider.T](#providert)
     + [Extended methods](#extended-methods)
     + [Specific methods](#specific-methods)
@@ -23,7 +23,7 @@
     + [Assertion methods](#assertion-methods)
     + [Step condition and log methods](#step-condition-and-log-methods)
   + [provider.Asserts](#providerasserts)
-+ [Test Running](#test-running)
++ [:runner: Test Running](#test-running)
   + [No suite running](#no-suite-running)
   + [Suite with runner object](#suite-with-runner-object)
   + [Suite with struct](#suite-with-struct)
