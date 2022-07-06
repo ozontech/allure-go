@@ -73,8 +73,8 @@ func initTestPlan() *TestPlan {
 
 	testPlanOnce := func() {
 		tPlan, err = newTestPlan()
-		if err != nil {
-			fmt.Printf("%s\n", err.Error())
+		if err == nil {
+			fmt.Printf("TestPlan found!")
 		}
 	}
 	once.Do(testPlanOnce)
