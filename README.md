@@ -50,7 +50,7 @@ Complete list of allure objects:
 The package provides a fully integrated with Allure JUNIT-like framework for working with tests.<br>
 Main features:
 
-:white_check_mark:**Allure support**
+:white_check_mark: **Allure support**
 
 + Test plan support (Allure TestOps feature)
 + Tests as code
