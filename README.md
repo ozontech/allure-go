@@ -21,6 +21,7 @@ The project started as a fork of testify, but over time it got its own runner an
   + [pkg/framework](#pkgframework)
   + [cute](#cute)
 + [:school_satchel: Few more examples](#school_satchel-few-more-examples)
+  + [:rocket: Async test](#async-testexamplesasyncasync_step_testgo)
   + [Test with nested steps](#test-with-nested-stepsexamplessuite_demostep_tree_testgo)
   + [Test with attachments](#test-with-attachmentexamplessuite_demoattachments_testgo)
   + [Run few parallel suites](#run-few-parallel-suitesexamplessuite_demorunning_testgo)
@@ -381,6 +382,59 @@ Main features:<br>
 Cute can simply improve your allure-go testing experience! Try it :wink:
 
 ## :school_satchel: Few more examples
+
+### [Async test](examples/async/async_step_test.go)
+
+:rocket: **YES!** We really **can** run **parallel** tests in **suites**. <br>
+:rocket: Even with async steps. <br>
+:rocket: Example below.
+
+Test code:
+
+```go
+package async
+
+import (
+  "fmt"
+  "time"
+  
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type AsyncSuiteStepDemo struct {
+  suite.Suite
+}
+
+func (s *AsyncSuiteStepDemo) BeforeEach(t provider.T) {
+  t.Epic("Async")
+  t.Feature("Async Steps")
+  t.Tags("async", "suite", "steps")
+}
+
+func (s *AsyncSuiteStepDemo) TestAsyncStepDemo1(t provider.T) {
+  t.Title("Async Test with async steps 1")
+
+  t.Parallel()
+
+  t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
+    ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+    time.Sleep(3 * time.Second)
+    ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+  })
+
+  t.WithNewAsyncStep("Async Step 2", func(ctx provider.StepCtx) {
+    ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))
+    time.Sleep(3 * time.Second)
+    ctx.Logf("Step 2 Stopped At: %s", fmt.Sprintf("%s", time.Now()))
+    ctx.WithNewParameters("Stop", fmt.Sprintf("%s", time.Now()))
+  })
+}
+```
+
+Allure output:
+
+![](.resources/example_async_test.png)
 
 ### [Test with nested steps](examples/suite_demo/step_tree_test.go):
 
