@@ -150,7 +150,9 @@ func (c *Common) Fail() {
 
 // FailNow ...
 func (c *Common) FailNow() {
-	c.GetProvider().GetResult().Status = allure.Failed
+	c.safely(func(result *allure.Result) {
+		result.Status = allure.Failed
+	})
 	c.TestingT.FailNow()
 }
 

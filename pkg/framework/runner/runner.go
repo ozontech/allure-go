@@ -151,7 +151,7 @@ func (r *runner) RunTests() map[string]bool {
 
 		if len(r.tests) == 0 {
 			r.internalT.Skipf("No tests to run for suite %s", r.internalT.Name())
-			//return result
+			return
 		}
 
 		defer finishSuite(r.internalT.GetProvider())
@@ -181,14 +181,14 @@ func (r *runner) RunTests() map[string]bool {
 				handleError("Suite Setup failed", err, testMeta.testMeta.GetResult())
 				finishTest(testMeta.testMeta)
 			}
-			//return result
+			return
 		}
 		if !ok {
 			for _, testMeta := range r.tests {
 				handleError("Suite Setup failed", fmt.Errorf("some assertion error during Suite Setup"), testMeta.testMeta.GetResult())
 				finishTest(testMeta.testMeta)
 			}
-			//return result
+			return
 		}
 
 		// THE MOST dirty hack in history
