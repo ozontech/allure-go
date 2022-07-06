@@ -78,6 +78,7 @@ type Asserts interface {
 	NotEmpty(object interface{}, msgAndArgs ...interface{})
 	WithinDuration(expected, actual time.Time, delta time.Duration, msgAndArgs ...interface{})
 	JSONEq(expected, actual string, msgAndArgs ...interface{})
+	JSONContains(expected, actual string, msgAndArgs ...interface{})
 	Subset(list, subset interface{}, msgAndArgs ...interface{})
 	IsType(expectedType interface{}, object interface{}, msgAndArgs ...interface{})
 	True(value bool, msgAndArgs ...interface{})

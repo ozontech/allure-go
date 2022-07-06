@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ozontech/allure-go/pkg/allure"
+	coreAssert "github.com/ozontech/allure-go/pkg/framework/core/assert"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -334,6 +335,22 @@ func (a *asserts) JSONEq(provider Provider, expected, actual string, msgAndArgs 
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.JSONEq(t, expected, actual, msgAndArgs...) },
+		allure.NewParameters("Expected", expected, "Actual", actual),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// JSONContains ...
+func (a *asserts) JSONContains(provider Provider, expected, actual string, msgAndArgs ...interface{}) {
+	assertName := "JSON Contains"
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return coreAssert.JSONContains(t, expected, actual, msgAndArgs...) },
 		allure.NewParameters("Expected", expected, "Actual", actual),
 		msgAndArgs...,
 	)

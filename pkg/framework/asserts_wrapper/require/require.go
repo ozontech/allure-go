@@ -103,6 +103,11 @@ func JSONEq(t ProviderT, expected, actual string, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).JSONEq(t, expected, actual, msgAndArgs...)
 }
 
+// JSONContains ...
+func JSONContains(t ProviderT, expected, actual string, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).JSONContains(t, expected, actual, msgAndArgs...)
+}
+
 // Subset ...
 func Subset(t ProviderT, list, subset interface{}, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).Subset(t, list, subset, msgAndArgs...)

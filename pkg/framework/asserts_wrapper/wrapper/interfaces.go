@@ -22,6 +22,7 @@ type AssertsWrapper interface {
 	NotEmpty(provider Provider, object interface{}, msgAndArgs ...interface{})
 	WithinDuration(provider Provider, expected, actual time.Time, delta time.Duration, msgAndArgs ...interface{})
 	JSONEq(provider Provider, expected, actual string, msgAndArgs ...interface{})
+	JSONContains(provider Provider, expected, actual string, msgAndArgs ...interface{})
 	Subset(provider Provider, list, subset interface{}, msgAndArgs ...interface{})
 	IsType(provider Provider, expectedType interface{}, object interface{}, msgAndArgs ...interface{})
 	True(provider Provider, value bool, msgAndArgs ...interface{})

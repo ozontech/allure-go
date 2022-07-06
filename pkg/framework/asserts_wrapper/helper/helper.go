@@ -101,6 +101,11 @@ func (a *a) JSONEq(expected, actual string, msgAndArgs ...interface{}) {
 	a.asserts.JSONEq(a.t, expected, actual, msgAndArgs...)
 }
 
+// JSONContains ...
+func (a *a) JSONContains(expected, actual string, msgAndArgs ...interface{}) {
+	a.asserts.JSONContains(a.t, expected, actual, msgAndArgs...)
+}
+
 // Subset ...
 func (a *a) Subset(list, subset interface{}, msgAndArgs ...interface{}) {
 	a.asserts.Subset(a.t, list, subset, msgAndArgs...)
