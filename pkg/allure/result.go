@@ -84,6 +84,11 @@ func (result *Result) addLabel(labelType LabelType, labelValue string) {
 	result.Labels = append(result.Labels, label)
 }
 
+// SetLabel Adds all passed in arguments `allure.Label` to the report
+func (result *Result) SetLabel(labels ...Label) {
+	result.Labels = append(result.Labels, labels...)
+}
+
 // GetLabel Returns all `allure.Label` whose `LabelType` matches the one specified in the argument.
 func (result *Result) GetLabel(labelType LabelType) []Label {
 	labels := make([]Label, 0)
@@ -93,11 +98,6 @@ func (result *Result) GetLabel(labelType LabelType) []Label {
 		}
 	}
 	return labels
-}
-
-// SetLabel Adds all passed in arguments `allure.Label` to the report
-func (result *Result) SetLabel(labels ...Label) {
-	result.Labels = append(result.Labels, labels...)
 }
 
 // SetNewLabelMap Adds all passed in arguments `allure.Label` to the report
@@ -248,6 +248,7 @@ func (result *Result) PrintAttachments() {
 
 // Done Checks the status of the report.
 // If `Result.Status` is not filled in, consider the test successfully completed (no errors).
+// After that - it calls Finish() and Print() methods.
 func (result *Result) Done() {
 	if result.Status == "" {
 		result.Status = Passed
