@@ -7,7 +7,7 @@ type Label struct {
 	Value string `json:"value"` // Label's value
 }
 
-// NewLabel - builds and returns a new allure.Label. The label key depends on the passed labelType.
+// NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
 func NewLabel(labelType LabelType, value string) Label {
 	return Label{
 		Name:  labelType.ToString(),

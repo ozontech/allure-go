@@ -125,7 +125,7 @@ func (s *StepAsyncDemo) TestAsyncStepDemo6(t provider.T) {
 }
 
 func (s *StepAsyncDemo) TestAsyncStepDemo7(t provider.T) {
-	t.Title("Test with async steps ")
+	t.Title("Test with async steps 7")
 
 	t.WithNewAsyncStep("Async Step 1", func(ctx provider.StepCtx) {
 		ctx.WithNewParameters("Start", fmt.Sprintf("%s", time.Now()))

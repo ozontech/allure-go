@@ -1,20 +1,13 @@
 package suite
 
 import (
-	"flag"
-	"fmt"
-	"os"
 	"reflect"
-	"regexp"
+	"runtime"
+	"strings"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
-
-type InternalSuite interface {
-	GetRunner() runner.TestRunner
-	SetRunner(runner runner.TestRunner)
-}
 
 type Suite struct {
 	runner runner.TestRunner
@@ -28,65 +21,62 @@ func (s *Suite) SetRunner(runner runner.TestRunner) {
 	s.runner = runner
 }
 
-func (s *Suite) RunSuite(t provider.T, suite InternalSuite) {
+func (s *Suite) RunSuite(t provider.T, suite runner.InternalSuite) map[string]bool {
 	t.SkipOnPrint()
-	RunSuite(t.RealT(), suite)
+	parts := strings.Split(t.RealT().Name(), "/")
+	parentName := parts[len(parts)-3]
+	return runner.NewSuiteRunnerWithParent(t.RealT(), getPackage(2), cleanName(getSuiteName(suite)), parentName, suite).RunTests()
 }
 
-func collectTests(runner *suiteRunner, suite InternalSuite) *suiteRunner {
-	methodFinder := reflect.TypeOf(suite)
-	for i := 0; i < methodFinder.NumMethod(); i++ {
-		method := methodFinder.Method(i)
+func (s *Suite) RunNamedSuite(t provider.T, suiteName string, suite runner.InternalSuite) map[string]bool {
+	t.SkipOnPrint()
+	parts := strings.Split(t.RealT().Name(), "/")
+	parentName := parts[len(parts)-3]
+	return runner.NewSuiteRunnerWithParent(t.RealT(), getPackage(2), suiteName, parentName, suite).RunTests()
+}
 
-		ok, err := methodFilter(method.Name)
-		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "allire-go: invalid regexp for -m: %s\n", err)
-			os.Exit(1)
+func RunSuite(t provider.TestingT, suite runner.InternalSuite) map[string]bool {
+	return runner.NewSuiteRunner(t, getPackage(2), getSuiteName(suite), suite).RunTests()
+}
+
+func RunNamedSuite(t provider.TestingT, suiteName string, suite runner.InternalSuite) map[string]bool {
+	return runner.NewSuiteRunner(t, getPackage(2), suiteName, suite).RunTests()
+}
+
+func getSuiteName(suite interface{}) string {
+	s := reflect.TypeOf(suite)
+	if s.Kind() == reflect.Ptr {
+		return s.Elem().Name()
+	}
+	return s.Name()
+
+}
+
+func cleanName(fullName string) string {
+	nameParts := strings.Split(fullName, "/")
+	var removeIdxs []int
+	for idx, namePart := range nameParts {
+		if strings.HasSuffix(namePart, "_Tests") {
+			removeIdxs = append(removeIdxs, idx)
 		}
-
-		if !ok {
-			continue
-		}
-		runner.AddTest(method.Name, method)
 	}
-	return runner
+	for _, idx := range removeIdxs {
+		nameParts = remove(nameParts, idx)
+	}
+	return strings.Join(nameParts, "/")
 }
 
-func collectHooks(runner *suiteRunner, suite InternalSuite) *suiteRunner {
-	if beforeAll, ok := suite.(AllureBeforeSuite); ok {
-		runner.BeforeAll(beforeAll.BeforeAll)
-	}
-
-	if beforeEach, ok := suite.(AllureBeforeTest); ok {
-		runner.BeforeEach(beforeEach.BeforeEach)
-	}
-
-	if afterAll, ok := suite.(AllureAfterSuite); ok {
-		runner.AfterAll(afterAll.AfterAll)
-	}
-
-	if afterEach, ok := suite.(AllureAfterTest); ok {
-		runner.AfterEach(afterEach.AfterEach)
-	}
-
-	return runner
+func remove(slice []string, s int) []string {
+	return append(slice[:s], slice[s+1:]...)
 }
 
-var matchMethod = flag.String("allure-go.m", "", "regular expression to select tests of the testify suite to run")
-
-// Filtering method according to set regular expression
-// specified command-line argument -m
-func methodFilter(name string) (bool, error) {
-	if ok, _ := regexp.MatchString("^Test", name); !ok {
-		return false, nil
+func getPackage(depth int) string {
+	pc, _, _, _ := runtime.Caller(depth)
+	funcName := runtime.FuncForPC(pc).Name()
+	lastSlash := strings.LastIndexByte(funcName, '/')
+	if lastSlash < 0 {
+		lastSlash = 0
 	}
-	return regexp.MatchString(*matchMethod, name)
-}
-
-func RunSuite(t TestingT, suite InternalSuite) map[string]bool {
-	return NewSuiteRunner(t, getPackage(2), t.Name(), suite).RunTests()
-}
-
-func RunNamedSuite(t TestingT, suiteName string, suite InternalSuite) map[string]bool {
-	return NewSuiteRunner(t, getPackage(2), suiteName, suite).RunTests()
+	lastDot := strings.LastIndexByte(funcName[lastSlash:], '.') + lastSlash
+	return funcName[:lastDot]
 }

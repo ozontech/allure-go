@@ -28,6 +28,7 @@ func (s *BeforeAfterDemoSuite) BeforeAll(t provider.T) {
 
 func (s *BeforeAfterDemoSuite) AfterAll(t provider.T) {
 	t.NewStep("After suite Step")
+	t.Logf("HI")
 }
 
 func (s *BeforeAfterDemoSuite) TestBeforeAfterTest(t provider.T) {
@@ -35,7 +36,7 @@ func (s *BeforeAfterDemoSuite) TestBeforeAfterTest(t provider.T) {
 	t.Feature("BeforeAfter")
 	t.Title("Test wrapped with SetUp & TearDown")
 	t.Description(`
-		This test wrapped with SetUp and TearDown containert.`)
+		This test wrapped with SetUp and TearDown container.`)
 
 	t.Tags("BeforeAfter")
 }

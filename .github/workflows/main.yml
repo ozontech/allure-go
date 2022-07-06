@@ -18,8 +18,6 @@ jobs:
         run: cd ./pkg/allure && make lint
       - name: provider-golangci-lint
         run: cd ./pkg/framework && make lint
-      - name: examples-golangci-lint
-        run: make lint
 
   test:
     runs-on: ubuntu-latest

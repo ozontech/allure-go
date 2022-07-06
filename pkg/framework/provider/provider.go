@@ -11,6 +11,7 @@ type Provider interface {
 	UpdateResultStatus(msg string, trace string)
 	StopResult(status allure.Status)
 
+	SetTestMeta(meta TestMeta)
 	GetTestMeta() TestMeta
 	GetSuiteMeta() SuiteMeta
 	ExecutionContext() ExecutionContext
@@ -41,6 +42,7 @@ type SuiteMeta interface {
 	GetPackageName() string
 	GetRunner() string
 	GetSuiteName() string
+	GetParentSuite() string
 	GetSuiteFullName() string
 	GetContainer() *allure.Container
 

@@ -1,5 +1,5 @@
 APP?=allure-go
-RELEASE?=0.5.8
+RELEASE?=0.6.0
 GOOS?=darwin
 
 COMMIT?=$(shell git rev-parse --short HEAD)
@@ -8,6 +8,7 @@ BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
 export GO111MODULE=on
 export GOSUMDB=off
 LOCAL_BIN:=$(CURDIR)/bin
+EXAMPLES_TAGS:=examples_new,provider_new,allure_go_new,async
 
 ##################### GOLANG-CI RELATED CHECKS #####################
 # Check global GOLANGCI-LINT
@@ -48,12 +49,41 @@ full-demo: install demo
 demo: examples allure-serve
 
 .PHONY: install
-install:
-	go mod tidy && go mod download && brew install allure
+install: .install_deps .install_allure
+
+.PHONY: .install_deps
+.install_deps:
+	go mod tidy && go mod download
+
+.PHONY: .install_allure
+.install_allure:
+ifeq ($(OS),Windows_NT)
+	$(info Run Windows run pattern...)
+	$(info Make sure scoop installed at your system. Check for more information: https://github.com/ScoopInstaller/Scoop#installation)
+	scoop install allure
+endif
+ifeq ($(OS),Linux)
+	$(info Run Linux run pattern...)
+	$(info Make sure you have sudo rights for the system.)
+	sudo apt-add-repository ppa:qameta/allure
+	sudo apt-get update
+	sudo apt-get install allure
+endif
+ifeq ($(OS),Darwin)
+	$(info Run installation for Darwin OS)
+	$(info Make sure brew installed at your system. Check for more information: https://docs.brew.sh/Installation)
+	brew install allure
+endif
 
 .PHONY: examples
 examples:
-	- export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=examples_new,provider_new,allure_go_new,async
+ifeq ($(OS),Windows_NT)
+	$(info Run windows pattern...)
+	set ALLURE_OUTPUT_PATH=../&& go test ./examples/... --tags=$(EXAMPLES_TAGS)
+else
+	$(info Run default pattern...)
+	export ALLURE_OUTPUT_PATH=../ && go test ./examples/... --tags=$(EXAMPLES_TAGS) || true
+endif
 
 .PHONY: allure-serve
 allure-serve:
@@ -62,8 +92,7 @@ allure-serve:
 # run full lint like in pipeline
 .PHONY: lint
 lint: install-lint
-	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=examples_new,provider_new,allure_go_new,async
-
+	$(GOLANGCI_BIN) run --config=.golangci.yaml ./... --build-tags=$(EXAMPLES_TAGS)
 
 .PHONY: install-lint
 install-lint:

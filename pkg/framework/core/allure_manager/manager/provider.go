@@ -14,7 +14,7 @@ type allureManager struct {
 }
 
 func NewProvider(cfg ProviderConfig) provider.Provider {
-	suiteMeta := adapter.NewSuiteMeta(cfg.PackageName(), cfg.Runner(), cfg.FullName(), cfg.SuiteName())
+	suiteMeta := adapter.NewSuiteMetaWithParent(cfg.PackageName(), cfg.Runner(), cfg.FullName(), cfg.SuiteName(), cfg.ParentSuite())
 	return &allureManager{suiteMeta: suiteMeta, testMeta: &adapter.TestAdapter{}}
 }
 
@@ -40,6 +40,10 @@ func (a *allureManager) GetResult() *allure.Result {
 	return a.testMeta.GetResult()
 }
 
+func (a *allureManager) SetTestMeta(meta provider.TestMeta) {
+	a.testMeta = meta
+}
+
 func (a *allureManager) GetTestMeta() provider.TestMeta {
 	return a.testMeta
 }
@@ -60,6 +64,9 @@ func (a *allureManager) NewTest(testName, packageName string, tags ...string) {
 		packageName,
 		tags...,
 	)
+	if parentSuite := a.suiteMeta.GetParentSuite(); parentSuite != "" {
+		a.testMeta.GetResult().WithParentSuite(a.suiteMeta.GetParentSuite())
+	}
 	a.suiteMeta.GetContainer().AddChild(a.testMeta.GetResult().UUID)
 }
 

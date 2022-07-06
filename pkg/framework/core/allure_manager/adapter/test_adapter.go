@@ -78,5 +78,4 @@ func (ctx *TestAdapter) SetAfterEach(hook func(provider.T)) {
 // GetAfterEach returns after each function
 func (ctx *TestAdapter) GetAfterEach() func(provider.T) {
 	return ctx.afterEach
-
 }

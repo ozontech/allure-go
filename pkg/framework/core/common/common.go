@@ -11,6 +11,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
+	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -27,29 +28,10 @@ type Common struct {
 }
 
 // NewT returns Common instance that implementing provider.T interface
-func NewT(realT provider.TestingT, packageName, suiteName string) *Common {
-	callers := strings.Split(realT.Name(), "/")
-	cfg := manager.NewProviderConfig().
-		WithFullName(realT.Name()).
-		WithPackageName(packageName).
-		WithSuiteName(suiteName).
-		WithRunner(callers[0])
-	newT := &Common{TestingT: realT, Provider: manager.NewProvider(cfg)}
+func NewT(realT provider.TestingT) *Common {
+	newT := &Common{TestingT: realT}
 	newT.assert = helper.NewAssertsHelper(newT)
 	newT.require = helper.NewRequireHelper(newT)
-	return newT
-}
-
-// NewTestT returns Common instance that implementing provider.T interface, that copy labels of parent instance
-func NewTestT(realT provider.TestingT, provider provider.Provider, parentT ParentT, packageName string, testName string, tags ...string) *Common {
-	newT := NewT(realT, packageName, provider.GetSuiteMeta().GetSuiteName())
-	newT.Provider.NewTest(testName, packageName, tags...)
-	newT.Provider.TestContext()
-	newT.Provider.GetTestMeta().SetBeforeEach(provider.GetTestMeta().GetBeforeEach())
-	newT.Provider.GetTestMeta().SetAfterEach(provider.GetTestMeta().GetAfterEach())
-
-	parentT.GetProvider().GetSuiteMeta().GetContainer().AddChild(newT.GetResult().UUID)
-	newT.Provider.GetTestMeta().SetResult(copyLabels(parentT.GetResult(), newT.Provider.GetTestMeta().GetResult()))
 	return newT
 }
 
@@ -71,6 +53,10 @@ func (c *Common) safely(f func(result *allure.Result)) {
 	if result := c.GetResult(); result != nil {
 		f(result)
 	}
+}
+
+func (c *Common) SetProvider(provider provider.Provider) {
+	c.Provider = provider
 }
 
 // WG ...
@@ -134,27 +120,40 @@ func (c *Common) Errorf(format string, args ...interface{}) {
 	c.TestingT.Errorf(format, args...)
 }
 
-// Run runs test body as test with passed tags
-func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
-	return c.TestingT.Run(testName, func(realT *testing.T) {
-		testT := NewTestT(realT, c.Provider, c, c.Provider.GetSuiteMeta().GetPackageName(), testName, tags...)
+// Fatal ...
+func (c *Common) Fatal(args ...interface{}) {
+	fullMessage := fmt.Sprintf("%s", args...)
+	c.registerError(fullMessage)
+	c.TestingT.Fatal(args...)
+}
 
-		// print test result
-		defer testT.Provider.FinishTest()
+// Fatalf ...
+func (c *Common) Fatalf(format string, args ...interface{}) {
+	fullMessage := fmt.Sprintf(format, args...)
+	c.registerError(fullMessage)
+	c.TestingT.Fatalf(format, args...)
+}
 
-		defer func() {
-			rec := recover()
-			// wait for all test's async steps over
-			testT.wg.Wait()
-			if rec != nil {
-				errMsg := fmt.Sprintf("Test panicked: %v\n%s", rec, debug.Stack())
-				TestError(testT, c.Provider, c.Provider.ExecutionContext().GetName(), errMsg)
-			}
-		}()
+// Name ...
+func (c *Common) Name() string {
+	if c.GetProvider() != nil && c.GetProvider().GetResult() != nil {
+		return c.GetProvider().GetResult().Name
+	}
+	return c.TestingT.Name()
+}
 
-		testT.Provider.TestContext()
-		testBody(testT)
+// Fail ...
+func (c *Common) Fail() {
+	c.GetProvider().GetResult().Status = allure.Failed
+	c.TestingT.Fail()
+}
+
+// FailNow ...
+func (c *Common) FailNow() {
+	c.safely(func(result *allure.Result) {
+		result.Status = allure.Failed
 	})
+	c.TestingT.FailNow()
 }
 
 // Skip ...
@@ -170,6 +169,72 @@ func (c *Common) Skip(args ...interface{}) {
 		result.Status = allure.Skipped
 	})
 	c.TestingT.Skip(args...)
+}
+
+// Skipf ...
+func (c *Common) Skipf(format string, args ...interface{}) {
+	c.safely(func(result *allure.Result) {
+		skipMessage := fmt.Sprintf(format, args...)
+		if len(skipMessage) > 100 {
+			result.StatusDetails.Message = skipMessage[:100]
+		} else {
+			result.StatusDetails.Message = skipMessage
+		}
+		result.StatusDetails.Trace = skipMessage
+		result.Status = allure.Skipped
+	})
+	c.TestingT.Skipf(format, args...)
+}
+
+// Run runs test body as test with passed tags
+func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
+	return c.TestingT.Run(testName, func(realT *testing.T) {
+		var (
+			suiteName   = c.Provider.GetTestMeta().GetResult().Name
+			packageName = c.Provider.GetSuiteMeta().GetPackageName()
+			parentSuite = c.Provider.GetSuiteMeta().GetSuiteName()
+
+			testT = NewT(realT)
+
+			callers     = strings.Split(realT.Name(), "/")
+			providerCfg = manager.NewProviderConfig().
+					WithFullName(realT.Name()).
+					WithPackageName(packageName).
+					WithSuiteName(suiteName).
+					WithParentSuite(parentSuite).
+					WithRunner(callers[0])
+			newProvider = manager.NewProvider(providerCfg)
+		)
+		newProvider.NewTest(testName, packageName, tags...)
+		if testPlan := testplan.GetTestPlan(); testPlan != nil {
+			if !testPlan.IsSelected(newProvider.GetTestMeta().GetResult().TestCaseID, newProvider.GetResult().FullName) {
+				realT.Skip("Test is not Selected in Test Plan")
+			}
+		}
+		newProvider.TestContext()
+
+		testT.SetProvider(newProvider)
+
+		// print test result
+		defer testT.Provider.FinishTest()
+
+		defer func() {
+			rec := recover()
+			// wait for all test's async steps over
+			testT.wg.Wait()
+			if rec != nil {
+				errMsg := fmt.Sprintf("Test panicked: %v\n%s", rec, debug.Stack())
+				TestError(testT, testT.Provider, testT.Provider.ExecutionContext().GetName(), errMsg)
+			}
+		}()
+
+		testT.Provider.TestContext()
+		testBody(testT)
+	})
+}
+
+func (c *Common) SetRealT(realT provider.TestingT) {
+	c.TestingT = realT
 }
 
 func copyLabels(input, target *allure.Result) *allure.Result {

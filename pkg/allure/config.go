@@ -1,8 +1,8 @@
 package allure
 
 const (
-	// DefaultVersion - allure-testify current Version
-	DefaultVersion = "Allure-Testify@v0.5.0"
+	// DefaultVersion - allure-go current Version
+	DefaultVersion = "Allure-Go@v0.6.0"
 
 	resultsPathEnvKey     = "ALLURE_OUTPUT_PATH"      // Indicates the path to the results print folder
 	outputFolderEnvKey    = "ALLURE_OUTPUT_FOLDER"    // Indicates the name of the folder to print the results.

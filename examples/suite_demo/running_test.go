@@ -4,9 +4,9 @@
 package suite_demo
 
 import (
+	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"testing"
 
-	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
@@ -31,7 +31,7 @@ func (s *TestRunningDemoSuite) TestLabels(t provider.T) {
 }
 
 func TestRunDemo(t *testing.T) {
-	// use RunSuites to run suite of suites
+	// use RunSuite to run suite of suites
 	t.Parallel()
 	suite.RunSuite(t, new(TestRunningDemoSuite))
 }

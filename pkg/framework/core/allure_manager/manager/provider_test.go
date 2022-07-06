@@ -92,6 +92,10 @@ func (m *suiteMetaMockProvider) GetAfterAll() func(provider.T) {
 	return m.hook
 }
 
+func (m *suiteMetaMockProvider) GetParentSuite() string {
+	return ""
+}
+
 func TestNewProvider(t *testing.T) {
 	cfg := NewProviderConfig().
 		WithRunner("WithRunner").
