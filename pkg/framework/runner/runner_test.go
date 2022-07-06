@@ -252,10 +252,7 @@ func TestRunner_BeforeEach_noStep(t *testing.T) {
 	defer os.RemoveAll(allureDir)
 
 	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.BeforeEachContextName)}
-	//r.BeforeEach(func(t provider.T) {
-	//	counter++
-	//	flag = true
-	//})
+
 	meta := &testMetaMockRunner{result: &allure.Result{}, container: allure.NewContainer(), be: func(t provider.T) {
 		counter++
 		flag = true
