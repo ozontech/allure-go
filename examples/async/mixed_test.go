@@ -11,6 +11,12 @@ type MixedAsyncSuite struct {
 	suite.Suite
 }
 
+func (s *MixedAsyncSuite) BeforeEach(t provider.T) {
+	t.Epic("Async")
+	t.Feature("Mixed Suite")
+	t.Tags("async", "suite", "steps")
+}
+
 func (s *MixedAsyncSuite) TestSelectionProductsLists(t provider.T) {
 	t.SkipOnPrint()
 	testCases := []struct {
