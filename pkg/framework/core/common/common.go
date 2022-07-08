@@ -151,7 +151,9 @@ func (c *Common) Fail() {
 // FailNow ...
 func (c *Common) FailNow() {
 	c.safely(func(result *allure.Result) {
-		result.Status = allure.Failed
+		if result.Status != allure.Broken {
+			result.Status = allure.Failed
+		}
 	})
 	c.TestingT.FailNow()
 }
@@ -188,23 +190,31 @@ func (c *Common) Skipf(format string, args ...interface{}) {
 
 // Run runs test body as test with passed tags
 func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
+	parentCallers := strings.Split(c.RealT().Name(), "/")
+	suiteName := parentCallers[len(parentCallers)-1]
+
 	return c.TestingT.Run(testName, func(realT *testing.T) {
 		var (
-			suiteName   = c.Provider.GetTestMeta().GetResult().Name
+			testT = NewT(realT)
+
 			packageName = c.Provider.GetSuiteMeta().GetPackageName()
 			parentSuite = c.Provider.GetSuiteMeta().GetSuiteName()
 
-			testT = NewT(realT)
-
-			callers     = strings.Split(realT.Name(), "/")
-			providerCfg = manager.NewProviderConfig().
-					WithFullName(realT.Name()).
-					WithPackageName(packageName).
-					WithSuiteName(suiteName).
-					WithParentSuite(parentSuite).
-					WithRunner(callers[0])
-			newProvider = manager.NewProvider(providerCfg)
+			callers = strings.Split(realT.Name(), "/")
 		)
+
+		if result := c.Provider.GetTestMeta().GetResult(); result != nil {
+			suiteName = result.Name
+		}
+
+		providerCfg := manager.NewProviderConfig().
+			WithFullName(realT.Name()).
+			WithPackageName(packageName).
+			WithSuiteName(suiteName).
+			WithParentSuite(parentSuite).
+			WithRunner(callers[0])
+		newProvider := manager.NewProvider(providerCfg)
+
 		newProvider.NewTest(testName, packageName, tags...)
 		if testPlan := testplan.GetTestPlan(); testPlan != nil {
 			if !testPlan.IsSelected(newProvider.GetTestMeta().GetResult().TestCaseID, newProvider.GetResult().FullName) {

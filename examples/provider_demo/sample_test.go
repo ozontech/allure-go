@@ -17,7 +17,7 @@ func TestSampleDemo(t *testing.T) {
 		t.Feature("runner.RunTest")
 
 		t.Title("Some Sample test")
-		t.Description("allure-testify allows you to use allure without suites")
+		t.Description("allure-go allows you to use allure without suites")
 
 		t.WithNewStep("Some nested step", func(ctx provider.StepCtx) {
 			ctx.WithNewStep("Some inner step 1", func(ctx provider.StepCtx) {
