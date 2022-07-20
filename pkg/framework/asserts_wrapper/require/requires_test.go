@@ -1091,3 +1091,55 @@ func TestRequireFalse_Fail(t *testing.T) {
 	require.True(t, mockT.failNow)
 	require.Equal(t, "\n%s", mockT.errorFString)
 }
+
+func TestRequireRegexp_Success(t *testing.T) {
+	mockT := newMock()
+
+	rx := `^start`
+	str := "start of the line"
+	Regexp(mockT, rx, str)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Regexp", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireRegexp_Failed(t *testing.T) {
+	mockT := newMock()
+
+	rx := `^end`
+	str := "start of the line"
+	Regexp(mockT, rx, str)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Regexp", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}

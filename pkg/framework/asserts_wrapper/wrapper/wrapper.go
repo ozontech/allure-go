@@ -427,6 +427,23 @@ func (a *asserts) False(provider Provider, value bool, msgAndArgs ...interface{}
 	}
 }
 
+// Regexp ...
+func (a *asserts) Regexp(provider Provider, rx interface{}, str interface{}, msgAndArgs ...interface{}) {
+	assertName := "Regexp"
+	expString, actString := formatUnequalValues(rx, str)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.Regexp(a.t, rx, str, msgAndArgs...) },
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
 // formatUnequalValues takes two values of arbitrary types and returns string
 // representations appropriate to be presented to the user.
 //

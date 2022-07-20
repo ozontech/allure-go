@@ -127,3 +127,8 @@ func True(t ProviderT, value bool, msgAndArgs ...interface{}) {
 func False(t ProviderT, value bool, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).False(t, value, msgAndArgs...)
 }
+
+// Regexp ...
+func Regexp(t ProviderT, rx interface{}, str interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).Regexp(t, rx, str, msgAndArgs...)
+}

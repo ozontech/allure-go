@@ -125,3 +125,8 @@ func (a *a) True(value bool, msgAndArgs ...interface{}) {
 func (a *a) False(value bool, msgAndArgs ...interface{}) {
 	a.asserts.False(a.t, value, msgAndArgs...)
 }
+
+// Regexp ...
+func (a *a) Regexp(rx interface{}, str interface{}, msgAndArgs ...interface{}) {
+	a.asserts.Regexp(a.t, rx, str, msgAndArgs...)
+}

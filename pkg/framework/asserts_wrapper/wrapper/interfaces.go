@@ -27,4 +27,5 @@ type AssertsWrapper interface {
 	IsType(provider Provider, expectedType interface{}, object interface{}, msgAndArgs ...interface{})
 	True(provider Provider, value bool, msgAndArgs ...interface{})
 	False(provider Provider, value bool, msgAndArgs ...interface{})
+	Regexp(provider Provider, rx interface{}, str interface{}, msgAndArgs ...interface{})
 }

@@ -83,4 +83,5 @@ type Asserts interface {
 	IsType(expectedType interface{}, object interface{}, msgAndArgs ...interface{})
 	True(value bool, msgAndArgs ...interface{})
 	False(value bool, msgAndArgs ...interface{})
+	Regexp(rx interface{}, str interface{}, msgAndArgs ...interface{})
 }
