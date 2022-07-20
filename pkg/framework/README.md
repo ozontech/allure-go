@@ -202,10 +202,12 @@ allure-go provides implementation of most usable [testify](https://github.com/st
 | `NotEmpty(object interface{}, msgAndArgs ...interface{})`                                    | 
 | `WithinDuration(expected, actual time.Time, delta time.Duration, msgAndArgs ...interface{})` | 
 | `JSONEq(expected, actual string, msgAndArgs ...interface{})`                                 | 
+| `JSONContains(expected, actual string, msgAndArgs ...interface{})`                           |
 | `Subset(list, subset interface{}, msgAndArgs ...interface{})`                                | 
 | `IsType(expectedType interface{}, object interface{}, msgAndArgs ...interface{})`            | 
 | `True(value bool, msgAndArgs ...interface{})`                                                | 
 | `False(value bool, msgAndArgs ...interface{})`                                               |
+| `Regexp(rx interface{}, str interface{}, msgAndArgs ...interface{})`                         |
 
 :information_desk_person: **NOTE:** allure-go supports assert/require separation. User `T.Assert()`/`T.Require()` to get asserts you need.
 
@@ -234,10 +236,12 @@ Also, allure-go supports assert/require functionality that not attached to the `
 | `NotEmpty(t ProviderT, object interface{}, msgAndArgs ...interface{})`                                    | 
 | `WithinDuration(t ProviderT, expected, actual time.Time, delta time.Duration, msgAndArgs ...interface{})` | 
 | `JSONEq(t ProviderT, expected, actual string, msgAndArgs ...interface{})`                                 | 
+| `JSONContains(t ProviderT, expected, actual string, msgAndArgs ...interface{})`                           |
 | `Subset(t ProviderT, list, subset interface{}, msgAndArgs ...interface{})`                                | 
 | `IsType(t ProviderT, expectedType interface{}, object interface{}, msgAndArgs ...interface{})`            | 
 | `True(t ProviderT, value bool, msgAndArgs ...interface{})`                                                | 
 | `False(t ProviderT, value bool, msgAndArgs ...interface{})`                                               |
+| `Regexp(t ProviderT, rx interface{}, str interface{}, msgAndArgs ...interface{})`                         |
 
 :information_desk_person: **NOTE:** `ProviderT` interface:
 

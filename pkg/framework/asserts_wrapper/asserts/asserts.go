@@ -103,6 +103,11 @@ func JSONEq(t ProviderT, expected, actual string, msgAndArgs ...interface{}) {
 	wrapper.NewAsserts(t).JSONEq(t, expected, actual, msgAndArgs...)
 }
 
+// JSONContains ...
+func JSONContains(t ProviderT, expected, actual string, msgAndArgs ...interface{}) {
+	wrapper.NewAsserts(t).JSONContains(t, expected, actual, msgAndArgs...)
+}
+
 // Subset ...
 func Subset(t ProviderT, list, subset interface{}, msgAndArgs ...interface{}) {
 	wrapper.NewAsserts(t).Subset(t, list, subset, msgAndArgs...)
@@ -121,4 +126,9 @@ func True(t ProviderT, value bool, msgAndArgs ...interface{}) {
 // False ...
 func False(t ProviderT, value bool, msgAndArgs ...interface{}) {
 	wrapper.NewAsserts(t).False(t, value, msgAndArgs...)
+}
+
+// Regexp ...
+func Regexp(t ProviderT, rx interface{}, str interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewAsserts(t).Regexp(t, rx, str, msgAndArgs...)
 }

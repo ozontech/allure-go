@@ -846,6 +846,58 @@ func TestAssertJSONEq_Fail(t *testing.T) {
 	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
+func TestAssertJSONContains_Success(t *testing.T) {
+	mockT := newMock()
+	exp := `{"key1": 123, "key3": ["foo", "bar"]}`
+	actual := `{"key1": 123, "key2": "foobar", "key3": ["foo", "bar"]}`
+
+	NewAsserts(mockT).JSONContains(mockT, exp, actual)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: JSON Contains", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, exp, params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, actual, params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestAssertJSONContains_Fail(t *testing.T) {
+	mockT := newMock()
+	exp := `{"key1": 321, "key3": ["foobar", "bar"]}`
+	actual := `{"key1": 123, "key2": "foobar", "key3": ["foo", "bar"]}`
+
+	NewAsserts(mockT).JSONContains(mockT, exp, actual)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: JSON Contains", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, exp, params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, actual, params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
 func TestAssertSubset_Success(t *testing.T) {
 	mockT := newMock()
 
@@ -1035,6 +1087,58 @@ func TestAssertFalse_Fail(t *testing.T) {
 
 	require.Equal(t, "Actual Value", params[0].Name)
 	require.Equal(t, "bool(true)", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestAssertRegexp_Success(t *testing.T) {
+	mockT := newMock()
+
+	rx := `^start`
+	str := "start of the line"
+	NewAsserts(mockT).Regexp(mockT, rx, str)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: Regexp", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestAssertRegexp_Failed(t *testing.T) {
+	mockT := newMock()
+
+	rx := `^end`
+	str := "start of the line"
+	NewAsserts(mockT).Regexp(mockT, rx, str)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: Regexp", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1846,6 +1950,58 @@ func TestRequireJSONEq_Fail(t *testing.T) {
 	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
+func TestRequireJSONContains_Success(t *testing.T) {
+	mockT := newMock()
+	exp := `{"key1": 123, "key3": ["foo", "bar"]}`
+	actual := `{"key1": 123, "key2": "foobar", "key3": ["foo", "bar"]}`
+
+	NewRequire(mockT).JSONContains(mockT, exp, actual)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: JSON Contains", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, exp, params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, actual, params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireJSONContains_Fail(t *testing.T) {
+	mockT := newMock()
+	exp := `{"key1": 321, "key3": ["foobar", "bar"]}`
+	actual := `{"key1": 123, "key2": "foobar", "key3": ["foo", "bar"]}`
+
+	NewRequire(mockT).JSONContains(mockT, exp, actual)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: JSON Contains", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, exp, params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, actual, params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
 func TestRequireSubset_Success(t *testing.T) {
 	mockT := newMock()
 
@@ -2035,6 +2191,58 @@ func TestRequireFalse_Fail(t *testing.T) {
 
 	require.Equal(t, "Actual Value", params[0].Name)
 	require.Equal(t, "bool(true)", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireRegexp_Success(t *testing.T) {
+	mockT := newMock()
+
+	rx := `^start`
+	str := "start of the line"
+	NewRequire(mockT).Regexp(mockT, rx, str)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Regexp", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireRegexp_Failed(t *testing.T) {
+	mockT := newMock()
+
+	rx := `^end`
+	str := "start of the line"
+	NewRequire(mockT).Regexp(mockT, rx, str)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Regexp", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ozontech/allure-go/pkg/allure"
+	coreAssert "github.com/ozontech/allure-go/pkg/framework/core/assert"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -342,6 +343,22 @@ func (a *asserts) JSONEq(provider Provider, expected, actual string, msgAndArgs 
 	}
 }
 
+// JSONContains ...
+func (a *asserts) JSONContains(provider Provider, expected, actual string, msgAndArgs ...interface{}) {
+	assertName := "JSON Contains"
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return coreAssert.JSONContains(t, expected, actual, msgAndArgs...) },
+		allure.NewParameters("Expected", expected, "Actual", actual),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
 // Subset ...
 func (a *asserts) Subset(provider Provider, list, subset interface{}, msgAndArgs ...interface{}) {
 	assertName := "Subset"
@@ -403,6 +420,23 @@ func (a *asserts) False(provider Provider, value bool, msgAndArgs ...interface{}
 		assertName,
 		func(t TestingT) bool { return assert.False(t, value, msgAndArgs...) },
 		allure.NewParameters("Actual Value", valueString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// Regexp ...
+func (a *asserts) Regexp(provider Provider, rx interface{}, str interface{}, msgAndArgs ...interface{}) {
+	assertName := "Regexp"
+	expString, actString := formatUnequalValues(rx, str)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.Regexp(a.t, rx, str, msgAndArgs...) },
+		allure.NewParameters("Expected", expString, "Actual", actString),
 		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
