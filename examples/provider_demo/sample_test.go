@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
@@ -18,6 +19,7 @@ func TestSampleDemo(t *testing.T) {
 
 		t.Title("Some Sample test")
 		t.Description("allure-go allows you to use allure without suites")
+		t.WithParameters(allure.NewParameter("host", "localhost"))
 
 		t.WithNewStep("Some nested step", func(ctx provider.StepCtx) {
 			ctx.WithNewStep("Some inner step 1", func(ctx provider.StepCtx) {

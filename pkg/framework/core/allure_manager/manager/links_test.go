@@ -45,7 +45,7 @@ func (m *testMetaMockLinks) GetAfterEach() func(t provider.T) {
 }
 
 func TestAllureManager_Link(t *testing.T) {
-	manager := allureManager{testMeta: &testMetaMockLabels{result: &allure.Result{}}}
+	manager := allureManager{testMeta: &testMetaMockLinks{result: &allure.Result{}}}
 	manager.Link(allure.NewLink("Name", allure.LINK, "http://test.com"))
 	require.Len(t, manager.GetResult().Links, 1)
 	require.Equal(t, "Name", manager.GetResult().Links[0].Name)
@@ -55,7 +55,7 @@ func TestAllureManager_Link(t *testing.T) {
 }
 
 func TestAllureManager_SetTestCase(t *testing.T) {
-	manager := allureManager{testMeta: &testMetaMockLabels{result: &allure.Result{}}}
+	manager := allureManager{testMeta: &testMetaMockLinks{result: &allure.Result{}}}
 	manager.SetTestCase("TestCase")
 	require.Len(t, manager.GetResult().Links, 1)
 	require.Equal(t, "TestCase[TestCase]", manager.GetResult().Links[0].Name)
@@ -63,7 +63,7 @@ func TestAllureManager_SetTestCase(t *testing.T) {
 }
 
 func TestAllureManager_SetIssue(t *testing.T) {
-	manager := allureManager{testMeta: &testMetaMockLabels{result: &allure.Result{}}}
+	manager := allureManager{testMeta: &testMetaMockLinks{result: &allure.Result{}}}
 	manager.SetIssue("Issue")
 	require.NotEmpty(t, manager.GetResult().Links)
 	require.Len(t, manager.GetResult().Links, 1)

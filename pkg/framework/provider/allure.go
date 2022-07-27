@@ -55,6 +55,10 @@ type Attachments interface {
 	WithNewAttachment(name string, mimeType allure.MimeType, content []byte)
 }
 
+type Parameters interface {
+	WithParameters(params ...allure.Parameter)
+}
+
 type AllureForward interface {
 	DescriptionLabels
 	SuiteLabels
@@ -62,6 +66,7 @@ type AllureForward interface {
 	DescriptionFields
 	AllureSteps
 	Attachments
+	Parameters
 }
 
 type AllureForwardFull interface {
