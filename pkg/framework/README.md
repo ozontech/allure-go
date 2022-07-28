@@ -160,6 +160,13 @@ Main interfaces for test working are `provider.T` and `provider.StepCtx`.
 | `WithAttachments(attachment ...*allure.Attachment)`                        |             Add `allure.Attachment` to the current step.             |
 | `WithNewAttachment(name string, mimeType allure.MimeType, content []byte)` | Create new `allure.Attachment` file and adds it to the current step. |
 
+#### Parameter methods
+
+| Method                                           |                             Description                             |
+|:-------------------------------------------------|:-------------------------------------------------------------------:|
+| `WithParameters(parameters ...allure.Parameter)` |             Add `allure.Parameter` to the report body.              |
+| `WithNewParameters(kv ...interface{})`           | Creates new `Allure.Parameters` and attach them to the report body. |
+
 #### Assertion methods
 
 | Method              |                                                                Description                                                                |
