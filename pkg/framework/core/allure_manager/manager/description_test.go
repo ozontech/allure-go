@@ -3,10 +3,9 @@ package manager
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/stretchr/testify/require"
 )
 
 type testMetaMockDescription struct {

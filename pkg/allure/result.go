@@ -28,6 +28,7 @@ type Result struct {
 	TestCaseID    string        `json:"testCaseId,omitempty"`    // ID of the test case (based on the hash of the full call)
 	Description   string        `json:"description,omitempty"`   // Test description
 	Attachments   []*Attachment `json:"attachments,omitempty"`   // Test case attachments
+	Parameters    []Parameter   `json:"parameters,omitempty"`    // Test case parameters
 	Labels        []Label       `json:"labels,omitempty"`        // Array of labels
 	Links         []Link        `json:"links,omitempty"`         // Array of references
 	Steps         []*Step       `json:"steps,omitempty"`         // Array of steps

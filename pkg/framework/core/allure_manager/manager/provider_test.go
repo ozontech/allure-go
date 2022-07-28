@@ -8,10 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/stretchr/testify/require"
 )
 
 type testMetaMockProvider struct {
