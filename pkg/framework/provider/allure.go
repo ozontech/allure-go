@@ -57,6 +57,7 @@ type Attachments interface {
 
 type Parameters interface {
 	WithParameters(params ...allure.Parameter)
+	WithNewParameters(kv ...interface{})
 }
 
 type AllureForward interface {

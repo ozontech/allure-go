@@ -8,3 +8,10 @@ func (a *allureManager) WithParameters(params ...allure.Parameter) {
 		result.Parameters = params
 	})
 }
+
+// WithNewParameters adds parameters to report in case of current execution context
+func (a *allureManager) WithNewParameters(kv ...interface{}) {
+	a.safely(func(result *allure.Result) {
+		result.Parameters = append(result.Parameters, allure.NewParameters(kv...)...)
+	})
+}

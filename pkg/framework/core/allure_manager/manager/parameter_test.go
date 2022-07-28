@@ -51,3 +51,13 @@ func TestAllureManager_Parameter(t *testing.T) {
 	require.Equal(t, "host", manager.GetResult().Parameters[0].Name)
 	require.Equal(t, "localhost", manager.GetResult().Parameters[0].Value)
 }
+
+func TestAllureManager_NewParameter(t *testing.T) {
+	manager := allureManager{testMeta: &testMetaMockParameter{result: &allure.Result{}}}
+	manager.WithNewParameters("host", "localhost", "os", "linux")
+	require.Len(t, manager.GetResult().Parameters, 2)
+	require.Equal(t, "host", manager.GetResult().Parameters[0].Name)
+	require.Equal(t, "localhost", manager.GetResult().Parameters[0].Value)
+	require.Equal(t, "os", manager.GetResult().Parameters[1].Name)
+	require.Equal(t, "linux", manager.GetResult().Parameters[1].Value)
+}
