@@ -51,7 +51,7 @@ type TestRunner interface {
 	AfterEach(hookBody func(provider.T))
 	BeforeAll(hookBody func(provider.T))
 	AfterAll(hookBody func(provider.T))
-	RunTests() map[string]bool
+	RunTests() map[string]*allure.Result
 	T() InternalT
 }
 
@@ -124,10 +124,10 @@ func (r *runner) realT() TestingT {
 	return r.internalT.RealT()
 }
 
-func (r *runner) RunTests() map[string]bool {
+func (r *runner) RunTests() map[string]*allure.Result {
 	var (
 		wg     = &sync.WaitGroup{}
-		result = make(map[string]bool)
+		result = make(map[string]*allure.Result)
 
 		beforeAllHook  = common.CarriedHook(common.BeforeAll, r.internalT.GetProvider().GetSuiteMeta().GetBeforeAll)
 		afterAllHook   = common.CarriedHook(common.AfterAll, r.internalT.GetProvider().GetSuiteMeta().GetAfterAll)
@@ -203,7 +203,7 @@ func (r *runner) RunTests() map[string]bool {
 
 			for fullName, testData := range r.tests {
 				wg.Add(1)
-				result[fullName] = r.realT().Run(testData.testMeta.GetResult().Name, func(t *testing.T) {
+				r.realT().Run(testData.testMeta.GetResult().Name, func(t *testing.T) {
 					defer wg.Done()
 					defer finishTest(testData.testMeta)
 
@@ -237,9 +237,12 @@ func (r *runner) RunTests() map[string]bool {
 					defer testT.WG().Wait()
 					testData.testBody(testT)
 				})
+
+				result[fullName] = testData.testMeta.GetResult()
 			}
 		})
 	})
+
 	return result
 }
 
