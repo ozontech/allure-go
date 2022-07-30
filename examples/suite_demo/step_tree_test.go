@@ -4,8 +4,13 @@
 package suite_demo
 
 import (
+	"fmt"
+	"log"
+	"os"
 	"testing"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
@@ -59,6 +64,33 @@ func (s *StepTreeDemoSuite) TestComplexStepTree(t provider.T) {
 }
 
 func TestStepTree(t *testing.T) {
-	t.Parallel()
-	suite.RunSuite(t, new(StepTreeDemoSuite))
+	res := suite.RunSuite(t, new(StepTreeDemoSuite))
+	processResult(res)
+}
+
+func processResult(results map[string]*allure.Result) {
+	token := os.Getenv("TG_TOKEN")
+	channel := os.Getenv("TG_CHANNEL")
+
+	bot, err := tgbotapi.NewBotAPI(token)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bot.Debug = true
+
+	log.Printf("Authorized on account %s", bot.Self.UserName)
+
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
+
+	for name, result := range results {
+		text := fmt.Sprintf("*%v*\n\n*Status:* %v\n\n*Description:* %v", name, result.Status, result.Description)
+		msg := tgbotapi.NewMessageToChannel(channel, text)
+		msg.ParseMode = "Markdown"
+		_, err = bot.Send(msg)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
 }
