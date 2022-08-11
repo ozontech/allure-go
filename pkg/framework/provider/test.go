@@ -1,11 +1,11 @@
 package provider
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 
 	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestingT interface {
