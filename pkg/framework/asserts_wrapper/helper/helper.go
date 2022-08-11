@@ -4,11 +4,27 @@ import (
 	"time"
 
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/wrapper"
+	"github.com/stretchr/testify/assert"
 )
 
 type a struct {
 	t       ProviderT
 	asserts wrapper.AssertsWrapper
+}
+
+// Exactly ...
+func (a *a) Exactly(expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	a.asserts.Exactly(a.t, expected, actual, msgAndArgs...)
+}
+
+// Same ...
+func (a *a) Same(expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	a.asserts.Same(a.t, expected, actual, msgAndArgs...)
+}
+
+// NotSame ...
+func (a *a) NotSame(expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	a.asserts.NotSame(a.t, expected, actual, msgAndArgs...)
 }
 
 // Equal ...
@@ -21,6 +37,16 @@ func (a *a) NotEqual(expected interface{}, actual interface{}, msgAndArgs ...int
 	a.asserts.NotEqual(a.t, expected, actual, msgAndArgs...)
 }
 
+// EqualValues ...
+func (a *a) EqualValues(expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	a.asserts.EqualValues(a.t, expected, actual, msgAndArgs...)
+}
+
+// NotEqualValues ...
+func (a *a) NotEqualValues(expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	a.asserts.NotEqualValues(a.t, expected, actual, msgAndArgs...)
+}
+
 // Error ...
 func (a *a) Error(err error, msgAndArgs ...interface{}) {
 	a.asserts.Error(a.t, err, msgAndArgs...)
@@ -29,6 +55,16 @@ func (a *a) Error(err error, msgAndArgs ...interface{}) {
 // NoError ...
 func (a *a) NoError(err error, msgAndArgs ...interface{}) {
 	a.asserts.NoError(a.t, err, msgAndArgs...)
+}
+
+// EqualError ...
+func (a *a) EqualError(theError error, errString string, msgAndArgs ...interface{}) {
+	a.asserts.EqualError(a.t, theError, errString, msgAndArgs...)
+}
+
+// ErrorAs ...
+func (a *a) ErrorAs(err error, target interface{}, msgAndArgs ...interface{}) {
+	a.asserts.ErrorAs(a.t, err, target, msgAndArgs...)
 }
 
 // Nil ...
@@ -111,6 +147,10 @@ func (a *a) Subset(list, subset interface{}, msgAndArgs ...interface{}) {
 	a.asserts.Subset(a.t, list, subset, msgAndArgs...)
 }
 
+func (a *a) NotSubset(list, subset interface{}, msgAndArgs ...interface{}) {
+	a.asserts.NotSubset(a.t, list, subset, msgAndArgs...)
+}
+
 // IsType ...
 func (a *a) IsType(expectedType interface{}, object interface{}, msgAndArgs ...interface{}) {
 	a.asserts.IsType(a.t, expectedType, object, msgAndArgs...)
@@ -129,4 +169,29 @@ func (a *a) False(value bool, msgAndArgs ...interface{}) {
 // Regexp ...
 func (a *a) Regexp(rx interface{}, str interface{}, msgAndArgs ...interface{}) {
 	a.asserts.Regexp(a.t, rx, str, msgAndArgs...)
+}
+
+// ElementsMatch ...
+func (a *a) ElementsMatch(listA interface{}, listB interface{}, msgAndArgs ...interface{}) {
+	a.asserts.ElementsMatch(a.t, listA, listB, msgAndArgs...)
+}
+
+// DirExists ...
+func (a *a) DirExists(path string, msgAndArgs ...interface{}) {
+	a.asserts.DirExists(a.t, path, msgAndArgs...)
+}
+
+// Condition ...
+func (a *a) Condition(condition assert.Comparison, msgAndArgs ...interface{}) {
+	a.asserts.Condition(a.t, condition, msgAndArgs...)
+}
+
+// Zero ...
+func (a *a) Zero(i interface{}, msgAndArgs ...interface{}) {
+	a.asserts.Zero(a.t, i, msgAndArgs...)
+}
+
+// NotZero ...
+func (a *a) NotZero(i interface{}, msgAndArgs ...interface{}) {
+	a.asserts.NotZero(a.t, i, msgAndArgs...)
 }
