@@ -178,14 +178,14 @@ func (r *runner) RunTests() map[string]bool {
 		ok, err := runHook(r.internalT, beforeAllHook)
 		if err != nil {
 			for _, testMeta := range r.tests {
-				handleError("Suite Setup failed", err, testMeta.testMeta.GetResult())
+				handleError(fmt.Sprintf("%v setup was failed", r.internalT.Name()), err, testMeta.testMeta.GetResult())
 				finishTest(testMeta.testMeta)
 			}
 			return
 		}
 		if !ok {
 			for _, testMeta := range r.tests {
-				handleError("Suite Setup failed", fmt.Errorf("some assertion error during Suite Setup"), testMeta.testMeta.GetResult())
+				handleError(fmt.Sprintf("%v setup was failed", r.internalT.Name()), fmt.Errorf("something goes wrong in beforeAll/afterAll/beforeEach/afterEach"), testMeta.testMeta.GetResult())
 				finishTest(testMeta.testMeta)
 			}
 			return
