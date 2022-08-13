@@ -185,7 +185,7 @@ func (r *runner) RunTests() map[string]bool {
 		}
 		if !ok {
 			for _, testMeta := range r.tests {
-				handleError(fmt.Sprintf("%v setup was failed", r.internalT.Name()), fmt.Errorf("something goes wrong in beforeAll/afterAll/beforeEach/afterEach"), testMeta.testMeta.GetResult())
+				handleError(fmt.Sprintf("%v setup was failed", r.internalT.Name()), fmt.Errorf("something goes wrong in beforeAll/beforeEach"), testMeta.testMeta.GetResult())
 				finishTest(testMeta.testMeta)
 			}
 			return
@@ -248,10 +248,10 @@ func Run(t *testing.T, testName string, testBody func(provider.T), tags ...strin
 		newT        = common.NewT(t)
 		callers     = strings.Split(t.Name(), "/")
 		providerCfg = manager.NewProviderConfig().
-				WithFullName(t.Name()).
-				WithPackageName(getPackage(2)).
-				WithSuiteName(t.Name()).
-				WithRunner(callers[0])
+			WithFullName(t.Name()).
+			WithPackageName(getPackage(2)).
+			WithSuiteName(t.Name()).
+			WithRunner(callers[0])
 		newProvider = manager.NewProvider(providerCfg)
 	)
 	newT.SetProvider(newProvider)
