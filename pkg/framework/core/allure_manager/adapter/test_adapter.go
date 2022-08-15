@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -22,7 +23,10 @@ type TestAdapter struct {
 // NewTestMeta returns pointer to instance of TestAdapter
 func NewTestMeta(suiteFullName, suiteName, testName, packageName string, tags ...string) *TestAdapter {
 	host, _ := os.Hostname()
-	fullName := fmt.Sprintf("%s/%s", suiteFullName, testName)
+	fullName := suiteFullName
+	if callers := strings.Split(suiteFullName, "/"); callers[len(callers)-1] != strings.ReplaceAll(testName, " ", "_") {
+		fullName = fmt.Sprintf("%s/%s", fullName, testName)
+	}
 
 	var newTags []allure.Label
 	for _, tag := range tags {
