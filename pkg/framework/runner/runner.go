@@ -248,10 +248,10 @@ func Run(t *testing.T, testName string, testBody func(provider.T), tags ...strin
 		newT        = common.NewT(t)
 		callers     = strings.Split(t.Name(), "/")
 		providerCfg = manager.NewProviderConfig().
-			WithFullName(t.Name()).
-			WithPackageName(getPackage(2)).
-			WithSuiteName(t.Name()).
-			WithRunner(callers[0])
+				WithFullName(t.Name()).
+				WithPackageName(getPackage(2)).
+				WithSuiteName(t.Name()).
+				WithRunner(callers[0])
 		newProvider = manager.NewProvider(providerCfg)
 	)
 	newT.SetProvider(newProvider)
