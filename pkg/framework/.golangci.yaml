@@ -40,7 +40,7 @@ linters:
     - structcheck
     - varcheck
     - ineffassign
-    - typecheck
+#    - typecheck
     - dupl
     - goconst
     - gosec
