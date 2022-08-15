@@ -211,8 +211,11 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 			WithFullName(realT.Name()).
 			WithPackageName(packageName).
 			WithSuiteName(suiteName).
-			WithParentSuite(parentSuite).
 			WithRunner(callers[0])
+
+		if parentSuite != "" && parentSuite != suiteName && parentSuite != callers[len(callers)-1] {
+			providerCfg = providerCfg.WithParentSuite(parentSuite)
+		}
 		newProvider := manager.NewProvider(providerCfg)
 
 		newProvider.NewTest(testName, packageName, tags...)
