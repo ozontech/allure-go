@@ -27,6 +27,8 @@ type T interface {
 	Require() Asserts
 	Run(testName string, testBody func(T), tags ...string) bool
 
+	LogStep(args ...interface{})
+	LogfStep(format string, args ...interface{})
 	WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
 	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
 }
@@ -46,6 +48,8 @@ type StepCtx interface {
 	Assert() Asserts
 	Require() Asserts
 
+	LogStep(args ...interface{})
+	LogfStep(format string, args ...interface{})
 	CurrentStep() *allure.Step
 
 	Broken()
