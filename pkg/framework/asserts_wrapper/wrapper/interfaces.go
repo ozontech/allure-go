@@ -18,6 +18,7 @@ type AssertsWrapper interface {
 	Error(provider Provider, err error, msgAndArgs ...interface{})
 	NoError(provider Provider, err error, msgAndArgs ...interface{})
 	EqualError(provider Provider, theError error, errString string, msgAndArgs ...interface{})
+	ErrorIs(provider Provider, err error, target error, msgAndArgs ...interface{})
 	ErrorAs(provider Provider, err error, target interface{}, msgAndArgs ...interface{})
 	NotNil(provider Provider, object interface{}, msgAndArgs ...interface{})
 	Nil(provider Provider, object interface{}, msgAndArgs ...interface{})

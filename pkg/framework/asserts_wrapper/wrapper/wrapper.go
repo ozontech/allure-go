@@ -59,7 +59,8 @@ func (a *asserts) Exactly(provider Provider, expected interface{}, actual interf
 // Same ...
 func (a *asserts) Same(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
 	assertName := "Same"
-	expString, actString := formatUnequalValues(expected, actual)
+	expString := fmt.Sprintf("%p", expected)
+	actString := fmt.Sprintf("%p", actual)
 	success := a.resultHelper.withNewStep(
 		a.t,
 		provider,
@@ -216,13 +217,18 @@ func (a *asserts) EqualError(provider Provider, theError error, errString string
 	}
 }
 
-// ErrorAs ...
-func (a *asserts) ErrorAs(provider Provider, err error, target interface{}, msgAndArgs ...interface{}) {
+// ErrorIs ...
+func (a *asserts) ErrorIs(provider Provider, err error, target error, msgAndArgs ...interface{}) {
 	var (
 		actualString string
+		targetString string
 
-		assertName = "Equal As"
+		assertName = "Error Is"
 	)
+
+	if target != nil {
+		targetString = target.Error()
+	}
 
 	if err != nil {
 		actualString = err.Error()
@@ -231,8 +237,39 @@ func (a *asserts) ErrorAs(provider Provider, err error, target interface{}, msgA
 		a.t,
 		provider,
 		assertName,
+		func(t TestingT) bool { return assert.ErrorIs(t, err, target, msgAndArgs...) },
+		allure.NewParameters("Error", actualString, "Target", targetString),
+		msgAndArgs...,
+	)
+
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// ErrorAs ...
+func (a *asserts) ErrorAs(provider Provider, err error, target interface{}, msgAndArgs ...interface{}) {
+	var (
+		errorString string
+
+		assertName = "Error As"
+	)
+
+	_, targetString := formatUnequalValues(nil, target)
+	if pErr, ok := target.(*error); ok {
+		cErr := *pErr
+		targetString = cErr.Error()
+	}
+
+	if err != nil {
+		errorString = err.Error()
+	}
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
 		func(t TestingT) bool { return assert.ErrorAs(t, err, target, msgAndArgs...) },
-		allure.NewParameters("Actual", actualString, "Expected", fmt.Sprintf("%+v", target)),
+		allure.NewParameters("Error", errorString, "Target", targetString),
 		msgAndArgs...,
 	)
 

@@ -41,12 +41,12 @@ func NotEqual(t ProviderT, expected interface{}, actual interface{}, msgAndArgs 
 
 // EqualValues ...
 func EqualValues(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
-	wrapper.NewAsserts(t).EqualValues(t, expected, actual, msgAndArgs)
+	wrapper.NewAsserts(t).EqualValues(t, expected, actual, msgAndArgs...)
 }
 
 // NotEqualValues ...
 func NotEqualValues(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
-	wrapper.NewAsserts(t).NotEqualValues(t, expected, actual, msgAndArgs)
+	wrapper.NewAsserts(t).NotEqualValues(t, expected, actual, msgAndArgs...)
 }
 
 // Error ...
@@ -62,6 +62,11 @@ func NoError(t ProviderT, err error, msgAndArgs ...interface{}) {
 // EqualError ...
 func EqualError(t ProviderT, theError error, errString string, msgAndArgs ...interface{}) {
 	wrapper.NewAsserts(t).EqualError(t, theError, errString, msgAndArgs...)
+}
+
+// ErrorIs ...
+func ErrorIs(t ProviderT, err error, target error, msgAndArgs ...interface{}) {
+	wrapper.NewAsserts(t).ErrorIs(t, err, target, msgAndArgs...)
 }
 
 // ErrorAs ...
@@ -176,7 +181,7 @@ func Regexp(t ProviderT, rx interface{}, str interface{}, msgAndArgs ...interfac
 
 // ElementsMatch ...
 func ElementsMatch(t ProviderT, listA interface{}, listB interface{}, msgAndArgs ...interface{}) {
-	wrapper.NewAsserts(t).Regexp(t, listA, listB, msgAndArgs...)
+	wrapper.NewAsserts(t).ElementsMatch(t, listA, listB, msgAndArgs...)
 }
 
 // DirExists ...

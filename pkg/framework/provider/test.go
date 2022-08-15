@@ -71,6 +71,7 @@ type Asserts interface {
 	Error(err error, msgAndArgs ...interface{})
 	NoError(err error, msgAndArgs ...interface{})
 	EqualError(theError error, errString string, msgAndArgs ...interface{})
+	ErrorIs(err error, target error, msgAndArgs ...interface{})
 	ErrorAs(err error, target interface{}, msgAndArgs ...interface{})
 	NotNil(object interface{}, msgAndArgs ...interface{})
 	Nil(object interface{}, msgAndArgs ...interface{})

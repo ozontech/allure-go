@@ -62,6 +62,11 @@ func (a *a) EqualError(theError error, errString string, msgAndArgs ...interface
 	a.asserts.EqualError(a.t, theError, errString, msgAndArgs...)
 }
 
+// ErrorIs ...
+func (a *a) ErrorIs(err error, target error, msgAndArgs ...interface{}) {
+	a.asserts.ErrorIs(a.t, err, target, msgAndArgs...)
+}
+
 // ErrorAs ...
 func (a *a) ErrorAs(err error, target interface{}, msgAndArgs ...interface{}) {
 	a.asserts.ErrorAs(a.t, err, target, msgAndArgs...)

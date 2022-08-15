@@ -2,6 +2,7 @@ package require
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -33,6 +34,146 @@ func (p *providerTMock) Errorf(format string, msgAndArgs ...interface{}) {
 
 func (p *providerTMock) FailNow() {
 	p.failNow = true
+}
+
+func TestRequireExactly_Success(t *testing.T) {
+	mockT := newMock()
+	Exactly(mockT, 1, 1)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Exactly", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "1", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireExactly_Fail(t *testing.T) {
+	mockT := newMock()
+	Exactly(mockT, 1, 2)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Exactly", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "2", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireSame_Success(t *testing.T) {
+	mockT := newMock()
+	type someStr struct {
+	}
+	exp := &someStr{}
+	act := exp
+	Same(mockT, exp, act)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Same", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%p", exp), params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%p", act), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireSame_Fail(t *testing.T) {
+	mockT := newMock()
+	type someStr struct {
+		someField string
+	}
+	exp := &someStr{}
+	act := &someStr{}
+
+	Same(mockT, exp, act)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Same", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%p", exp), params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%p", act), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireNotSame_Success(t *testing.T) {
+	mockT := newMock()
+	type someStr struct {
+		someField string
+	}
+	exp := &someStr{}
+	act := &someStr{}
+
+	NotSame(mockT, exp, act)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Not Same", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "&require.someStr{someField:\"\"}", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "&require.someStr{someField:\"\"}", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireNotSame_Fail(t *testing.T) {
+	mockT := newMock()
+	type someStr struct {
+	}
+	exp := &someStr{}
+	act := exp
+	NotSame(mockT, exp, act)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Not Same", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "&require.someStr{}", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "&require.someStr{}", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
 func TestRequireEqual_Success(t *testing.T) {
@@ -109,6 +250,86 @@ func TestRequireNotEqual_Fail(t *testing.T) {
 	require.Equal(t, "1", params[0].Value)
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, "1", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireEqualValues_Success(t *testing.T) {
+	mockT := newMock()
+	EqualValues(mockT, uint32(123), int32(123))
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Equal Values", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "uint32(0x7b)", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "int32(123)", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireEqualValues_Fail(t *testing.T) {
+	mockT := newMock()
+	EqualValues(mockT, 1, "test")
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Equal Values", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "int(1)", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "string(\"test\")", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireNotEqualValues_Success(t *testing.T) {
+	mockT := newMock()
+	NotEqualValues(mockT, 1, "test")
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Not Equal Values", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "int(1)", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "string(\"test\")", params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireNotEqualValues_Fail(t *testing.T) {
+	mockT := newMock()
+	NotEqualValues(mockT, uint32(123), int32(123))
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Not Equal Values", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, "uint32(0x7b)", params[0].Value)
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, "int32(123)", params[1].Value)
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -208,6 +429,151 @@ func TestRequireNotNil_Success(t *testing.T) {
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
 	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireEqualError_Success(t *testing.T) {
+	mockT := newMock()
+	exp := "testErr"
+	err := errors.New(exp)
+	EqualError(mockT, err, exp)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Equal Error", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Actual", params[0].Name)
+	require.Equal(t, err.Error(), params[0].Value)
+	require.Equal(t, "Expected", params[1].Name)
+	require.Equal(t, exp, params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireEqualError_Fail(t *testing.T) {
+	mockT := newMock()
+	exp := "testErr2"
+	actual := "testErr"
+	err := errors.New(actual)
+	EqualError(mockT, err, exp)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Equal Error", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Actual", params[0].Name)
+	require.Equal(t, err.Error(), params[0].Value)
+	require.Equal(t, "Expected", params[1].Name)
+	require.Equal(t, exp, params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireErrorIs_Success(t *testing.T) {
+	mockT := newMock()
+	exp := "testErr"
+	err := fmt.Errorf(exp)
+	errNew := errors.Wrap(err, "NewMessage")
+	ErrorIs(mockT, errNew, err)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Error Is", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Error", params[0].Name)
+	require.Equal(t, errNew.Error(), params[0].Value)
+	require.Equal(t, "Target", params[1].Name)
+	require.Equal(t, exp, params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+type fakeError struct {
+	input string
+}
+
+func (f *fakeError) Error() string {
+	return fmt.Sprintf("fake error: %s", f.input)
+}
+
+func TestRequireErrorIs_Fail(t *testing.T) {
+	mockT := newMock()
+
+	var err = fakeError{"some"}
+	errNew := errors.Wrap(fmt.Errorf("other"), "NewMessage")
+	ErrorIs(mockT, errNew, &err)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Error Is", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Error", params[0].Name)
+	require.Equal(t, "NewMessage: other", params[0].Value)
+	require.Equal(t, "Target", params[1].Name)
+	require.Equal(t, "fake error: some", params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireErrorAs_Success(t *testing.T) {
+	mockT := newMock()
+	exp := "testErr"
+	err := fmt.Errorf(exp)
+	errNew := errors.Wrap(err, "NewMessage")
+	ErrorAs(mockT, errNew, &err)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Error As", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Error", params[0].Name)
+	require.Equal(t, errNew.Error(), params[0].Value)
+	require.Equal(t, "Target", params[1].Name)
+	require.Equal(t, exp, params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireErrorAs_Fail(t *testing.T) {
+	mockT := newMock()
+
+	var err *fakeError
+	errNew := errors.Wrap(fmt.Errorf("other"), "NewMessage")
+	ErrorAs(mockT, errNew, &err)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: Error As", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 2)
+	require.Equal(t, "Error", params[0].Name)
+	require.Equal(t, "NewMessage: other", params[0].Value)
+	require.Equal(t, "Target", params[1].Name)
+	require.Equal(t, fmt.Sprintf("**require.fakeError((**require.fakeError)(%+v))", &err), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
 func TestRequireNotNil_Failed(t *testing.T) {
@@ -1138,6 +1504,237 @@ func TestRequireRegexp_Failed(t *testing.T) {
 
 	require.Equal(t, "Actual", params[1].Name)
 	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireElementsMatch_Success(t *testing.T) {
+	mockT := newMock()
+
+	listA := []int{1, 2, 3}
+	listB := []int{1, 2, 3}
+	ElementsMatch(mockT, listA, listB)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Elements Match", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "ListA", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", listA), params[0].Value)
+
+	require.Equal(t, "ListB", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", listB), params[1].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireElementsMatch_Fail(t *testing.T) {
+	mockT := newMock()
+
+	listA := []int{1, 2, 3}
+	listB := []int{4, 3}
+	ElementsMatch(mockT, listA, listB)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Elements Match", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+
+	require.Equal(t, "ListA", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%#v", listA), params[0].Value)
+
+	require.Equal(t, "ListB", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%#v", listB), params[1].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireDirExists_Success(t *testing.T) {
+	dirName := "test"
+	err := os.Mkdir(dirName, 0644)
+	require.NoError(t, err, "Can't create folder to begin test")
+	defer os.RemoveAll(dirName)
+
+	mockT := newMock()
+	DirExists(mockT, dirName)
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Dir Exists", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Path", params[0].Name)
+	require.Equal(t, dirName, params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireDirExists_Fail(t *testing.T) {
+	dirName := "test"
+
+	mockT := newMock()
+	DirExists(mockT, dirName)
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Dir Exists", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Path", params[0].Name)
+	require.Equal(t, dirName, params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireCondition_Success(t *testing.T) {
+	test := false
+	conditionFunc := func() bool {
+		test = true
+		return test
+	}
+	mockT := newMock()
+	Condition(mockT, conditionFunc)
+	steps := mockT.steps
+	require.True(t, test)
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Condition", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Signature", params[0].Name)
+	require.Equal(t, "assert.Comparison", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireCondition_Fail(t *testing.T) {
+	test := false
+	conditionFunc := func() bool {
+		test = true
+		return !test
+	}
+	mockT := newMock()
+	Condition(mockT, conditionFunc)
+	steps := mockT.steps
+	require.True(t, test)
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Condition", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Signature", params[0].Name)
+	require.Equal(t, "assert.Comparison", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireZero_Success(t *testing.T) {
+	mockT := newMock()
+
+	Zero(mockT, 0)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Zero", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Target", params[0].Name)
+	require.Equal(t, "0", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireZero_Fail(t *testing.T) {
+	mockT := newMock()
+
+	Zero(mockT, 1)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Zero", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Target", params[0].Name)
+	require.Equal(t, "1", params[0].Value)
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireNotZero_Success(t *testing.T) {
+	mockT := newMock()
+
+	NotZero(mockT, 1)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Not Zero", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Target", params[0].Name)
+	require.Equal(t, "1", params[0].Value)
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireNotZero_Fail(t *testing.T) {
+	mockT := newMock()
+
+	NotZero(mockT, 0)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Not Zero", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 1)
+
+	require.Equal(t, "Target", params[0].Name)
+	require.Equal(t, "0", params[0].Value)
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
