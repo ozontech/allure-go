@@ -24,6 +24,8 @@ type TestAdapter struct {
 func NewTestMeta(suiteFullName, suiteName, testName, packageName string, tags ...string) *TestAdapter {
 	host, _ := os.Hostname()
 	fullName := suiteFullName
+	// ex: suiteFullName=TestRunner/My_Test, testName=My Test => after split and replace: My_test == My_test
+	// why? to avoid TestRunner/My_Test/My Test
 	if callers := strings.Split(suiteFullName, "/"); callers[len(callers)-1] != strings.ReplaceAll(testName, " ", "_") {
 		fullName = fmt.Sprintf("%s/%s", fullName, testName)
 	}
