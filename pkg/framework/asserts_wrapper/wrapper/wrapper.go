@@ -57,6 +57,7 @@ func (a *asserts) Exactly(provider Provider, expected interface{}, actual interf
 }
 
 // Same ...
+// nolint: dupl
 func (a *asserts) Same(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
 	assertName := "Same"
 	expString := fmt.Sprintf("%p", expected)
@@ -75,6 +76,7 @@ func (a *asserts) Same(provider Provider, expected interface{}, actual interface
 }
 
 // NotSame ...
+// nolint: dupl
 func (a *asserts) NotSame(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
 	assertName := "Not Same"
 	expString := fmt.Sprintf("%p", expected)
