@@ -143,9 +143,9 @@ func TestRequireNotSame_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "&require.someStr{someField:\"\"}", params[0].Value)
+	require.Equal(t, fmt.Sprintf("%p", exp), params[0].Value)
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "&require.someStr{someField:\"\"}", params[1].Value)
+	require.Equal(t, fmt.Sprintf("%p", act), params[1].Value)
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -167,9 +167,9 @@ func TestRequireNotSame_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "&require.someStr{}", params[0].Value)
+	require.Equal(t, fmt.Sprintf("%p", exp), params[0].Value)
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "&require.someStr{}", params[1].Value)
+	require.Equal(t, fmt.Sprintf("%p", act), params[1].Value)
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)

@@ -77,7 +77,8 @@ func (a *asserts) Same(provider Provider, expected interface{}, actual interface
 // NotSame ...
 func (a *asserts) NotSame(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
 	assertName := "Not Same"
-	expString, actString := formatUnequalValues(expected, actual)
+	expString := fmt.Sprintf("%p", expected)
+	actString := fmt.Sprintf("%p", actual)
 	success := a.resultHelper.withNewStep(
 		a.t,
 		provider,
