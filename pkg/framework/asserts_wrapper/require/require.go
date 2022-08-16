@@ -5,12 +5,28 @@ import (
 
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/wrapper"
+	"github.com/stretchr/testify/assert"
 )
 
 type ProviderT interface {
 	Step(step *allure.Step)
 	Errorf(format string, args ...interface{})
 	FailNow()
+}
+
+// Exactly ...
+func Exactly(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).Exactly(t, expected, actual, msgAndArgs...)
+}
+
+// Same ...
+func Same(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).Same(t, expected, actual, msgAndArgs...)
+}
+
+// NotSame ...
+func NotSame(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).NotSame(t, expected, actual, msgAndArgs...)
 }
 
 // Equal ...
@@ -23,6 +39,16 @@ func NotEqual(t ProviderT, expected interface{}, actual interface{}, msgAndArgs 
 	wrapper.NewRequire(t).NotEqual(t, expected, actual, msgAndArgs...)
 }
 
+// EqualValues ...
+func EqualValues(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).EqualValues(t, expected, actual, msgAndArgs...)
+}
+
+// NotEqualValues ...
+func NotEqualValues(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).NotEqualValues(t, expected, actual, msgAndArgs...)
+}
+
 // Error ...
 func Error(t ProviderT, err error, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).Error(t, err, msgAndArgs...)
@@ -31,6 +57,21 @@ func Error(t ProviderT, err error, msgAndArgs ...interface{}) {
 // NoError ...
 func NoError(t ProviderT, err error, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).NoError(t, err, msgAndArgs...)
+}
+
+// EqualError ...
+func EqualError(t ProviderT, theError error, errString string, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).EqualError(t, theError, errString, msgAndArgs...)
+}
+
+// ErrorIs ...
+func ErrorIs(t ProviderT, err error, target error, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).ErrorIs(t, err, target, msgAndArgs...)
+}
+
+// ErrorAs ...
+func ErrorAs(t ProviderT, err error, target interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).ErrorAs(t, err, target, msgAndArgs...)
 }
 
 // NotNil ...
@@ -113,6 +154,11 @@ func Subset(t ProviderT, list, subset interface{}, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).Subset(t, list, subset, msgAndArgs...)
 }
 
+// NotSubset ...
+func NotSubset(t ProviderT, list, subset interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).NotSubset(t, list, subset, msgAndArgs...)
+}
+
 // IsType ...
 func IsType(t ProviderT, expectedType interface{}, object interface{}, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).IsType(t, expectedType, object, msgAndArgs...)
@@ -131,4 +177,29 @@ func False(t ProviderT, value bool, msgAndArgs ...interface{}) {
 // Regexp ...
 func Regexp(t ProviderT, rx interface{}, str interface{}, msgAndArgs ...interface{}) {
 	wrapper.NewRequire(t).Regexp(t, rx, str, msgAndArgs...)
+}
+
+// ElementsMatch ...
+func ElementsMatch(t ProviderT, listA interface{}, listB interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).ElementsMatch(t, listA, listB, msgAndArgs...)
+}
+
+// DirExists ...
+func DirExists(t ProviderT, path string, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).DirExists(t, path, msgAndArgs...)
+}
+
+// Condition ...
+func Condition(t ProviderT, condition assert.Comparison, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).Condition(t, condition, msgAndArgs...)
+}
+
+// Zero ...
+func Zero(t ProviderT, i interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).Zero(t, i, msgAndArgs...)
+}
+
+// NotZero ...
+func NotZero(t ProviderT, i interface{}, msgAndArgs ...interface{}) {
+	wrapper.NewRequire(t).NotZero(t, i, msgAndArgs...)
 }

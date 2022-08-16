@@ -107,6 +107,8 @@ Main interfaces for test working are `provider.T` and `provider.StepCtx`.
 
 | Method                                                                                   |                                                                    Description                                                                    |
 |:-----------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------:|
+| `LogStep(args ...interface{})`                                                           |                                  Works as `t.Log(args ...interface{})`, but also creates `allure.Step` at report                                  |
+| `LogfStep(format string, args ...interface{})`                                           |                          Works as `t.Logf(format string, args ...interface{})` but also creates `allure.Step` at report                           |
 | `Step(step *allure.Step)`                                                                |                                                       Adds `allure.Step` object to result.                                                        |
 | `NewStep(stepName string, params ...allure.Parameter)`                                   |                                              Creates new `allure.Step` object and adds it to result.                                              |
 | `WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)`      | Creates new `allure.Step` object and run anonymous function. With `StepCtx` interface you can work with step during anonymous function execution. |
@@ -140,6 +142,8 @@ Main interfaces for test working are `provider.T` and `provider.StepCtx`.
 
 | Method                                                                                   |                                                                              Description                                                                              |
 |:-----------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| `LogStep(args ...interface{})`                                                           |                                            Works as `t.Log(args ...interface{})`, but also creates `allure.Step` at report                                            |
+| `LogfStep(format string, args ...interface{})`                                           |                                    Works as `t.Logf(format string, args ...interface{})` but also creates `allure.Step` at report                                     |
 | `Step(step *allure.Step)`                                                                |                                                               Adds created `allure.Step` as a substep.                                                                |
 | `NewStep(stepName string, parameters ...allure.Parameter)`                               |                                                       Creates new allure.Step object and adds it as a substep.                                                        |
 | `WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)`      | Creates new `allure.Step` object and run anonymous function. With `StepCtx` interface you can work with step during anonymous function execution. Adds it as substep. |
@@ -191,10 +195,18 @@ allure-go provides implementation of most usable [testify](https://github.com/st
 
 | Method                                                                                       |
 |:---------------------------------------------------------------------------------------------|
+| `Exactly(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`  |          
+| `Same(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`     |             
+| `NotSame(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`  |
 | `Equal(expected interface{}, actual interface{}, msgAndArgs ...interface{})`                 | 
 | `NotEqual(expected interface{}, actual interface{}, msgAndArgs ...interface{})`              | 
+| `EqualValues(expected interface{}, actual interface{}, msgAndArgs ...interface{})`           |
+| `NotEqualValues(expected interface{}, actual interface{}, msgAndArgs ...interface{})`        |
 | `Error(err error, msgAndArgs ...interface{})`                                                | 
 | `NoError(err error, msgAndArgs ...interface{})`                                              | 
+| `EqualError(theError error, errString string, msgAndArgs ...interface{})`                    |
+| `ErrorIs(err error, target error, msgAndArgs ...interface{})`                                |
+| `ErrorAs(err error, target interface{}, msgAndArgs ...interface{})`                          |
 | `NotNil(object interface{}, msgAndArgs ...interface{})`                                      | 
 | `Nil(object interface{}, msgAndArgs ...interface{})`                                         | 
 | `Len(object interface{}, length int, msgAndArgs ...interface{})`                             | 
@@ -215,6 +227,11 @@ allure-go provides implementation of most usable [testify](https://github.com/st
 | `True(value bool, msgAndArgs ...interface{})`                                                | 
 | `False(value bool, msgAndArgs ...interface{})`                                               |
 | `Regexp(rx interface{}, str interface{}, msgAndArgs ...interface{})`                         |
+| `ElementsMatch(listA interface{}, listB interface{}, msgAndArgs ...interface{})`             |
+| `DirExists(path string, msgAndArgs ...interface{})`                                          |
+| `Condition(condition assert.Comparison, msgAndArgs ...interface{})`                          |
+| `Zero(i interface{}, msgAndArgs ...interface{})`                                             |
+| `NotZero(i interface{}, msgAndArgs ...interface{})`                                          |
 
 :information_desk_person: **NOTE:** allure-go supports assert/require separation. User `T.Assert()`/`T.Require()` to get asserts you need.
 
@@ -225,10 +242,18 @@ Also, allure-go supports assert/require functionality that not attached to the `
 
 | Method                                                                                                    |
 |:----------------------------------------------------------------------------------------------------------|
+| `Exactly(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`               |          
+| `Same(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`                  |             
+| `NotSame(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`               |
 | `Equal(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`                 | 
 | `NotEqual(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`              | 
+| `EqualValues(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`           |
+| `NotEqualValues(t ProviderT, expected interface{}, actual interface{}, msgAndArgs ...interface{})`        |
 | `Error(t ProviderT, err error, msgAndArgs ...interface{})`                                                | 
 | `NoError(t ProviderT, err error, msgAndArgs ...interface{})`                                              | 
+| `EqualError(t ProviderT, theError error, errString string, msgAndArgs ...interface{})`                    |
+| `ErrorIs(t ProviderT, err error, target error, msgAndArgs ...interface{})`                                |
+| `ErrorAs(t ProviderT, err error, target interface{}, msgAndArgs ...interface{})`                          |
 | `NotNil(t ProviderT, object interface{}, msgAndArgs ...interface{})`                                      | 
 | `Nil(t ProviderT, object interface{}, msgAndArgs ...interface{})`                                         | 
 | `Len(t ProviderT, object interface{}, length int, msgAndArgs ...interface{})`                             | 
@@ -249,6 +274,11 @@ Also, allure-go supports assert/require functionality that not attached to the `
 | `True(t ProviderT, value bool, msgAndArgs ...interface{})`                                                | 
 | `False(t ProviderT, value bool, msgAndArgs ...interface{})`                                               |
 | `Regexp(t ProviderT, rx interface{}, str interface{}, msgAndArgs ...interface{})`                         |
+| `ElementsMatch(ProviderT, listA interface{}, listB interface{}, msgAndArgs ...interface{})`               |
+| `DirExists(t ProviderT, path string, msgAndArgs ...interface{})`                                          |
+| `Condition(t ProviderT, condition assert.Comparison, msgAndArgs ...interface{})`                          |
+| `Zero(t ProviderT, i interface{}, msgAndArgs ...interface{})`                                             |
+| `NotZero(t ProviderT, i interface{}, msgAndArgs ...interface{})`                                          |
 
 :information_desk_person: **NOTE:** `ProviderT` interface:
 

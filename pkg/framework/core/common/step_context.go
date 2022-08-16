@@ -124,6 +124,18 @@ func (ctx *stepCtx) WithNewAttachment(name string, mimeType allure.MimeType, con
 	ctx.currentStep.WithAttachments(allure.NewAttachment(name, mimeType, content))
 }
 
+func (ctx *stepCtx) LogStep(args ...interface{}) {
+	newStep := allure.NewSimpleStep(fmt.Sprintln(args...))
+	ctx.currentStep.WithChild(newStep)
+	ctx.Log(args...)
+}
+
+func (ctx *stepCtx) LogfStep(format string, args ...interface{}) {
+	newStep := allure.NewSimpleStep(fmt.Sprintf(format, args...))
+	ctx.currentStep.WithChild(newStep)
+	ctx.Logf(format, args...)
+}
+
 func (ctx *stepCtx) Step(step *allure.Step) {
 	ctx.currentStep.WithChild(step)
 }

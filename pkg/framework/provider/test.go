@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ozontech/allure-go/pkg/allure"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestingT interface {
@@ -26,6 +27,8 @@ type T interface {
 	Require() Asserts
 	Run(testName string, testBody func(T), tags ...string) bool
 
+	LogStep(args ...interface{})
+	LogfStep(format string, args ...interface{})
 	WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
 	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
 }
@@ -45,6 +48,8 @@ type StepCtx interface {
 	Assert() Asserts
 	Require() Asserts
 
+	LogStep(args ...interface{})
+	LogfStep(format string, args ...interface{})
 	CurrentStep() *allure.Step
 
 	Broken()
@@ -60,10 +65,18 @@ type StepCtx interface {
 
 // Asserts ...
 type Asserts interface {
+	Exactly(expected interface{}, actual interface{}, msgAndArgs ...interface{})
+	Same(expected interface{}, actual interface{}, msgAndArgs ...interface{})
+	NotSame(expected interface{}, actual interface{}, msgAndArgs ...interface{})
 	Equal(expected interface{}, actual interface{}, msgAndArgs ...interface{})
 	NotEqual(expected interface{}, actual interface{}, msgAndArgs ...interface{})
+	EqualValues(expected interface{}, actual interface{}, msgAndArgs ...interface{})
+	NotEqualValues(expected interface{}, actual interface{}, msgAndArgs ...interface{})
 	Error(err error, msgAndArgs ...interface{})
 	NoError(err error, msgAndArgs ...interface{})
+	EqualError(theError error, errString string, msgAndArgs ...interface{})
+	ErrorIs(err error, target error, msgAndArgs ...interface{})
+	ErrorAs(err error, target interface{}, msgAndArgs ...interface{})
 	NotNil(object interface{}, msgAndArgs ...interface{})
 	Nil(object interface{}, msgAndArgs ...interface{})
 	Len(object interface{}, length int, msgAndArgs ...interface{})
@@ -80,8 +93,14 @@ type Asserts interface {
 	JSONEq(expected, actual string, msgAndArgs ...interface{})
 	JSONContains(expected, actual string, msgAndArgs ...interface{})
 	Subset(list, subset interface{}, msgAndArgs ...interface{})
+	NotSubset(list, subset interface{}, msgAndArgs ...interface{})
 	IsType(expectedType interface{}, object interface{}, msgAndArgs ...interface{})
 	True(value bool, msgAndArgs ...interface{})
 	False(value bool, msgAndArgs ...interface{})
 	Regexp(rx interface{}, str interface{}, msgAndArgs ...interface{})
+	ElementsMatch(listA interface{}, listB interface{}, msgAndArgs ...interface{})
+	DirExists(path string, msgAndArgs ...interface{})
+	Condition(condition assert.Comparison, msgAndArgs ...interface{})
+	Zero(i interface{}, msgAndArgs ...interface{})
+	NotZero(i interface{}, msgAndArgs ...interface{})
 }

@@ -39,6 +39,61 @@ func NewRequire(t TestingT) AssertsWrapper {
 	}
 }
 
+// Exactly ...
+func (a *asserts) Exactly(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	assertName := "Exactly"
+	expString, actString := formatUnequalValues(expected, actual)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.Exactly(a.t, expected, actual, msgAndArgs...) },
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// Same ...
+// nolint: dupl
+func (a *asserts) Same(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	assertName := "Same"
+	expString := fmt.Sprintf("%p", expected)
+	actString := fmt.Sprintf("%p", actual)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.Same(a.t, expected, actual, msgAndArgs...) },
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// NotSame ...
+// nolint: dupl
+func (a *asserts) NotSame(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	assertName := "Not Same"
+	expString := fmt.Sprintf("%p", expected)
+	actString := fmt.Sprintf("%p", actual)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.NotSame(a.t, expected, actual, msgAndArgs...) },
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
 // Equal ...
 func (a *asserts) Equal(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
 	assertName := "Equal"
@@ -65,6 +120,40 @@ func (a *asserts) NotEqual(provider Provider, expected interface{}, actual inter
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.NotEqual(t, expected, actual, msgAndArgs...) },
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// EqualValues ...
+func (a *asserts) EqualValues(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	assertName := "Equal Values"
+	expString, actString := formatUnequalValues(expected, actual)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.EqualValues(a.t, expected, actual, msgAndArgs...) },
+		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// NotEqualValues ...
+func (a *asserts) NotEqualValues(provider Provider, expected interface{}, actual interface{}, msgAndArgs ...interface{}) {
+	assertName := "Not Equal Values"
+	expString, actString := formatUnequalValues(expected, actual)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.NotEqualValues(t, expected, actual, msgAndArgs...) },
 		allure.NewParameters("Expected", expString, "Actual", actString),
 		msgAndArgs...,
 	)
@@ -101,6 +190,92 @@ func (a *asserts) NoError(provider Provider, err error, msgAndArgs ...interface{
 		allure.NewParameters("Actual", fmt.Sprintf("%+v", err)),
 		msgAndArgs...,
 	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// EqualError ...
+func (a *asserts) EqualError(provider Provider, theError error, errString string, msgAndArgs ...interface{}) {
+	var (
+		actualString string
+
+		assertName = "Equal Error"
+	)
+
+	if theError != nil {
+		actualString = theError.Error()
+	}
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.EqualError(t, theError, errString, msgAndArgs...) },
+		allure.NewParameters("Actual", actualString, "Expected", errString),
+		msgAndArgs...,
+	)
+
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// ErrorIs ...
+func (a *asserts) ErrorIs(provider Provider, err error, target error, msgAndArgs ...interface{}) {
+	var (
+		actualString string
+		targetString string
+
+		assertName = "Error Is"
+	)
+
+	if target != nil {
+		targetString = target.Error()
+	}
+
+	if err != nil {
+		actualString = err.Error()
+	}
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.ErrorIs(t, err, target, msgAndArgs...) },
+		allure.NewParameters("Error", actualString, "Target", targetString),
+		msgAndArgs...,
+	)
+
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// ErrorAs ...
+func (a *asserts) ErrorAs(provider Provider, err error, target interface{}, msgAndArgs ...interface{}) {
+	var (
+		errorString string
+
+		assertName = "Error As"
+	)
+
+	_, targetString := formatUnequalValues(nil, target)
+	if pErr, ok := target.(*error); ok {
+		cErr := *pErr
+		targetString = cErr.Error()
+	}
+
+	if err != nil {
+		errorString = err.Error()
+	}
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.ErrorAs(t, err, target, msgAndArgs...) },
+		allure.NewParameters("Error", errorString, "Target", targetString),
+		msgAndArgs...,
+	)
+
 	if !success && a.resultHelper.required {
 		a.t.FailNow()
 	}
@@ -376,6 +551,23 @@ func (a *asserts) Subset(provider Provider, list, subset interface{}, msgAndArgs
 	}
 }
 
+// NotSubset ...
+func (a *asserts) NotSubset(provider Provider, list, subset interface{}, msgAndArgs ...interface{}) {
+	assertName := "Not Subset"
+	listString, subsetString := formatUnequalValues(list, subset)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.NotSubset(t, list, subset, msgAndArgs...) },
+		allure.NewParameters("List", listString, "Subset", subsetString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
 // IsType ...
 func (a *asserts) IsType(provider Provider, expectedType interface{}, object interface{}, msgAndArgs ...interface{}) {
 	assertName := "Is Type"
@@ -437,6 +629,87 @@ func (a *asserts) Regexp(provider Provider, rx interface{}, str interface{}, msg
 		assertName,
 		func(t TestingT) bool { return assert.Regexp(a.t, rx, str, msgAndArgs...) },
 		allure.NewParameters("Expected", expString, "Actual", actString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// ElementsMatch ...
+func (a *asserts) ElementsMatch(provider Provider, listA interface{}, listB interface{}, msgAndArgs ...interface{}) {
+	assertName := "Elements Match"
+	listAString, listBString := formatUnequalValues(listA, listB)
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.ElementsMatch(a.t, listA, listB, msgAndArgs...) },
+		allure.NewParameters("ListA", listAString, "ListB", listBString),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// DirExists ...
+func (a *asserts) DirExists(provider Provider, path string, msgAndArgs ...interface{}) {
+	assertName := "Dir Exists"
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.DirExists(a.t, path, msgAndArgs...) },
+		allure.NewParameters("Path", path),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// Condition ...
+func (a *asserts) Condition(provider Provider, condition assert.Comparison, msgAndArgs ...interface{}) {
+	assertName := "Condition"
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.Condition(a.t, condition, msgAndArgs...) },
+		allure.NewParameters("Signature", fmt.Sprintf("%T", condition)),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// Zero ...
+func (a *asserts) Zero(provider Provider, i interface{}, msgAndArgs ...interface{}) {
+	assertName := "Zero"
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.Zero(a.t, i, msgAndArgs...) },
+		allure.NewParameters("Target", i),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
+// NotZero ...
+func (a *asserts) NotZero(provider Provider, i interface{}, msgAndArgs ...interface{}) {
+	assertName := "Not Zero"
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.NotZero(a.t, i, msgAndArgs...) },
+		allure.NewParameters("Target", i),
 		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
