@@ -7,7 +7,9 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"unsafe"
 
+	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/adapter"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
@@ -15,52 +17,23 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
-// AllureBeforeTest has a BeforeEach method, which will run before each
-// test in the suite.
-type AllureBeforeTest interface {
-	BeforeEach(t provider.T)
-}
-
-// AllureAfterTest has a AfterEach method, which will run after
-// each test in the suite.
-type AllureAfterTest interface {
-	AfterEach(t provider.T)
-}
-
-// AllureBeforeSuite has a BeforeAll method, which will run before the
-// tests in the suite are run.
-type AllureBeforeSuite interface {
-	BeforeAll(t provider.T)
-}
-
-// AllureAfterSuite has a AfterAll method, which will run after
-// all the tests in the suite have been run.
-type AllureAfterSuite interface {
-	AfterAll(t provider.T)
-}
-
-type InternalSuite interface {
-	GetRunner() TestRunner
-	SetRunner(runner TestRunner)
-}
-
 type suiteRunner struct {
 	*runner
 
 	packageName string
 	suiteName   string
-	suite       InternalSuite
+	suite       TestSuite
 }
 
-func NewSuiteRunnerWithParent(realT TestingT, packageName, suiteName, parentSuite string, suite InternalSuite) TestRunner {
+func NewSuiteRunnerWithParent(realT TestingT, packageName, suiteName, parentSuite string, suite TestSuite) TestRunner {
 	return newSuiteRunner(realT, packageName, suiteName, parentSuite, suite)
 }
 
-func NewSuiteRunner(realT TestingT, packageName, suiteName string, suite InternalSuite) TestRunner {
+func NewSuiteRunner(realT TestingT, packageName, suiteName string, suite TestSuite) TestRunner {
 	return newSuiteRunner(realT, packageName, suiteName, "", suite)
 }
 
-func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, suite InternalSuite) TestRunner {
+func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, suite TestSuite) TestRunner {
 	newT := common.NewT(realT)
 
 	callers := strings.Split(realT.Name(), "/")
@@ -72,7 +45,6 @@ func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, 
 		WithParentSuite(parentSuite).
 		WithRunner(callers[0])
 	newT.SetProvider(manager.NewProvider(providerCfg))
-
 	testPlan := testplan.GetTestPlan()
 	if testPlan != nil {
 		fmt.Printf("Test plan found. It will be used for test filters\n")
@@ -81,7 +53,7 @@ func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, 
 	testRunner := &runner{
 		internalT: newT,
 		testPlan:  testPlan,
-		tests:     make(map[string]*test),
+		tests:     make(map[string]Test),
 	}
 	r := &suiteRunner{
 		runner:      testRunner,
@@ -95,7 +67,7 @@ func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, 
 	return r
 }
 
-func collectTests(runner *suiteRunner, suite InternalSuite) *suiteRunner {
+func collectTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
 	var (
 		methodFinder  = reflect.TypeOf(suite)
 		packageName   = runner.packageName
@@ -105,7 +77,6 @@ func collectTests(runner *suiteRunner, suite InternalSuite) *suiteRunner {
 
 	for i := 0; i < methodFinder.NumMethod(); i++ {
 		method := methodFinder.Method(i)
-
 		ok, err := methodFilter(method.Name)
 		if err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "allire-go: invalid regexp for -m: %s\n", err)
@@ -117,23 +88,103 @@ func collectTests(runner *suiteRunner, suite InternalSuite) *suiteRunner {
 		}
 
 		testMeta := adapter.NewTestMeta(suiteFullName, suiteName, method.Name, packageName)
-		runner.tests[method.Name] = &test{
+		runner.tests[method.Name] = &testMethod{
 			testMeta: testMeta,
-			testBody: func(testT provider.T) {
-				callArgs := []reflect.Value{
-					reflect.ValueOf(suite),
-					reflect.ValueOf(testT),
-				}
-				method.Func.Call(callArgs)
+			testBody: method,
+			callArgs: []reflect.Value{
+				reflect.ValueOf(suite),
 			},
 		}
 	}
 	return runner
 }
 
-func collectHooks(runner *suiteRunner, suite InternalSuite) *suiteRunner {
+type ParametrizedTest interface {
+	GetRawBody() reflect.Method
+	GetArgs() []reflect.Value
+	GetMeta() provider.TestMeta
+}
+
+func parametrizedWrap(runner *suiteRunner, foo func(provider.T)) func(t provider.T) {
+	return func(t provider.T) {
+		foo(t)
+		newTests := runner.tests
+		for name, test := range runner.tests {
+			if strings.HasPrefix(name, tableTestPrefix) {
+				params, err := getParams(runner.suite, name)
+				if err != nil {
+					panic(err)
+				}
+				temp := getParamTests(test, params)
+				delete(newTests, name)
+				for tName, body := range temp {
+					newTests[tName] = body
+				}
+			}
+		}
+		runner.tests = newTests
+	}
+}
+
+func getParamTests(parentTest Test, params map[string]interface{}) map[string]Test {
+	if paramTest, ok := parentTest.(ParametrizedTest); ok {
+		var (
+			suiteName   string
+			packageName string
+			tags        []string
+
+			res           = make(map[string]Test)
+			parentMeta    = paramTest.GetMeta()
+			result        = parentMeta.GetResult()
+			suiteFullName = result.FullName
+		)
+		if suites := result.GetLabel(allure.Suite); len(suites) > 0 {
+			suiteName = suites[0].Value
+		}
+		if packages := result.GetLabel(allure.Package); len(packages) > 0 {
+			packageName = packages[0].Value
+		}
+		for _, tag := range result.GetLabel(allure.Tag) {
+			tags = append(tags, tag.Value)
+		}
+
+		for pName, param := range params {
+			meta := adapter.NewTestMeta(fmt.Sprintf("%s/%s", suiteFullName, suiteName), parentMeta.GetResult().Name, pName, packageName, tags...)
+			meta.GetResult().SetLabel(allure.ParentSuiteLabel(suiteName))
+			res[pName] = &testMethod{
+				testMeta: meta,
+				testBody: paramTest.GetRawBody(),
+				callArgs: append(paramTest.GetArgs(), reflect.ValueOf(param)),
+			}
+		}
+		return res
+	}
+	panic("missing interface implementaion for passed test: ParametrizedTest")
+}
+
+func getParams(suite TestSuite, methodName string) (res map[string]interface{}, err error) {
+	var (
+		structSuite = reflect.ValueOf(suite).Elem()
+		paramName   = strings.TrimPrefix(methodName, tableTestPrefix)
+	)
+	res = make(map[string]interface{})
+	params := structSuite.FieldByName(tableParamPrefix + paramName)
+	if params.Kind() != reflect.Slice {
+		err = fmt.Errorf("cannot find appropriate params for %s", methodName)
+		return
+	}
+	for i := 0; i < params.Len(); i++ {
+		paramV := params.Index(i)
+		param := reflect.NewAt(paramV.Type(), unsafe.Pointer(paramV.UnsafeAddr())).Elem().Interface()
+		pName := fmt.Sprintf("%+v", param)
+		res[pName] = param
+	}
+	return
+}
+
+func collectHooks(runner *suiteRunner, suite TestSuite) *suiteRunner {
 	if beforeAll, ok := suite.(AllureBeforeSuite); ok {
-		runner.BeforeAll(beforeAll.BeforeAll)
+		runner.BeforeAll(parametrizedWrap(runner, beforeAll.BeforeAll))
 	}
 
 	if beforeEach, ok := suite.(AllureBeforeTest); ok {
@@ -151,12 +202,17 @@ func collectHooks(runner *suiteRunner, suite InternalSuite) *suiteRunner {
 	return runner
 }
 
-var matchMethod = flag.String("allure-go.m", "", "regular expression to select tests of the testify suite to run")
+var matchMethod = flag.String("allure-go.m", "", "regular expression to select tests of the allure-go suite to run")
 
 // Filtering method according to set regular expression
 // specified command-line argument -m
 func methodFilter(name string) (bool, error) {
-	if ok, _ := regexp.MatchString("^Test", name); !ok {
+	var (
+		validPrefixes = strings.Join([]string{testPrefix, tableTestPrefix}, "|")
+		regFilter     = fmt.Sprintf("^(%s)", validPrefixes)
+	)
+
+	if ok, _ := regexp.MatchString(regFilter, name); !ok {
 		return false, nil
 	}
 	return regexp.MatchString(*matchMethod, name)

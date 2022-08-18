@@ -76,6 +76,12 @@ func (container *Container) Finish() {
 	container.Stop = GetNow()
 }
 
+// Done calls Finish and Print
+func (container *Container) Done() error {
+	container.Finish()
+	return container.Print()
+}
+
 // Print prints all attachments of Container.Befores and Container.Afters
 // after that marshals Container and ioutil.WriteFile
 func (container *Container) printContainer() error {

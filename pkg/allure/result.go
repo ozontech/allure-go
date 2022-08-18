@@ -250,15 +250,12 @@ func (result *Result) PrintAttachments() {
 // Done Checks the status of the report.
 // If `Result.Status` is not filled in, consider the test successfully completed (no errors).
 // After that - it calls Finish() and Print() methods.
-func (result *Result) Done() {
+func (result *Result) Done() error {
 	if result.Status == "" {
 		result.Status = Passed
 	}
 	result.Finish()
-	err := result.Print()
-	if err != nil {
-		panic(err)
-	}
+	return result.Print()
 }
 
 // getMD5Hash ...
