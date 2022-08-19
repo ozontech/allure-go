@@ -1,63 +1,27 @@
 package suite_demo
 
 import (
-	"fmt"
 	"testing"
 
+	"github.com/jackc/fake"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-type SomeInterface interface {
-	TestMe()
-}
-
-type someSubInterface struct {
-	idx int
-}
-
-func (i *someSubInterface) TestMe() {
-	return
-}
-
-type SomeSubStruct struct {
-	name string
-}
-
-type SomeStruct struct {
-	test int
-	sub  *SomeSubStruct
-	int  SomeInterface
-}
-
-func (str *SomeStruct) String() string {
-	return str.sub.name
-}
-
 type ParametrizedSuite struct {
 	suite.Suite
-	ParamStrings []*SomeStruct
+	ParamCities []string
 }
 
 func (s *ParametrizedSuite) BeforeAll(t provider.T) {
 	for i := 0; i < 10; i++ {
-		s.ParamStrings = append(s.ParamStrings, &SomeStruct{
-			test: i,
-			sub:  &SomeSubStruct{name: fmt.Sprintf("TestName - %d", i)},
-			int:  &someSubInterface{idx: i + 1},
-		})
+		s.ParamCities = append(s.ParamCities, fake.City())
 	}
 }
 
-func (s *ParametrizedSuite) TableTestStrings(t provider.T, stringParam *SomeStruct) {
+func (s *ParametrizedSuite) TableTestCities(t provider.T, city string) {
 	t.Parallel()
-	t.Require().NotEqual(2, stringParam.test)
-	t.Require().NotEmpty(stringParam)
-}
-
-func (s *ParametrizedSuite) TestJustTest(t provider.T) {
-	t.Parallel()
-	t.Require().NotNil(t)
+	t.Require().NotEmpty(city)
 }
 
 func TestNewParametrizedDemo(t *testing.T) {
