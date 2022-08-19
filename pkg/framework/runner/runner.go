@@ -255,16 +255,12 @@ func sErr(msg string, err error, meta provider.TestMeta, result SuiteResult) Sui
 	defer mtx.Unlock()
 
 	tRes := NewTestResult(meta.GetResult(), meta.GetContainer())
-	handleSetupError(msg, err, tRes.GetResult())
+	tRes.GetResult().Status = allure.Unknown
+	tRes.GetResult().SetStatusMessage(msg)
+	tRes.GetResult().SetStatusTrace(fmt.Sprintf("%s. Reason:\n%s", msg, err.Error()))
 	_ = tRes.Print()
 	result.NewResult(tRes)
 	return result
-}
-
-func handleSetupError(msg string, err error, allureResult *allure.Result) {
-	allureResult.Status = allure.Unknown
-	allureResult.SetStatusMessage(msg)
-	allureResult.SetStatusTrace(fmt.Sprintf("%s. Reason:\n%s", msg, err.Error()))
 }
 
 func runHook(t internalT, hookFunc common.HookFunc) (res bool, err error) {
