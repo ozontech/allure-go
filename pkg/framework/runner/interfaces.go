@@ -63,6 +63,7 @@ type SuiteResult interface {
 	GetAllTestResults() []TestResult
 	GetResultByName(name string) TestResult
 	GetResultByUUID(uuid string) TestResult
+	ToJSON() ([]byte, error)
 }
 
 type TestResult interface {

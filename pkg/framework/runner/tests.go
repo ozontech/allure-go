@@ -10,33 +10,33 @@ import (
 )
 
 type suiteResult struct {
-	container   *allure.Container
-	testResults []TestResult
+	Container   *allure.Container `json:"container,omitempty"`
+	TestResults []TestResult      `json:"test_results,omitempty"`
 }
 
 // NewSuiteResult Returns new SuiteResult
 func NewSuiteResult(container *allure.Container) SuiteResult {
-	return &suiteResult{container: container}
+	return &suiteResult{Container: container}
 }
 
 // NewResult appends test result to suite result
 func (sr *suiteResult) NewResult(result TestResult) {
-	sr.testResults = append(sr.testResults, result)
+	sr.TestResults = append(sr.TestResults, result)
 }
 
-// GetContainer returns parent container
+// GetContainer returns parent Container
 func (sr *suiteResult) GetContainer() *allure.Container {
-	return sr.container
+	return sr.Container
 }
 
 // GetAllTestResults returns all test results of suite
 func (sr *suiteResult) GetAllTestResults() []TestResult {
-	return sr.testResults
+	return sr.TestResults
 }
 
 // GetResultByName searches result by name and returns it
 func (sr *suiteResult) GetResultByName(name string) TestResult {
-	for _, tr := range sr.testResults {
+	for _, tr := range sr.TestResults {
 		if result := tr.GetResult(); result != nil {
 			if result.Name == name {
 				return tr
@@ -48,7 +48,7 @@ func (sr *suiteResult) GetResultByName(name string) TestResult {
 
 // GetResultByUUID searches result by UUID and returns it
 func (sr *suiteResult) GetResultByUUID(uuid string) TestResult {
-	for _, tr := range sr.testResults {
+	for _, tr := range sr.TestResults {
 		if result := tr.GetResult(); result != nil {
 			if result.UUID.String() == uuid {
 				return tr
@@ -58,8 +58,8 @@ func (sr *suiteResult) GetResultByUUID(uuid string) TestResult {
 	return nil
 }
 
-// ToJson marshall result to Json object
-func (sr *suiteResult) ToJson() ([]byte, error) {
+// ToJSON marshall result to Json object
+func (sr *suiteResult) ToJSON() ([]byte, error) {
 	return json.Marshal(sr)
 }
 
@@ -81,7 +81,7 @@ func (tr *testResult) GetResult() *allure.Result {
 	return tr.result
 }
 
-// GetContainer returns container
+// GetContainer returns Container
 func (tr *testResult) GetContainer() *allure.Container {
 	return tr.container
 }
