@@ -80,7 +80,9 @@ func (m *providerMockCommon) AfterEachContext()                                 
 func (m *providerMockCommon) BeforeAllContext()                                    {}
 func (m *providerMockCommon) AfterAllContext()                                     {}
 func (m *providerMockCommon) NewTest(testName, packageName string, tags ...string) {}
-func (m *providerMockCommon) FinishTest()                                          {}
+func (m *providerMockCommon) FinishTest() error {
+	return nil
+}
 
 type suiteMetaMockCommon struct {
 	namePrefix string
@@ -295,7 +297,7 @@ func TestCommon_Run(t *testing.T) {
 	}}
 	result := comm.Run("myTest", func(t provider.T) {}, "tag1", "tag2")
 
-	require.True(t, result)
+	require.NotNil(t, result)
 	require.True(t, mockT.run)
 
 	files, _ := ioutil.ReadDir(allureDir)
