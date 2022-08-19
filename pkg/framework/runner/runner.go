@@ -28,7 +28,7 @@ func NewRunner(realT TestingT, suiteName string) TestRunner {
 	callers := strings.Split(realT.Name(), "/")
 	providerCfg := manager.NewProviderConfig().
 		WithFullName(realT.Name()).
-		WithPackageName(getPackage(2)).
+		WithPackageName(getPackage(defaultPackageDepth)).
 		WithSuiteName(suiteName).
 		WithRunner(callers[0])
 	newT.SetProvider(manager.NewProvider(providerCfg))
