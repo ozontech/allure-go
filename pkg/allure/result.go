@@ -258,8 +258,8 @@ func (result *Result) Done() error {
 	return result.Print()
 }
 
-// ToJson marshall allure.Result to json file
-func (result *Result) ToJson() ([]byte, error) {
+// ToJSON marshall allure.Result to json file
+func (result *Result) ToJSON() ([]byte, error) {
 	return json.Marshal(result)
 }
 

@@ -82,8 +82,8 @@ func (container *Container) Done() error {
 	return container.Print()
 }
 
-// ToJson marshall allure.Result to json file
-func (container *Container) ToJson() ([]byte, error) {
+// ToJSON marshall allure.Result to json file
+func (container *Container) ToJSON() ([]byte, error) {
 	return json.Marshal(container)
 }
 
