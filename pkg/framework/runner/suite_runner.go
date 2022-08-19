@@ -99,15 +99,15 @@ func collectTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
 	return runner
 }
 
-type ParametrizedTest interface {
+type parametrizedTest interface {
 	GetRawBody() reflect.Method
 	GetArgs() []reflect.Value
 	GetMeta() provider.TestMeta
 }
 
-func parametrizedWrap(runner *suiteRunner, foo func(provider.T)) func(t provider.T) {
+func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t provider.T) {
 	return func(t provider.T) {
-		foo(t)
+		beforeAll(t)
 		newTests := runner.tests
 		for name, test := range runner.tests {
 			if strings.HasPrefix(name, tableTestPrefix) {
@@ -127,7 +127,7 @@ func parametrizedWrap(runner *suiteRunner, foo func(provider.T)) func(t provider
 }
 
 func getParamTests(parentTest Test, params map[string]interface{}) map[string]Test {
-	if paramTest, ok := parentTest.(ParametrizedTest); ok {
+	if paramTest, ok := parentTest.(parametrizedTest); ok {
 		var (
 			suiteName   string
 			packageName string
@@ -159,7 +159,7 @@ func getParamTests(parentTest Test, params map[string]interface{}) map[string]Te
 		}
 		return res
 	}
-	panic("missing interface implementaion for passed test: ParametrizedTest")
+	panic(fmt.Sprintf("missing interface implementaion (parametrizedTest) for test: %s", parentTest.GetMeta().GetResult().Name))
 }
 
 func getParams(suite TestSuite, methodName string) (res map[string]interface{}, err error) {

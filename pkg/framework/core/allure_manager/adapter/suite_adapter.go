@@ -14,8 +14,6 @@ type SuiteAdapter struct {
 	suiteName     string
 	parentSuite   string
 
-	suitePtr interface{}
-
 	beforeAll func(provider.T)
 	afterAll  func(provider.T)
 
@@ -92,14 +90,4 @@ func (ctx *SuiteAdapter) GetBeforeAll() func(provider.T) {
 // GetAfterAll returns after all func
 func (ctx *SuiteAdapter) GetAfterAll() func(provider.T) {
 	return ctx.afterAll
-}
-
-// SetSuitePtr sets pointer to the suite
-func (ctx *SuiteAdapter) SetSuitePtr(suitePtr interface{}) {
-	ctx.suitePtr = suitePtr
-}
-
-// GetSuitePtr returns pointer to the suite
-func (ctx *SuiteAdapter) GetSuitePtr() interface{} {
-	return ctx.suitePtr
 }

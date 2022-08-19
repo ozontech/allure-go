@@ -1,35 +1,42 @@
 package runner
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"reflect"
 )
 
 type suiteResult struct {
-	Container   *allure.Container
-	TestResults []TestResult
+	container   *allure.Container
+	testResults []TestResult
 }
 
+// NewSuiteResult Returns new SuiteResult
 func NewSuiteResult(container *allure.Container) SuiteResult {
-	return &suiteResult{Container: container}
+	return &suiteResult{container: container}
 }
 
+// NewResult appends test result to suite result
 func (sr *suiteResult) NewResult(result TestResult) {
-	sr.TestResults = append(sr.TestResults, result)
+	sr.testResults = append(sr.testResults, result)
 }
 
+// GetContainer returns parent container
 func (sr *suiteResult) GetContainer() *allure.Container {
-	return sr.Container
+	return sr.container
 }
 
+// GetAllTestResults returns all test results of suite
 func (sr *suiteResult) GetAllTestResults() []TestResult {
-	return sr.TestResults
+	return sr.testResults
 }
 
+// GetResultByName searches result by name and returns it
 func (sr *suiteResult) GetResultByName(name string) TestResult {
-	for _, tr := range sr.TestResults {
+	for _, tr := range sr.testResults {
 		if result := tr.GetResult(); result != nil {
 			if result.Name == name {
 				return tr
@@ -39,8 +46,9 @@ func (sr *suiteResult) GetResultByName(name string) TestResult {
 	return nil
 }
 
+// GetResultByUUID searches result by UUID and returns it
 func (sr *suiteResult) GetResultByUUID(uuid string) TestResult {
-	for _, tr := range sr.TestResults {
+	for _, tr := range sr.testResults {
 		if result := tr.GetResult(); result != nil {
 			if result.UUID.String() == uuid {
 				return tr
@@ -50,11 +58,17 @@ func (sr *suiteResult) GetResultByUUID(uuid string) TestResult {
 	return nil
 }
 
+// ToJson marshall result to Json object
+func (sr *suiteResult) ToJson() ([]byte, error) {
+	return json.Marshal(sr)
+}
+
 type testResult struct {
 	result    *allure.Result
 	container *allure.Container
 }
 
+// NewTestResult returns new test result
 func NewTestResult(result *allure.Result, container *allure.Container) TestResult {
 	return &testResult{
 		result:    result,
@@ -62,14 +76,17 @@ func NewTestResult(result *allure.Result, container *allure.Container) TestResul
 	}
 }
 
+// GetResult returns result
 func (tr *testResult) GetResult() *allure.Result {
 	return tr.result
 }
 
+// GetContainer returns container
 func (tr *testResult) GetContainer() *allure.Container {
 	return tr.container
 }
 
+// Print returns print
 func (tr *testResult) Print() error {
 	const errMessage = "failed to print Result. Reason: %s\nAlso failed to print Container. Reason: %s"
 	var (
@@ -107,26 +124,29 @@ func (tr *testResult) Print() error {
 type TestBody func(t provider.T)
 
 type testMethod struct {
-	testMeta          provider.TestMeta
-	testBody          reflect.Method
-	callArgs          []reflect.Value
-	getAdditionalArgs func() []interface{}
+	testMeta provider.TestMeta
+	testBody reflect.Method
+	callArgs []reflect.Value
 }
 
+// GetArgs returns call args of the test
 func (t *testMethod) GetArgs() []reflect.Value {
 	return t.callArgs
 }
 
+// GetRawBody returns reflect.Method of the test
 func (t *testMethod) GetRawBody() reflect.Method {
 	return t.testBody
 }
 
+// GetBody returns wrapped function at the test
 func (t *testMethod) GetBody() TestBody {
 	return func(pT provider.T) {
 		t.testBody.Func.Call(insert(t.callArgs, 1, reflect.ValueOf(pT)))
 	}
 }
 
+// GetMeta returns provider.TestMeta of the test
 func (t *testMethod) GetMeta() provider.TestMeta {
 	return t.testMeta
 }
@@ -134,13 +154,14 @@ func (t *testMethod) GetMeta() provider.TestMeta {
 type testFunc struct {
 	testBody TestBody
 	testMeta provider.TestMeta
-	callArgs []reflect.Value
 }
 
+// GetBody returns test function
 func (t *testFunc) GetBody() TestBody {
 	return t.testBody
 }
 
+// GetMeta returns provider.TestMeta of the test
 func (t *testFunc) GetMeta() provider.TestMeta {
 	return t.testMeta
 }
@@ -149,14 +170,6 @@ func newTestFunc(body TestBody, testMeta provider.TestMeta) *testFunc {
 	return &testFunc{
 		testBody: body,
 		testMeta: testMeta,
-	}
-}
-
-func newTestMethod(method reflect.Method, testMeta provider.TestMeta, args []reflect.Value) Test {
-	return &testMethod{
-		testMeta: testMeta,
-		testBody: method,
-		callArgs: args,
 	}
 }
 

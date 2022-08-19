@@ -23,7 +23,7 @@ type Provider interface {
 	AfterAllContext()
 
 	NewTest(testName, packageName string, tags ...string)
-	FinishTest()
+	FinishTest() error
 }
 
 type TestMeta interface {
