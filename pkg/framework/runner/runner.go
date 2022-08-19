@@ -139,13 +139,13 @@ func (r *runner) RunTests() SuiteResult {
 		ok, err := runHook(r.t(), beforeAllHook)
 		if err != nil {
 			for _, test := range r.tests {
-				result = sErr(fmt.Sprintf("%v setup was failed", r.t().Name()), err, test.GetMeta(), result)
+				result = setupErrorHandler(fmt.Sprintf("%v setup was failed", r.t().Name()), err, test.GetMeta(), result)
 			}
 			return
 		}
 		if !ok {
 			for _, test := range r.tests {
-				result = sErr(fmt.Sprintf("%v setup was failed", r.t().Name()), fmt.Errorf("something goes wrong in beforeAll"), test.GetMeta(), result)
+				result = setupErrorHandler(fmt.Sprintf("%v setup was failed", r.t().Name()), fmt.Errorf("something goes wrong in beforeAll"), test.GetMeta(), result)
 			}
 			return
 		}
@@ -188,11 +188,11 @@ func (r *runner) RunTests() SuiteResult {
 					// before each hook
 					ok, err = runHook(testT, beforeEachHook)
 					if err != nil {
-						result = sErr("Test Setup failed", err, test.GetMeta(), result)
+						result = setupErrorHandler("Test Setup failed", err, test.GetMeta(), result)
 						return
 					}
 					if !ok {
-						result = sErr("Test Setup failed", fmt.Errorf("assertion error due test setup"), test.GetMeta(), result)
+						result = setupErrorHandler("Test Setup failed", fmt.Errorf("assertion error due test setup"), test.GetMeta(), result)
 						return
 					}
 
@@ -249,7 +249,7 @@ func finishTest(t TestingT, meta provider.TestMeta) TestResult {
 	return testRes
 }
 
-func sErr(msg string, err error, meta provider.TestMeta, result SuiteResult) SuiteResult {
+func setupErrorHandler(msg string, err error, meta provider.TestMeta, result SuiteResult) SuiteResult {
 	mtx := sync.Mutex{}
 	mtx.Lock()
 	defer mtx.Unlock()
