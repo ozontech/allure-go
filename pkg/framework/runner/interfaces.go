@@ -80,8 +80,3 @@ type internalT interface {
 	WG() *sync.WaitGroup
 	GetResult() *allure.Result
 }
-
-type internalRunner interface {
-	TestRunner
-	t() internalT
-}
