@@ -93,30 +93,30 @@ func (tr *testResult) Print() error {
 		result    *allure.Result
 		container *allure.Container
 
-		errR error
-		errC error
+		resultErr    error
+		containerErr error
 	)
 	if result = tr.GetResult(); result != nil {
-		errR = result.Done()
+		resultErr = result.Done()
 	}
 	if result == nil {
-		errR = fmt.Errorf("failed to print Result. Reason: *allure.Result is nil")
+		resultErr = fmt.Errorf("failed to print Result. Reason: *allure.Result is nil")
 	}
 
 	if container = tr.GetContainer(); container != nil {
-		errC = container.Done()
+		containerErr = container.Done()
 	}
 	if container == nil {
-		errC = fmt.Errorf("failed to print Container. Reason: *allure.Container is nil")
+		containerErr = fmt.Errorf("failed to print Container. Reason: *allure.Container is nil")
 	}
-	if errR != nil && errC != nil {
-		return fmt.Errorf(errMessage, errR.Error(), errC.Error())
+	if resultErr != nil && containerErr != nil {
+		return fmt.Errorf(errMessage, resultErr.Error(), containerErr.Error())
 	}
-	if errR != nil {
-		return errR
+	if resultErr != nil {
+		return resultErr
 	}
-	if errC != nil {
-		return errC
+	if containerErr != nil {
+		return containerErr
 	}
 	return nil
 }
