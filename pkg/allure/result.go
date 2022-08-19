@@ -258,6 +258,11 @@ func (result *Result) Done() error {
 	return result.Print()
 }
 
+// ToJson marshall allure.Result to json file
+func (result *Result) ToJson() ([]byte, error) {
+	return json.Marshal(result)
+}
+
 // getMD5Hash ...
 func getMD5Hash(text string) string {
 	hash := md5.Sum([]byte(text))
