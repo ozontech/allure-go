@@ -397,3 +397,48 @@ func TestRunner(t *testing.T) {
   suite.RunSuite(t, new(SampleSuite))
 }
 ```
+
+### :zap: Parametrized tests
+
+:information_desk_person: Supported since v0.6.16 of pkg/framework.
+
+How to use:
+
+1) You need extend your suite struct with array of parameters. Its name **MUST** be like `ParamTestNameWithoutPrefix`. i.e. if your test named like `TableTestCities` so param should have name `ParamCities`
+2) You need to create test method that will take your parameter as **second argument** after `provider.T`. Test name **MUST** have prefix `TableTest` instead of just `Test`. i.e. `TableTestCities`.
+
+Simple example:
+
+```go
+package suite_demo
+
+import (
+    "testing"
+
+    "github.com/jackc/fake"
+    "github.com/ozontech/allure-go/pkg/framework/provider"
+    "github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type ParametrizedSuite struct {
+  suite.Suite
+  // ParamCities param has name as expected test but has prefix Param instead of TableTest
+  ParamCities []string 
+}
+
+func (s *ParametrizedSuite) BeforeAll(t provider.T) {
+  for i := 0; i < 10; i++ {
+    s.ParamCities = append(s.ParamCities, fake.City())
+  }
+}
+
+// TableTestCities is parametrized test has name prefix TableTest instead of Test
+func (s *ParametrizedSuite) TableTestCities(t provider.T, city string) { 
+  t.Parallel()
+  t.Require().NotEmpty(city)
+}
+
+func TestNewParametrizedDemo(t *testing.T) {
+  suite.RunSuite(t, new(ParametrizedSuite))
+}
+```
