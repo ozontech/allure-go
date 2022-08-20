@@ -116,13 +116,15 @@ The list of The list of container-dependent tests is contained in the array `Con
 
 | Method                          |                                                                                 Description                                                                                 |
 |:--------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| `GetUUID() string`              |                                                                          Returns container's UUID                                                                           |
-| `AddChild(childUUID uuid.UUID)` |                                                                          Adds passed UUID as child                                                                          |
+| `GetUUID() string`              |                                                                          Returns container's UUID.                                                                          |
+| `AddChild(childUUID uuid.UUID)` |                                                                         Adds passed UUID as child.                                                                          |
 | `IsEmpty() bool`                |                                               Returns `true` if arrays `Container.Befores` and `Container.Afters` are empty.                                                |
-| `Print() error`                 |                      Creates `xxxxxx-container.json` file and call `PrintAttachments` if any step exists in `Container.Befores` and `Container.Afters`                      |
+| `Print() error`                 |                     Creates `xxxxxx-container.json` file and call `PrintAttachments` if any step exists in `Container.Befores` and `Container.Afters`.                      |
+| `ToJSON() ([]byte, error)`      |                                                     Marshall `allure.Container` to the JSON. Returns error if has any.                                                      |
 | `PrintAttachments()`            | PrintAttachments It goes through all `Container.Befores` and `Container.Afters` of the Container and calls the `Container.PrintAttachments()` method at each `allure.Step`. |
-| `Begin()`                       |                                                                 Sets `Container.Start` = `allure.GetNow()`                                                                  |
-| `Finish()`                      |                                                                  Sets `Container.Stop` = `allure.GetNow()`                                                                  |
+| `Begin()`                       |                                                                 Sets `Container.Start` = `allure.GetNow()`.                                                                 |
+| `Finish()`                      |                                                                 Sets `Container.Stop` = `allure.GetNow()`.                                                                  |
+| `Done() error`                  |                                                     Calls `Finish()` and `Print()` methods.  Returns error if has any.                                                      |
 
 
 ## Label
@@ -236,6 +238,7 @@ Severity levels:
 | Method                                       |                                                                                                  Description                                                                                                   |
 |:---------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | `SetStatusMessage(msg string)`               |                                                                                      Sets `Result.StatusDetails.Message`.                                                                                      |
+| `ToJSON() ([]byte, error)`                   |                                                                           Marshall `allure.Result` to JSON, returns error if has any                                                                           |
  | `GetStatusMessage() string`                  |                                                                                     Returns `Result.StatusDetails.Trace`.                                                                                      |
  | `SetStatusTrace(trace string)`               |                                                                                       Sets `Result.StatusDetails.Trace`.                                                                                       |
  | `GetStatusTrace() string`                    |                                                                                     Returns `Result.StatusDetails.Trace`.                                                                                      |
@@ -257,7 +260,7 @@ Severity levels:
  | `SkipOnPrint()`                              |                                                                            Skips result from printing when `Result.Print()` called.                                                                            |
  | `Print() error`                              |                                        If `Result.ToPrint` == `false` creates `uuid4-result.json` and call `Print()` method for all attachments and step's attachments.                                        |
  | `PrintAttachments()`                         | Goes through all `Result.Steps` of the report and for each allure.Step calls the `Step.PrintAttachments()` method.Then calls `Attachment.Print()` on all `allure.Attachment` of the `Result.Attachments` list. |
- | `Done()`                                     |                               If `Result.Status` is not filled in, consider the test successfully completed (no errors). After that - it calls `Finish()` and `Print()` methods.                               |
+ | `Done() error`                               |                  If `Result.Status` is not filled in, consider the test successfully completed (no errors). After that - it calls `Finish()` and `Print()` methods. Returns error if has any.                  |
 
 ## Step
 
