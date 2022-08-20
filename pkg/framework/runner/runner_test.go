@@ -2,14 +2,15 @@ package runner
 
 import (
 	"fmt"
+	"os"
+	"sync"
+	"testing"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/core/common"
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/stretchr/testify/require"
-	"os"
-	"sync"
-	"testing"
 )
 
 type executionContextRunnerMock struct {
