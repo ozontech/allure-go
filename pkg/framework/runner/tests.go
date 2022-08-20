@@ -64,26 +64,26 @@ func (sr *suiteResult) ToJSON() ([]byte, error) {
 }
 
 type testResult struct {
-	result    *allure.Result
-	container *allure.Container
+	Result    *allure.Result    `json:"result,omitempty"`
+	Container *allure.Container `json:"container,omitempty"`
 }
 
 // NewTestResult returns new test result
 func NewTestResult(result *allure.Result, container *allure.Container) TestResult {
 	return &testResult{
-		result:    result,
-		container: container,
+		Result:    result,
+		Container: container,
 	}
 }
 
 // GetResult returns result
 func (tr *testResult) GetResult() *allure.Result {
-	return tr.result
+	return tr.Result
 }
 
 // GetContainer returns Container
 func (tr *testResult) GetContainer() *allure.Container {
-	return tr.container
+	return tr.Container
 }
 
 // Print returns print
@@ -119,6 +119,11 @@ func (tr *testResult) Print() error {
 		return containerErr
 	}
 	return nil
+}
+
+// ToJSON marshall TestResult to the JSON
+func (tr *testResult) ToJSON() ([]byte, error) {
+	return json.Marshal(tr)
 }
 
 type TestBody func(t provider.T)

@@ -70,6 +70,7 @@ type TestResult interface {
 	GetResult() *allure.Result
 	GetContainer() *allure.Container
 	Print() error
+	ToJSON() ([]byte, error)
 }
 
 type internalT interface {
