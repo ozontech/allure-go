@@ -9,7 +9,8 @@ The project started as a fork of testify, but over time it got its own runner an
 
 + [:mortar_board: Head of contents](#mortar_board-head-of-contents)
 + [:zap: NEW FEATURES!](#zap-new-features)
-+ [Main Features](#main-features)
++ [Features](#zap-features)
+  + [WHAT'S NEW](#whats-new) 
   + [pkg/allure](#sparkles-pkgallure)
   + [pkg/framework](#sparkles-pkgframework)
 + [:beginner: Getting Started with framework!](#beginner-getting-started-with-framework)
@@ -30,40 +31,39 @@ The project started as a fork of testify, but over time it got its own runner an
   + [XSkip](#xskipexamplessuite_demofails_testgo)
   + [Parametrized tests](#parametrizedtestexamplessuite_demonew_parametrized_testgo)
 
-## :zap: NEW FEATURES! 
+## :zap: Features
+
+Providing a separate package allows you to customize your work with allure.<br>
+
+### What's new?
 
 **Release v0.6.16**
 
-### :zap: :zap: :zap: Parametrized tests
+#### :zap: Parametrized tests
 
 New absolutely amazing way to build your table tests.
 Have a look at [here](./examples/suite_demo/new_parametrized_test.go) or [here](#parametrizedtestexamplessuite_demonew_parametrized_testgo).
 
 :information_source: you need just create parameter field in suite struct and add argument to the test signature (pretty cool, hah?). <br>
 
-#### FAQ about table tests: <br>
+##### FAQ about table tests: <br>
 
 + :question: Can I use this amazing feature with my common tests?<br>
++ :information_source: **YES**, it works with any other type of suite's tests. <br>
 
-:information_source: **YES**, it works with any other type of suite's tests. <br>
 
 + :question:Can I use structs, pointers or interfaces as parameters? <br>
++ :information_source: **YES** you can (and, I guess, you should) use it with structs and interfaces as params. <br>
 
-:information_source: **YES** you can (and, I guess, you should) use it with structs and interfaces as params. <br>
 
 + :question: Can I use it with `TestRunner` object? <br>
++ :information_source: **NO**, `TestRunner` object doesn't support this.
 
-:information_source: **NO**, `TestRunner` object doesn't support this.
-
-### SuiteResult
+#### SuiteResult
 
 Now `suite.RunSuite` and `runner.RunTests` returns new adorable struct `SuiteResult` to customize your integrations.
 
 :information_source: `SuiteResult` contains information about suite `Container` and each test's `Container` and `Result`.
-
-## Main Features
-
-Providing a separate package allows you to customize your work with allure.<br>
 
 ### :sparkles: pkg/allure
 
