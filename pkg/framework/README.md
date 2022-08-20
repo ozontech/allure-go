@@ -4,29 +4,29 @@
 
 + [:mortar_board: Head of contents](#head-of-contents)
 + [:video_game: Interfaces](#interfaces)
-  + [provider.T](#providert)
-    + [Extended methods](#extended-methods)
-    + [Specific methods](#specific-methods)
-      + [Description methods](#description-methods-descriptionfields-interface)
-      + [Suite methods](#suite-methods-suitelabels-interface)
-      + [Description label methods](#description-label-methods-descriptionlabels-interface)
-      + [Link methods](#link-methods-links-interface)
-      + [Attachment methods](#attachment-methods-attachments-interface)
-      + [Assertion methods](#assertion-methods-t-interface)
-      + [Steps methods](#steps-methods-alluresteps-interface-and-some-method-in-t-interface)
-      + [Test Run methods](#test-run-function-t-interface)
-      + [Behaviour manipulation methods](#behaviour-manipulation-methods-t-interface)
-  + [provider.StepCtx](#providerstepctx)
-    + [Steps methods](#steps-methods)
-    + [Parameters methods](#parameters-methods)
-    + [Attachments methods](#attachments-methods)
-    + [Assertion methods](#assertion-methods)
-    + [Step condition and log methods](#step-condition-and-log-methods)
-  + [provider.Asserts](#providerasserts)
+    + [provider.T](#providert)
+        + [Extended methods](#extended-methods)
+        + [Specific methods](#specific-methods)
+            + [Description methods](#description-methods-descriptionfields-interface)
+            + [Suite methods](#suite-methods-suitelabels-interface)
+            + [Description label methods](#description-label-methods-descriptionlabels-interface)
+            + [Link methods](#link-methods-links-interface)
+            + [Attachment methods](#attachment-methods-attachments-interface)
+            + [Assertion methods](#assertion-methods-t-interface)
+            + [Steps methods](#steps-methods-alluresteps-interface-and-some-method-in-t-interface)
+            + [Test Run methods](#test-run-function-t-interface)
+            + [Behaviour manipulation methods](#behaviour-manipulation-methods-t-interface)
+    + [provider.StepCtx](#providerstepctx)
+        + [Steps methods](#steps-methods)
+        + [Parameters methods](#parameters-methods)
+        + [Attachments methods](#attachments-methods)
+        + [Assertion methods](#assertion-methods)
+        + [Step condition and log methods](#step-condition-and-log-methods)
+    + [provider.Asserts](#providerasserts)
 + [:runner: Test Running](#test-running)
-  + [No suite running](#no-suite-running)
-  + [Suite with runner object](#suite-with-runner-object)
-  + [Suite with struct](#suite-with-struct)
+    + [No suite running](#no-suite-running)
+    + [Suite with runner object](#suite-with-runner-object)
+    + [Suite with struct](#suite-with-struct)
 
 ## Interfaces
 
@@ -84,7 +84,8 @@ Main interfaces for test working are `provider.T` and `provider.StepCtx`.
 | `Labels(labels ...allure.Label)`             |              Adds multiple allure labels               |
 | `ReplaceLabel(label allure.Label)`           | Replace any label with same name as passed to argument |
 
-:warning: **NOTE**: Some labels (such as `languange`, `host`, `framework`, etc) have default values and cannot be set during test runtime any other way (`SystemLabels` interface) but ReplaceLabel method.
+:warning: **NOTE**: Some labels (such as `languange`, `host`, `framework`, etc) have default values and cannot be set
+during test runtime any other way (`SystemLabels` interface) but ReplaceLabel method.
 
 ##### Link Methods (`Links` interface)
 
@@ -292,7 +293,35 @@ type ProviderT interface {
 }
 ```
 
-:warning: **NOTE:** USING REQUIRE ASSERTS WITH ASYNC STEPS ARE NOT RECOMMENDED. Reason: `testing.T.FailNow()` makes `go.Exit()` and It's impossible to handle this situation, so you can lose your step or test data. 
+:warning: **NOTE:** USING REQUIRE ASSERTS WITH ASYNC STEPS ARE NOT RECOMMENDED. Reason: `testing.T.FailNow()`
+makes `go.Exit()` and It's impossible to handle this situation, so you can lose your step or test data.
+
+## Suite Run Output
+
+### Test Result
+
+TestResult it an interface that contains information about test's `Container` and `Result`
+
+|               Method               |                                           Description                                           |
+|:----------------------------------:|:-----------------------------------------------------------------------------------------------:|
+|    `GetResult() *allure.Result`    |                              Returns `allure.Result` of the test.                               |
+| `GetContainer() *allure.Container` |                             Returns `allure.Container` of the test.                             |
+|          `Print() error`           | Creates a two files in the filesystem - file of `allure.Result` and file of `allure.Container`. |
+|     `ToJSON() ([]byte, error)`     |                     Marshall TestResult to JSON. Returns error if has any.                      |
+
+### Suite Result
+
+SuiteResult is an interface that contains all information about test run.<br>
+It has information about suite's `Container`, and each test's `Container` and `Result`
+
+|                   Method                   |                      Description                       |
+|:------------------------------------------:|:------------------------------------------------------:|
+|       `NewResult(result TestResult)`       |        Appends test result to the suite result.        |
+|    	`GetContainer() *allure.Container`     |              Returns suite's `Container`               |
+|    	`GetAllTestResults() []TestResult`     |             Returns array of `TestResult`              |
+| 	`GetResultByName(name string) TestResult` |  Finds TestResult by `Result`'s name and returns it.   |
+| 	`GetResultByUUID(uuid string) TestResult` |  Finds TestResult by `Result`'s UUID and returns it.   |
+|         `ToJSON() ([]byte, error)`         | Marshall TestResult to JSON. Returns error if has any. |
 
 ## Test Running
 
@@ -306,16 +335,16 @@ allure-go provides wide list of ways to run your tests. There are few simple exa
 package test
 
 import (
-  "testing"
+	"testing"
 
-  "github.com/ozontech/allure-go/pkg/framework/provider"
-  "github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestMyTest(t *testing.T) {
-  runner.Run(t, "My first test", func(t provider.T) {
-    // test body...
-  }, "sampleTag1", "sampleTag2")
+	runner.Run(t, "My first test", func(t provider.T) {
+		// test body...
+	}, "sampleTag1", "sampleTag2")
 }
 ```
 
@@ -327,33 +356,33 @@ func TestMyTest(t *testing.T) {
 package test
 
 import (
-  "testing"
+	"testing"
 
-  "github.com/ozontech/allure-go/pkg/framework/provider"
-  "github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
 )
 
 func TestMyTest(t *testing.T) {
-  r := runner.NewRunner(t, t.Name())
+	r := runner.NewRunner(t, t.Name())
 
-  r.BeforeAll(func(t provider.T) {
-     // This will be executed before all tests start ...
-  })
-  r.BeforeEach(func(t provider.T) {
-    // This will be executed before each test start ...
-  })
-  r.AfterEach(func(t provider.T) {
-     // This will be executed after each test ...
-  })
-  r.AfterAll(func(t provider.T) {
-     // This will be executed when all tests over ...
-  })
+	r.BeforeAll(func(t provider.T) {
+		// This will be executed before all tests start ...
+	})
+	r.BeforeEach(func(t provider.T) {
+		// This will be executed before each test start ...
+	})
+	r.AfterEach(func(t provider.T) {
+		// This will be executed after each test ...
+	})
+	r.AfterAll(func(t provider.T) {
+		// This will be executed when all tests over ...
+	})
 
-  r.NewTest("My test 1", func(t provider.T) {
-     // Test Body...
-  }, "sampleTag1", "sampleTag2")
+	r.NewTest("My test 1", func(t provider.T) {
+		// Test Body...
+	}, "sampleTag1", "sampleTag2")
 
-  r.RunTests()
+	r.RunTests()
 }
 ```
 
@@ -363,38 +392,38 @@ func TestMyTest(t *testing.T) {
 package suite_demo
 
 import (
-  "testing"
+	"testing"
 
-  "github.com/ozontech/allure-go/pkg/framework/provider"
-  "github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type SampleSuite struct {
-  suite.Suite
+	suite.Suite
 }
 
 func (s *SampleSuite) BeforeAll(t provider.T) {
-  // This will be executed before all tests start ...
+	// This will be executed before all tests start ...
 }
 
 func (s *SampleSuite) AfterAll(t provider.T) {
-  // This will be executed when all tests over ...
+	// This will be executed when all tests over ...
 }
 
 func (s *SampleSuite) BeforeEach(t provider.T) {
-  // This will be executed before each test start ...
+	// This will be executed before each test start ...
 }
 
 func (s *SampleSuite) AfterEach(t provider.T) {
-  // This will be executed after each test ...
+	// This will be executed after each test ...
 }
 
 func (s *SampleSuite) TestBeforeAfterTest(t provider.T) {
-  // Test Body ...
+	// Test Body ...
 }
 
 func TestRunner(t *testing.T) {
-  suite.RunSuite(t, new(SampleSuite))
+	suite.RunSuite(t, new(SampleSuite))
 }
 ```
 
@@ -404,8 +433,10 @@ func TestRunner(t *testing.T) {
 
 How to use:
 
-1) You need extend your suite struct with array of parameters. Its name **MUST** be like `ParamTestNameWithoutPrefix`. i.e. if your test named like `TableTestCities` so param should have name `ParamCities`
-2) You need to create test method that will take your parameter as **second argument** after `provider.T`. Test name **MUST** have prefix `TableTest` instead of just `Test`. i.e. `TableTestCities`.
+1) You need extend your suite struct with array of parameters. Its name **MUST** be like `ParamTestNameWithoutPrefix`.
+   i.e. if your test named like `TableTestCities` so param should have name `ParamCities`
+2) You need to create test method that will take your parameter as **second argument** after `provider.T`. Test name **
+   MUST** have prefix `TableTest` instead of just `Test`. i.e. `TableTestCities`.
 
 Simple example:
 
@@ -413,32 +444,32 @@ Simple example:
 package suite_demo
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/jackc/fake"
-    "github.com/ozontech/allure-go/pkg/framework/provider"
-    "github.com/ozontech/allure-go/pkg/framework/suite"
+	"github.com/jackc/fake"
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
 type ParametrizedSuite struct {
-  suite.Suite
-  // ParamCities param has name as expected test but has prefix Param instead of TableTest
-  ParamCities []string 
+	suite.Suite
+	// ParamCities param has name as expected test but has prefix Param instead of TableTest
+	ParamCities []string
 }
 
 func (s *ParametrizedSuite) BeforeAll(t provider.T) {
-  for i := 0; i < 10; i++ {
-    s.ParamCities = append(s.ParamCities, fake.City())
-  }
+	for i := 0; i < 10; i++ {
+		s.ParamCities = append(s.ParamCities, fake.City())
+	}
 }
 
 // TableTestCities is parametrized test has name prefix TableTest instead of Test
-func (s *ParametrizedSuite) TableTestCities(t provider.T, city string) { 
-  t.Parallel()
-  t.Require().NotEmpty(city)
+func (s *ParametrizedSuite) TableTestCities(t provider.T, city string) {
+	t.Parallel()
+	t.Require().NotEmpty(city)
 }
 
 func TestNewParametrizedDemo(t *testing.T) {
-  suite.RunSuite(t, new(ParametrizedSuite))
+	suite.RunSuite(t, new(ParametrizedSuite))
 }
 ```
