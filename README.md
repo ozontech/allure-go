@@ -8,7 +8,9 @@ The project started as a fork of testify, but over time it got its own runner an
 ## :mortar_board: Head of contents
 
 + [:mortar_board: Head of contents](#mortar_board-head-of-contents)
-+ [:zap: Features](#zap-features)
++ [:zap: NEW FEATURES!](#zap-new-features)
++ [Features](#zap-features)
+  + [WHAT'S NEW](#whats-new) 
   + [pkg/allure](#sparkles-pkgallure)
   + [pkg/framework](#sparkles-pkgframework)
 + [:beginner: Getting Started with framework!](#beginner-getting-started-with-framework)
@@ -27,10 +29,41 @@ The project started as a fork of testify, but over time it got its own runner an
   + [Run few parallel suites](#run-few-parallel-suitesexamplessuite_demorunning_testgo)
   + [Setup hooks](#setup-hooksexamplessuite_demobefores_afters_testgo)
   + [XSkip](#xskipexamplessuite_demofails_testgo)
+  + [Parametrized tests](#parametrizedtestexamplessuite_demonew_parametrized_testgo)
 
 ## :zap: Features
 
 Providing a separate package allows you to customize your work with allure.<br>
+
+### What's new?
+
+**Release v0.6.16**
+
+#### :zap: Parametrized tests
+
+New absolutely amazing way to build your table tests.
+Have a look at [here](./examples/suite_demo/new_parametrized_test.go) or [here](#parametrizedtestexamplessuite_demonew_parametrized_testgo).
+
+:information_source: you need just create parameter field in suite struct and add argument to the test signature (pretty cool, hah?). <br>
+
+##### FAQ about table tests: <br>
+
++ :question: Can I use this amazing feature with my common tests?<br>
++ :information_source: **YES**, it works with any other type of suite's tests. <br>
+
+
++ :question:Can I use structs, pointers or interfaces as parameters? <br>
++ :information_source: **YES** you can (and, I guess, you should) use it with structs and interfaces as params. <br>
+
+
++ :question: Can I use it with `TestRunner` object? <br>
++ :information_source: **NO**, `TestRunner` object doesn't support this.
+
+#### SuiteResult
+
+Now `suite.RunSuite` and `runner.RunTests` returns new adorable struct `SuiteResult` to customize your integrations.
+
+:information_source: `SuiteResult` contains information about suite `Container` and each test's `Container` and `Result`.
 
 ### :sparkles: pkg/allure
 
@@ -659,3 +692,43 @@ func TestDemoSuite(t *testing.T) {
 Output to Allure:
 
 ![](.resources/example_xskip.png)
+
+### [ParametrizedTest](examples/suite_demo/new_parametrized_test.go)
+
+Test code:
+
+```go
+package suite_demo
+
+import (
+  "testing"
+
+  "github.com/jackc/fake"
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type ParametrizedSuite struct {
+  suite.Suite
+  ParamCities []string
+}
+
+func (s *ParametrizedSuite) BeforeAll(t provider.T) {
+  for i := 0; i < 10; i++ {
+    s.ParamCities = append(s.ParamCities, fake.City())
+  }
+}
+
+func (s *ParametrizedSuite) TableTestCities(t provider.T, city string) {
+  t.Parallel()
+  t.Require().NotEmpty(city)
+}
+
+func TestNewParametrizedDemo(t *testing.T) {
+  suite.RunSuite(t, new(ParametrizedSuite))
+}
+```
+
+Output to Allure:
+
+![](.resources/example_table_test.png)

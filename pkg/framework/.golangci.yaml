@@ -40,7 +40,7 @@ linters:
     - structcheck
     - varcheck
     - ineffassign
-#    - typecheck Strange behaviour
+    - typecheck
     - dupl
     - goconst
     - gosec
@@ -52,6 +52,7 @@ issues:
   exclude-use-default: false
   exclude:
     # _ instead of err checks
+    - G103
     - G104
     - G306
     # md5 using for hash generation, not for security, so ignore this

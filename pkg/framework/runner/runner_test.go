@@ -6,12 +6,11 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/core/common"
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/stretchr/testify/require"
 )
 
 type executionContextRunnerMock struct {
@@ -101,7 +100,9 @@ func (m *providerMockRunner) AfterAllContext() {
 }
 
 func (m *providerMockRunner) NewTest(testName, packageName string, tags ...string) {}
-func (m *providerMockRunner) FinishTest()                                          {}
+func (m *providerMockRunner) FinishTest() error {
+	return nil
+}
 
 type suiteMetaMockRunner struct {
 	namePrefix string
@@ -219,17 +220,21 @@ func newInternalTMock(name string) *common.Common {
 	}
 }
 
+type iT interface {
+	t() internalT
+}
+
 func TestNewRunner(t *testing.T) {
 	result := NewRunner(t, "suiteTest")
 
 	require.NotNil(t, result)
-	internalT := result.T()
-	require.NotNil(t, internalT)
-	require.Equal(t, "TestNewRunner", internalT.Name())
-	require.NotNil(t, internalT.RealT())
-	require.Equal(t, t, internalT.RealT())
+	it := result.(iT).t()
+	require.NotNil(t, it)
+	require.Equal(t, "TestNewRunner", it.Name())
+	require.NotNil(t, it.RealT())
+	require.Equal(t, t, it.RealT())
 
-	provider := internalT.GetProvider()
+	provider := it.GetProvider()
 	require.NotNil(t, provider)
 
 	testMeta := provider.GetTestMeta()
@@ -251,14 +256,14 @@ func TestRunner_BeforeEach_noStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.BeforeEachContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.BeforeEachContextName)}
 
 	meta := &testMetaMockRunner{result: &allure.Result{}, container: allure.NewContainer(), be: func(t provider.T) {
 		counter++
 		flag = true
 	}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -274,15 +279,15 @@ func TestRunner_BeforeEach_withStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.BeforeEachContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.BeforeEachContextName)}
 	r.BeforeEach(func(t provider.T) {
 		t.NewStep("stepName")
 		counter++
 		flag = true
 	})
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -298,14 +303,14 @@ func TestRunner_AfterEach_noStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.AfterEachContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterEachContextName)}
 	r.AfterEach(func(t provider.T) {
 		flag = true
 		counter++
 	})
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -321,7 +326,7 @@ func TestRunner_AfterEach_withStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.AfterEachContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterEachContextName)}
 
 	meta := &testMetaMockRunner{result: &allure.Result{}, container: allure.NewContainer(), ae: func(t provider.T) {
 		t.NewStep("stepName")
@@ -329,8 +334,8 @@ func TestRunner_AfterEach_withStep(t *testing.T) {
 		counter++
 	}}
 
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -345,14 +350,14 @@ func TestRunner_BeforeAll_noStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.BeforeAllContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.BeforeAllContextName)}
 	r.BeforeAll(func(t provider.T) {
 		counter++
 		flag = true
 	})
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -368,15 +373,15 @@ func TestRunner_BeforeAll_withStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.BeforeAllContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.BeforeAllContextName)}
 	r.BeforeAll(func(t provider.T) {
 		t.NewStep("stepName")
 		counter++
 		flag = true
 	})
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -392,14 +397,14 @@ func TestRunner_AfterAll_noStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.AfterAllContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterAllContextName)}
 	r.AfterAll(func(t provider.T) {
 		flag = true
 		counter++
 	})
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -415,15 +420,15 @@ func TestRunner_AfterAll_withStep(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.AfterAllContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterAllContextName)}
 	r.AfterAll(func(t provider.T) {
 		t.NewStep("stepName")
 		flag = true
 		counter++
 	})
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) {}}
 
 	r.RunTests()
 
@@ -438,10 +443,10 @@ func TestRunner_RunTests(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.AfterAllContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterAllContextName)}
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(t provider.T) { counter++ }}
-	r.tests["test2"] = &test{testMeta: meta, testBody: func(t provider.T) { counter++ }}
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(t provider.T) { counter++ }}
+	r.tests["test2"] = &testFunc{testMeta: meta, testBody: func(t provider.T) { counter++ }}
 
 	r.RunTests()
 
@@ -455,10 +460,10 @@ func TestRunner_RunTestsPanic(t *testing.T) {
 	allureDir := "./allure-results"
 	defer os.RemoveAll(allureDir)
 	wg := sync.WaitGroup{}
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.AfterAllContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterAllContextName)}
 	wg.Add(1)
 	meta := &testMetaMockRunner{result: &allure.Result{}}
-	r.tests["test"] = &test{testMeta: meta, testBody: func(mockT provider.T) {
+	r.tests["test"] = &testFunc{testMeta: meta, testBody: func(mockT provider.T) {
 		defer wg.Done()
 		counter++
 		panic("whoops")
@@ -480,21 +485,22 @@ func TestGetPackage(t *testing.T) {
 func TestRunner_NewTest(t *testing.T) {
 	t.Skipf("This test need to be reworked")
 	var flag bool
-	r := runner{tests: make(map[string]*test), internalT: newInternalTMock(constants.AfterAllContextName)}
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterAllContextName)}
 	r.NewTest("TestName", func(t provider.T) {
 		flag = true
 	}, "tag1", "tag2")
-	testKey := fmt.Sprintf("%s/%s", r.T().Name(), "TestName")
-	tagList := r.tests[testKey].testMeta.GetResult().GetLabel(allure.Tag)
+
+	testKey := fmt.Sprintf("%s/%s", r.t().Name(), "TestName")
+	tagList := r.tests[testKey].GetMeta().GetResult().GetLabel(allure.Tag)
 	require.NotEmpty(t, r.tests)
 	require.NotNil(t, r.tests[testKey])
-	require.NotNil(t, r.tests[testKey].testBody)
-	require.NotEmpty(t, r.tests[testKey].testMeta.GetResult().GetLabel(allure.Tag))
+	require.NotNil(t, r.tests[testKey].GetBody())
+	require.NotEmpty(t, r.tests[testKey].GetMeta().GetResult().GetLabel(allure.Tag))
 	require.Len(t, tagList, 2)
 	require.Equal(t, "tag1", tagList[0])
 	require.Equal(t, "tag2", tagList[1])
-	require.Equal(t, "TestName", r.tests[testKey].testMeta.GetResult().Name)
+	require.Equal(t, "TestName", r.tests[testKey].GetMeta().GetResult().Name)
 
-	r.tests[testKey].testBody(r.T())
+	r.tests[testKey].GetBody()(r.t())
 	require.True(t, flag)
 }

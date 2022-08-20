@@ -70,6 +70,6 @@ func (a *allureManager) NewTest(testName, packageName string, tags ...string) {
 	a.suiteMeta.GetContainer().AddChild(a.testMeta.GetResult().UUID)
 }
 
-func (a *allureManager) FinishTest() {
-	a.testMeta.GetResult().Done()
+func (a *allureManager) FinishTest() error {
+	return a.testMeta.GetResult().Done()
 }

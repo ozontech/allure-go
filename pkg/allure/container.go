@@ -76,6 +76,17 @@ func (container *Container) Finish() {
 	container.Stop = GetNow()
 }
 
+// Done calls Finish and Print
+func (container *Container) Done() error {
+	container.Finish()
+	return container.Print()
+}
+
+// ToJSON marshall allure.Result to json file
+func (container *Container) ToJSON() ([]byte, error) {
+	return json.Marshal(container)
+}
+
 // Print prints all attachments of Container.Befores and Container.Afters
 // after that marshals Container and ioutil.WriteFile
 func (container *Container) printContainer() error {

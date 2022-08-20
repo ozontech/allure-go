@@ -80,7 +80,9 @@ func (m *providerMockstepsCommon) AfterEachContext()                            
 func (m *providerMockstepsCommon) BeforeAllContext()                                    {}
 func (m *providerMockstepsCommon) AfterAllContext()                                     {}
 func (m *providerMockstepsCommon) NewTest(testName, packageName string, tags ...string) {}
-func (m *providerMockstepsCommon) FinishTest()                                          {}
+func (m *providerMockstepsCommon) FinishTest() error {
+	return nil
+}
 
 type suiteMetaMockstepsCommon struct {
 	namePrefix string

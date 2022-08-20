@@ -25,7 +25,7 @@ type T interface {
 	SkipOnPrint()
 	Assert() Asserts
 	Require() Asserts
-	Run(testName string, testBody func(T), tags ...string) bool
+	Run(testName string, testBody func(T), tags ...string) *allure.Result
 
 	LogStep(args ...interface{})
 	LogfStep(format string, args ...interface{})

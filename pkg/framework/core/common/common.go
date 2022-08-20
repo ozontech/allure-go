@@ -189,11 +189,11 @@ func (c *Common) Skipf(format string, args ...interface{}) {
 }
 
 // Run runs test body as test with passed tags
-func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) bool {
+func (c *Common) Run(testName string, testBody func(provider.T), tags ...string) (res *allure.Result) {
 	parentCallers := strings.Split(c.RealT().Name(), "/")
 	suiteName := parentCallers[len(parentCallers)-1]
 
-	return c.TestingT.Run(testName, func(realT *testing.T) {
+	c.TestingT.Run(testName, func(realT *testing.T) {
 		var (
 			testT = NewT(realT)
 
@@ -228,8 +228,17 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 
 		testT.SetProvider(newProvider)
 
+		defer func() {
+			res = testT.GetResult()
+		}()
+
 		// print test result
-		defer testT.Provider.FinishTest()
+		defer func() {
+			err := testT.Provider.FinishTest()
+			if err != nil {
+				testT.Error(err.Error())
+			}
+		}()
 
 		defer func() {
 			rec := recover()
@@ -244,6 +253,7 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 		testT.Provider.TestContext()
 		testBody(testT)
 	})
+	return
 }
 
 func (c *Common) SetRealT(realT provider.TestingT) {
