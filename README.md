@@ -28,7 +28,7 @@ The project started as a fork of testify, but over time it got its own runner an
   + [Run few parallel suites](#run-few-parallel-suitesexamplessuite_demorunning_testgo)
   + [Setup hooks](#setup-hooksexamplessuite_demobefores_afters_testgo)
   + [XSkip](#xskipexamplessuite_demofails_testgo)
-  + [Parametrized tests](#parametrizedtestexamplessuite_demonew_parametrized_testgo)
+  + [:rocket: Parametrized tests](#parametrizedtestexamplessuite_demonew_parametrized_testgo)
 
 ## :zap: Features
 
