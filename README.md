@@ -22,13 +22,13 @@ The project started as a fork of testify, but over time it got its own runner an
   + [pkg/framework](#pkgframework)
   + [cute](#cute)
 + [:school_satchel: Few more examples](#school_satchel-few-more-examples)
-  + [:rocket: Async test](#async-testexamplesasyncasync_step_testgo)
-  + [Test with nested steps](#test-with-nested-stepsexamplessuite_demostep_tree_testgo)
-  + [Test with attachments](#test-with-attachmentexamplessuite_demoattachments_testgo)
-  + [Run few parallel suites](#run-few-parallel-suitesexamplessuite_demorunning_testgo)
-  + [Setup hooks](#setup-hooksexamplessuite_demobefores_afters_testgo)
-  + [XSkip](#xskipexamplessuite_demofails_testgo)
-  + [:rocket: Parametrized tests](#parametrizedtestexamplessuite_demonew_parametrized_testgo)
+  + [:rocket: Async test](#async-test)
+  + [Test with nested steps](#test-with-nested-steps)
+  + [Test with attachments](#test-with-attachment)
+  + [Run few parallel suites](#run-few-parallel-suites)
+  + [Setup hooks](#setup-hooks)
+  + [XSkip](#xskip)
+  + [:rocket: Parametrized tests](#parametrized-test)
 
 ## :zap: Features
 
@@ -692,7 +692,7 @@ Output to Allure:
 
 ![](.resources/example_xskip.png)
 
-### [ParametrizedTest](examples/suite_demo/new_parametrized_test.go)
+### [Parametrized Test](examples/suite_demo/new_parametrized_test.go)
 
 Test code:
 
