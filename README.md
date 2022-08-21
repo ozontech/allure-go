@@ -8,7 +8,7 @@ The project started as a fork of testify, but over time it got its own runner an
 ## :mortar_board: Head of contents
 
 + [:mortar_board: Head of contents](#mortar_board-head-of-contents)
-+ [Features](#zap-features)
++ [:zap: Features](#zap-features)
   + [WHAT'S NEW](#whats-new) 
   + [pkg/allure](#sparkles-pkgallure)
   + [pkg/framework](#sparkles-pkgframework)
