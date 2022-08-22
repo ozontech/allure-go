@@ -206,6 +206,23 @@ func (r *runner) RunTests() SuiteResult {
 	return result
 }
 
+func Run(t *testing.T, testName string, testBody func(provider.T), tags ...string) *allure.Result {
+	var (
+		newT        = common.NewT(t)
+		callers     = strings.Split(t.Name(), "/")
+		providerCfg = manager.NewProviderConfig().
+				WithFullName(t.Name()).
+				WithPackageName(getPackage(2)).
+				WithSuiteName(t.Name()).
+				WithRunner(callers[0])
+		newProvider = manager.NewProvider(providerCfg)
+	)
+	newT.SetProvider(newProvider)
+	newT.Provider.TestContext()
+
+	return newT.Run(testName, testBody, tags...)
+}
+
 func setupTest(t TestingT, parentProvider provider.Provider, meta provider.TestMeta) *common.Common {
 	var (
 		testT = common.NewT(t)
