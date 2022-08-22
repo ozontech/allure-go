@@ -1,3 +1,6 @@
+//go:build examples_new
+// +build examples_new
+
 package suite_demo
 
 import (
