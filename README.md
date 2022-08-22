@@ -46,9 +46,9 @@ If you need some more setup customization, now you can pass your steps to `Set u
 
 Check out [our example](./examples/suite_demo/setup_test.go) for more information, or check out example below:
 
-:information_source: feature works __only__ with Test. If you try to run it in Before/After hook - nothing will happen.
-:information_source: Yes, it works with t.Parallel, but HIGHLY recommended to run t.Parallel AFTER TestSetup.
-:information_source: Yes, it works with TableTest.
+:information_source: feature works __only__ with Test. If you try to run it in Before/After hook - nothing will happen.<br>
+:information_source: Yes, it works with t.Parallel, but HIGHLY recommended to run t.Parallel AFTER TestSetup.<br>
+:information_source: Yes, it works with TableTest.<br>
 
 **Release v0.6.16**
 
