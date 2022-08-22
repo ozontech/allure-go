@@ -41,8 +41,10 @@ type Links interface {
 }
 
 type DescriptionFields interface {
-	Title(title string)
-	Description(description string)
+	Title(args ...interface{})
+	Titlef(format string, args ...interface{})
+	Description(args ...interface{})
+	Descriptionf(format string, args ...interface{})
 }
 
 type AllureSteps interface {
