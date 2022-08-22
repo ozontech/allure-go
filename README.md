@@ -29,12 +29,26 @@ The project started as a fork of testify, but over time it got its own runner an
   + [Setup hooks](#setup-hooks)
   + [XSkip](#xskip)
   + [:rocket: Parametrized tests](#parametrized-test)
+  + [Setup test](#setup-test)
 
 ## :zap: Features
 
 Providing a separate package allows you to customize your work with allure.<br>
 
 ### What's new?
+
+**Release v0.6.17**
+
+#### WithTestSetup/WithTestTeardown methods
+
+Now you can improve your reports with `t.WithTestSetup(func (provider.T))` or `t.WithTeardown(func (provider.T))`.<br>
+If you need some more setup customization, now you can pass your steps to `Set up` and `Tear down` right from the test!<br>
+
+Check out [our example](./examples/suite_demo/setup_test.go) for more information, or check out example below:
+
+:information_source: feature works __only__ with Test. If you try to run it in Before/After hook - nothing will happen.
+:information_source: Yes, it works with t.Parallel, but HIGHLY recommended to run t.Parallel AFTER TestSetup.
+:information_source: Yes, it works with TableTest.
 
 **Release v0.6.16**
 
@@ -731,3 +745,61 @@ func TestNewParametrizedDemo(t *testing.T) {
 Output to Allure:
 
 ![](.resources/example_table_test.png)
+
+### [Setup test](examples/suite_demo/setup_test.go)
+
+This feature allows you to extend your test setting up/tearing down functional
+
+Test code:
+
+```go
+package suite_demo
+
+import (
+	"context"
+	"testing"
+
+	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type SetupSuite struct {
+	suite.Suite
+}
+
+func (s *SetupSuite) TestMyTest(t provider.T) {
+	var (
+		v1  string
+		v2  int
+		ctx context.Context
+	)
+	t.WithTestSetup(func(t provider.T) {
+		t.WithNewStep("init v1", func(sCtx provider.StepCtx) {
+			v1 = "string"
+			sCtx.WithNewParameters("v1", v1)
+		})
+		t.WithNewStep("init v2", func(sCtx provider.StepCtx) {
+			v2 = 123
+			sCtx.WithNewParameters("v2", v2)
+		})
+		t.WithNewStep("init ctx", func(sCtx provider.StepCtx) {
+			ctx = context.Background()
+			sCtx.WithNewParameters("ctx", ctx)
+		})
+	})
+	defer t.WithTestTeardown(func(t provider.T) {
+		t.WithNewStep("Close ctx", func(sCtx provider.StepCtx) {
+			ctx.Done()
+			sCtx.WithNewParameters("ctx", ctx)
+		})
+	})
+}
+
+func TestRunner(t *testing.T) {
+	suite.RunSuite(t, new(SetupSuite))
+}
+```
+
+Allure output:
+
+![](.resources/example_setup_test.png)
