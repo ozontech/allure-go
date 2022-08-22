@@ -16,6 +16,8 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
+const logMsgSetupTearDown = "%s will be skipped. Reason: wrong context. Expected: %s; Actual: %s"
+
 type Common struct {
 	provider.TestingT
 	provider.Provider
@@ -193,7 +195,7 @@ func (c *Common) Skipf(format string, args ...interface{}) {
 func (c *Common) WithTestSetup(setup func(provider.T)) {
 	currentContext := c.GetProvider().ExecutionContext().GetName()
 	if currentContext != constants.TestContextName {
-		c.Logf("WithTestSetup will be skipped. Reason: wrong context. Expected: %s; Actual: %s", constants.TestContextName, currentContext)
+		c.Logf(logMsgSetupTearDown, "WithTestSetup", constants.TestContextName, currentContext)
 		return
 	}
 	c.subContextWrapper(currentContext, BeforeEach, setup)
@@ -203,7 +205,7 @@ func (c *Common) WithTestSetup(setup func(provider.T)) {
 func (c *Common) WithTestTeardown(teardown func(provider.T)) {
 	currentContext := c.GetProvider().ExecutionContext().GetName()
 	if currentContext != constants.TestContextName {
-		c.Logf("WithTestTeardown will be skipped. Reason: wrong context. Expected: %s; Actual: %s", constants.TestContextName, currentContext)
+		c.Logf(logMsgSetupTearDown, "WithTestTeardown", constants.TestContextName, currentContext)
 		return
 	}
 	c.subContextWrapper(currentContext, AfterEach, teardown)
@@ -212,9 +214,9 @@ func (c *Common) WithTestTeardown(teardown func(provider.T)) {
 func (c *Common) subContextWrapper(currentContext string, newContext HookType, hook func(t provider.T)) {
 	defer func() {
 		rec := recover()
+		c.GetProvider().TestContext()
 		if rec != nil {
-			ctxName := currentContext
-			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
+			errMsg := fmt.Sprintf("%s panicked: %v\n%s", currentContext, rec, debug.Stack())
 			TestError(c, c.GetProvider(), currentContext, errMsg)
 		}
 	}()
@@ -223,9 +225,9 @@ func (c *Common) subContextWrapper(currentContext string, newContext HookType, h
 		c.GetProvider().BeforeEachContext()
 	case AfterEach:
 		c.GetProvider().AfterEachContext()
+	default:
+		panic(fmt.Sprintf("Wrong execution context used to run func. Expected: %s OR %s; Actual: %s", BeforeEach, AfterEach, newContext))
 	}
-
-	defer c.GetProvider().TestContext()
 	hook(c)
 }
 
