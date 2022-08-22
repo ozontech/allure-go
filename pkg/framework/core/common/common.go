@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -186,6 +187,46 @@ func (c *Common) Skipf(format string, args ...interface{}) {
 		result.Status = allure.Skipped
 	})
 	c.TestingT.Skipf(format, args...)
+}
+
+// WithTestSetup ...
+func (c *Common) WithTestSetup(setup func(provider.T)) {
+	currentContext := c.GetProvider().ExecutionContext().GetName()
+	if currentContext != constants.TestContextName {
+		c.Logf("WithTestSetup will be skipped. Reason: wrong context. Expected: %s; Actual: %s", constants.TestContextName, currentContext)
+		return
+	}
+	defer func() {
+		rec := recover()
+		if rec != nil {
+			ctxName := currentContext
+			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
+			TestError(c, c.GetProvider(), currentContext, errMsg)
+		}
+	}()
+	c.GetProvider().BeforeEachContext()
+	defer c.GetProvider().TestContext()
+	setup(c)
+}
+
+// WithTestTeardown ...
+func (c *Common) WithTestTeardown(teardown func(provider.T)) {
+	currentContext := c.GetProvider().ExecutionContext().GetName()
+	if currentContext != constants.TestContextName {
+		c.Logf("WithTestTeardown will be skipped. Reason: wrong context. Expected: %s; Actual: %s", constants.TestContextName, currentContext)
+		return
+	}
+	defer func() {
+		rec := recover()
+		if rec != nil {
+			ctxName := currentContext
+			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
+			TestError(c, c.GetProvider(), currentContext, errMsg)
+		}
+	}()
+	c.GetProvider().AfterEachContext()
+	defer c.GetProvider().TestContext()
+	teardown(c)
 }
 
 // Run runs test body as test with passed tags

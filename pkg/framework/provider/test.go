@@ -31,6 +31,8 @@ type T interface {
 	LogfStep(format string, args ...interface{})
 	WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
 	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
+	WithTestSetup(setup func(T))
+	WithTestTeardown(teardown func(T))
 }
 
 type StepCtx interface {

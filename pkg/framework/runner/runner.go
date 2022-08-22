@@ -166,7 +166,6 @@ func (r *runner) RunTests() SuiteResult {
 				r.realT().Run(test.GetMeta().GetResult().Name, func(t *testing.T) {
 					defer wg.Done()
 					defer func() {
-						t.Logf(test.GetMeta().GetResult().UUID.String())
 						result.NewResult(finishTest(t, test.GetMeta()))
 					}()
 					testT := setupTest(t, r.t().GetProvider(), test.GetMeta())
