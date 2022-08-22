@@ -2,7 +2,6 @@ package common
 
 import (
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
+	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
 
@@ -196,17 +196,7 @@ func (c *Common) WithTestSetup(setup func(provider.T)) {
 		c.Logf("WithTestSetup will be skipped. Reason: wrong context. Expected: %s; Actual: %s", constants.TestContextName, currentContext)
 		return
 	}
-	defer func() {
-		rec := recover()
-		if rec != nil {
-			ctxName := currentContext
-			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
-			TestError(c, c.GetProvider(), currentContext, errMsg)
-		}
-	}()
-	c.GetProvider().BeforeEachContext()
-	defer c.GetProvider().TestContext()
-	setup(c)
+	c.subContextWrapper(currentContext, BeforeEach, setup)
 }
 
 // WithTestTeardown ...
@@ -216,6 +206,10 @@ func (c *Common) WithTestTeardown(teardown func(provider.T)) {
 		c.Logf("WithTestTeardown will be skipped. Reason: wrong context. Expected: %s; Actual: %s", constants.TestContextName, currentContext)
 		return
 	}
+	c.subContextWrapper(currentContext, AfterEach, teardown)
+}
+
+func (c *Common) subContextWrapper(currentContext string, newContext HookType, hook func(t provider.T)) {
 	defer func() {
 		rec := recover()
 		if rec != nil {
@@ -224,9 +218,15 @@ func (c *Common) WithTestTeardown(teardown func(provider.T)) {
 			TestError(c, c.GetProvider(), currentContext, errMsg)
 		}
 	}()
-	c.GetProvider().AfterEachContext()
+	switch newContext {
+	case BeforeEach:
+		c.GetProvider().BeforeEachContext()
+	case AfterEach:
+		c.GetProvider().AfterEachContext()
+	}
+
 	defer c.GetProvider().TestContext()
-	teardown(c)
+	hook(c)
 }
 
 // Run runs test body as test with passed tags
