@@ -16,7 +16,7 @@ func (a *allureManager) Title(args ...interface{}) {
 // Titlef changes default test name to title(using fmt.Sprintf)
 func (a *allureManager) Titlef(format string, args ...interface{}) {
 	a.safely(func(result *allure.Result) {
-		result.Name = fmt.Sprintf(format, args)
+		result.Name = fmt.Sprintf(format, args...)
 	})
 }
 
@@ -30,6 +30,6 @@ func (a *allureManager) Description(args ...interface{}) {
 // Descriptionf provides description to test result(using fmt.Sprintf)
 func (a *allureManager) Descriptionf(format string, args ...interface{}) {
 	a.safely(func(result *allure.Result) {
-		result.Description = fmt.Sprintf(format, args)
+		result.Description = fmt.Sprintf(format, args...)
 	})
 }
