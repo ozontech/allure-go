@@ -53,10 +53,12 @@ Main interfaces for test working are `provider.T` and `provider.StepCtx`.
 
 ##### Description Methods (`DescriptionFields` interface)
 
-| Method                            |           Description           |
-|:----------------------------------|:-------------------------------:|
-| `Title(title string)`             |    Sets `result.Name` field     |
-| `Description(description string)` | Sets `result.Description` field |
+| Method                                             |                    Description                     |
+|:---------------------------------------------------|:--------------------------------------------------:|
+| `Title(args ...interface{})`                       |     Sets `result.Name` field, using fmt.Sprint     |
+| `Titlef(format string, args ...interface{})`       |    Sets `result.Name` field, using fmt.Sprintf     |
+| `Description(args ...interface{})`                 |  Sets `result.Description` field, using fmt.Sprint |
+| `Descriptionf(format string, args ...interface{})` | Sets `result.Description` field, using fmt.Sprintf |
 
 ##### Suite Methods (`SuiteLabels` interface)
 
