@@ -130,10 +130,12 @@ during test runtime any other way (`SystemLabels` interface) but ReplaceLabel me
 
 ##### Behaviour manipulation methods (`T` interface)
 
-| Method          |                                                                Description                                                                 |
-|:----------------|:------------------------------------------------------------------------------------------------------------------------------------------:|
-| `XSkip()`       |                     Marks test as expected to fail. If test going to fail with assert it will be marked skip instead.                      |
-| `SkipOnPrint()` | Marks report as skip on print. That means that report won't be created for current test. Use it for clean reports from parent of subtests. |
+| Method                                  |                                                                Description                                                                 |
+|:----------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------:|
+| `XSkip()`                               |                     Marks test as expected to fail. If test going to fail with assert it will be marked skip instead.                      |
+| `SkipOnPrint()`                         | Marks report as skip on print. That means that report won't be created for current test. Use it for clean reports from parent of subtests. |
+| `WithTestSetup(func (t provider.T))`    |     Switches context of the test for before each and run passed func with BeforeEach context (all steps will to Set up allure section)     |
+| `WithTestTeardown(func (t provider.T))` |    Switches context of the test for after each and run passed func with AfterEach context (all steps will to Tear down allure section)     |
 
 ### provider.StepCtx
 

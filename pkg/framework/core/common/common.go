@@ -12,8 +12,11 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/testplan"
+	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
+
+const logMsgSetupTearDown = "%s will be skipped. Reason: wrong context. Expected: %s; Actual: %s"
 
 type Common struct {
 	provider.TestingT
@@ -186,6 +189,46 @@ func (c *Common) Skipf(format string, args ...interface{}) {
 		result.Status = allure.Skipped
 	})
 	c.TestingT.Skipf(format, args...)
+}
+
+// WithTestSetup ...
+func (c *Common) WithTestSetup(setup func(provider.T)) {
+	currentContext := c.GetProvider().ExecutionContext().GetName()
+	if currentContext != constants.TestContextName {
+		c.Logf(logMsgSetupTearDown, "WithTestSetup", constants.TestContextName, currentContext)
+		return
+	}
+	c.subContextWrapper(currentContext, BeforeEach, setup)
+}
+
+// WithTestTeardown ...
+func (c *Common) WithTestTeardown(teardown func(provider.T)) {
+	currentContext := c.GetProvider().ExecutionContext().GetName()
+	if currentContext != constants.TestContextName {
+		c.Logf(logMsgSetupTearDown, "WithTestTeardown", constants.TestContextName, currentContext)
+		return
+	}
+	c.subContextWrapper(currentContext, AfterEach, teardown)
+}
+
+func (c *Common) subContextWrapper(currentContext string, newContext HookType, hook func(t provider.T)) {
+	defer func() {
+		rec := recover()
+		c.GetProvider().TestContext()
+		if rec != nil {
+			errMsg := fmt.Sprintf("%s panicked: %v\n%s", currentContext, rec, debug.Stack())
+			TestError(c, c.GetProvider(), currentContext, errMsg)
+		}
+	}()
+	switch newContext {
+	case BeforeEach:
+		c.GetProvider().BeforeEachContext()
+	case AfterEach:
+		c.GetProvider().AfterEachContext()
+	default:
+		panic(fmt.Sprintf("Wrong execution context used to run func. Expected: %s OR %s; Actual: %s", BeforeEach, AfterEach, newContext))
+	}
+	hook(c)
 }
 
 // Run runs test body as test with passed tags
