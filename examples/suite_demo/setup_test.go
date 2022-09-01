@@ -6,10 +6,10 @@ package suite_demo
 import (
 	"context"
 	"fmt"
+	"github.com/ozontech/allure-go/pkg/allure"
 	"testing"
 
 	"github.com/jackc/fake"
-	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
@@ -29,18 +29,30 @@ type SetupSuite struct {
 }
 
 func (s *SetupSuite) BeforeAll(t provider.T) {
+	var params []*allure.Parameter
 	for i := 0; i < 10; i++ {
-		s.ParamMyTest = append(s.ParamMyTest, &Example{
+		param := &Example{
 			country: fake.Country(),
 			number:  fake.Year(1900, 2000),
-		})
+		}
+		params = append(params, allure.NewParameter(fmt.Sprintf("Ex %d", i), param))
+		s.ParamMyTest = append(s.ParamMyTest, param)
 	}
+	t.NewStep("BeforeAllStep", params...)
 }
 
 func (s *SetupSuite) BeforeEach(t provider.T) {
 	t.Epic("Demo")
 	t.Feature("BeforeAfter")
-	t.Step(allure.NewSimpleStep("This Step will be before Each"))
+	t.NewStep("This Step will be before Each")
+}
+
+func (s *SetupSuite) AfterEach(t provider.T) {
+	t.NewStep("AfterEach Step")
+}
+
+func (s *SetupSuite) AfterAll(t provider.T) {
+	t.NewStep("AfterAll Step")
 }
 
 func (s *SetupSuite) TableTestMyTest(t provider.T, example *Example) {
