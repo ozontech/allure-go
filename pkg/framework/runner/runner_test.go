@@ -75,7 +75,7 @@ func (m *providerMockRunner) Step(step *allure.Step) {
 	m.ExecutionContext().AddStep(step)
 }
 
-func (m *providerMockRunner) NewStep(stepName string, params ...allure.Parameter) {
+func (m *providerMockRunner) NewStep(stepName string, params ...*allure.Parameter) {
 	m.ExecutionContext().AddStep(allure.NewSimpleStep(stepName, params...))
 }
 
@@ -491,11 +491,11 @@ func TestRunner_NewTest(t *testing.T) {
 	}, "tag1", "tag2")
 
 	testKey := fmt.Sprintf("%s/%s", r.t().Name(), "TestName")
-	tagList := r.tests[testKey].GetMeta().GetResult().GetLabel(allure.Tag)
+	tagList := r.tests[testKey].GetMeta().GetResult().GetLabels(allure.Tag)
 	require.NotEmpty(t, r.tests)
 	require.NotNil(t, r.tests[testKey])
 	require.NotNil(t, r.tests[testKey].GetBody())
-	require.NotEmpty(t, r.tests[testKey].GetMeta().GetResult().GetLabel(allure.Tag))
+	require.NotEmpty(t, r.tests[testKey].GetMeta().GetResult().GetLabels(allure.Tag))
 	require.Len(t, tagList, 2)
 	require.Equal(t, "tag1", tagList[0])
 	require.Equal(t, "tag2", tagList[1])

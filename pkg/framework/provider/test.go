@@ -29,19 +29,19 @@ type T interface {
 
 	LogStep(args ...interface{})
 	LogfStep(format string, args ...interface{})
-	WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
-	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
+	WithNewStep(stepName string, step func(sCtx StepCtx), params ...*allure.Parameter)
+	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...*allure.Parameter)
 	WithTestSetup(setup func(T))
 	WithTestTeardown(teardown func(T))
 }
 
 type StepCtx interface {
 	Step(step *allure.Step)
-	NewStep(stepName string, parameters ...allure.Parameter)
-	WithNewStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
-	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...allure.Parameter)
+	NewStep(stepName string, parameters ...*allure.Parameter)
+	WithNewStep(stepName string, step func(sCtx StepCtx), params ...*allure.Parameter)
+	WithNewAsyncStep(stepName string, step func(sCtx StepCtx), params ...*allure.Parameter)
 
-	WithParameters(parameters ...allure.Parameter)
+	WithParameters(parameters ...*allure.Parameter)
 	WithNewParameters(kv ...interface{})
 
 	WithAttachments(attachment ...*allure.Attachment)

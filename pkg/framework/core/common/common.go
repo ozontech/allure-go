@@ -308,20 +308,20 @@ func copyLabels(input, target *allure.Result) *allure.Result {
 		return target
 	}
 
-	if epics := input.GetLabel(allure.Epic); len(epics) > 0 {
-		target.SetLabel(epics[0])
+	if epic, ok := input.GetFirstLabel(allure.Epic); ok {
+		target.ReplaceLabel(epic)
 	}
 
-	if parentSuites := input.GetLabel(allure.ParentSuite); len(parentSuites) > 0 {
-		target.SetLabel(parentSuites[0])
+	if parentSuite, ok := input.GetFirstLabel(allure.ParentSuite); ok {
+		target.ReplaceLabel(parentSuite)
 	}
 
-	if leads := input.GetLabel(allure.Lead); len(leads) > 0 {
-		target.SetLabel(leads[0])
+	if lead, ok := input.GetFirstLabel(allure.Lead); ok {
+		target.ReplaceLabel(lead)
 	}
 
-	if owners := input.GetLabel(allure.Owner); len(owners) > 0 {
-		target.SetLabel(owners[0])
+	if owner, ok := input.GetFirstLabel(allure.Owner); ok {
+		target.ReplaceLabel(owner)
 	}
 
 	return target

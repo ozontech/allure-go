@@ -29,15 +29,15 @@ type DescriptionLabels interface {
 	Tags(values ...string)
 	Owner(value string)
 	Lead(value string)
-	Label(label allure.Label)
-	Labels(labels ...allure.Label)
-	ReplaceLabel(label allure.Label)
+	Label(label *allure.Label)
+	Labels(labels ...*allure.Label)
+	ReplaceLabel(label *allure.Label)
 }
 
 type Links interface {
 	SetIssue(issue string)
 	SetTestCase(testCase string)
-	Link(link allure.Link)
+	Link(link *allure.Link)
 }
 
 type DescriptionFields interface {
@@ -49,7 +49,7 @@ type DescriptionFields interface {
 
 type AllureSteps interface {
 	Step(step *allure.Step)
-	NewStep(stepName string, params ...allure.Parameter)
+	NewStep(stepName string, params ...*allure.Parameter)
 }
 
 type Attachments interface {
@@ -58,7 +58,7 @@ type Attachments interface {
 }
 
 type Parameters interface {
-	WithParameters(params ...allure.Parameter)
+	WithParameters(params ...*allure.Parameter)
 	WithNewParameters(kv ...interface{})
 }
 

@@ -413,19 +413,19 @@ func TestCopyLabels(t *testing.T) {
 	require.NotNil(t, target.Labels)
 	require.Len(t, target.Labels, 4)
 
-	require.NotEmpty(t, target.GetLabel(allure.Epic))
-	require.Len(t, target.GetLabel(allure.Epic), 1)
-	require.Equal(t, epic, target.GetLabel(allure.Epic)[0])
+	require.NotEmpty(t, target.GetLabels(allure.Epic))
+	require.Len(t, target.GetLabels(allure.Epic), 1)
+	require.Equal(t, epic, target.GetLabels(allure.Epic)[0])
 
-	require.NotEmpty(t, target.GetLabel(allure.ParentSuite))
-	require.Len(t, target.GetLabel(allure.ParentSuite), 1)
-	require.Equal(t, parentSuite, target.GetLabel(allure.ParentSuite)[0])
+	require.NotEmpty(t, target.GetLabels(allure.ParentSuite))
+	require.Len(t, target.GetLabels(allure.ParentSuite), 1)
+	require.Equal(t, parentSuite, target.GetLabels(allure.ParentSuite)[0])
 
-	require.NotEmpty(t, target.GetLabel(allure.Lead))
-	require.Len(t, target.GetLabel(allure.Lead), 1)
-	require.Equal(t, lead, target.GetLabel(allure.Lead)[0])
+	require.NotEmpty(t, target.GetLabels(allure.Lead))
+	require.Len(t, target.GetLabels(allure.Lead), 1)
+	require.Equal(t, lead, target.GetLabels(allure.Lead)[0])
 
-	require.NotEmpty(t, target.GetLabel(allure.Owner))
-	require.Len(t, target.GetLabel(allure.Owner), 1)
-	require.Equal(t, owner, target.GetLabel(allure.Owner)[0])
+	require.NotEmpty(t, target.GetLabels(allure.Owner))
+	require.Len(t, target.GetLabels(allure.Owner), 1)
+	require.Equal(t, owner, target.GetLabels(allure.Owner)[0])
 }

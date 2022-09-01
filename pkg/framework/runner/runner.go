@@ -125,6 +125,11 @@ func (r *runner) RunTests() SuiteResult {
 			return
 		}
 
+		defer func() {
+			wg.Wait()
+			finishSuite(r.internalT.GetProvider())
+		}()
+
 		// after all hook
 		defer func() {
 			wg.Wait()
@@ -265,6 +270,11 @@ func finishTest(t TestingT, meta provider.TestMeta) TestResult {
 	return testRes
 }
 
+func finishSuite(p provider.Provider) {
+	p.GetSuiteMeta().GetContainer().Finish()
+	_ = p.GetSuiteMeta().GetContainer().Print()
+}
+
 func setupErrorHandler(msg string, err error, meta provider.TestMeta, result SuiteResult) SuiteResult {
 	mtx := sync.Mutex{}
 	mtx.Lock()
@@ -308,20 +318,20 @@ func copyLabels(input, target *allure.Result) *allure.Result {
 		return target
 	}
 
-	if epics := input.GetLabel(allure.Epic); len(epics) > 0 {
-		target.SetLabel(epics[0])
+	if epic, ok := input.GetFirstLabel(allure.Epic); ok {
+		target.AddLabel(epic)
 	}
 
-	if parentSuites := input.GetLabel(allure.ParentSuite); len(parentSuites) > 0 {
-		target.SetLabel(parentSuites[0])
+	if parentSuite, ok := input.GetFirstLabel(allure.ParentSuite); ok {
+		target.AddLabel(parentSuite)
 	}
 
-	if leads := input.GetLabel(allure.Lead); len(leads) > 0 {
-		target.SetLabel(leads[0])
+	if lead, ok := input.GetFirstLabel(allure.Lead); ok {
+		target.AddLabel(lead)
 	}
 
-	if owners := input.GetLabel(allure.Owner); len(owners) > 0 {
-		target.SetLabel(owners[0])
+	if owner, ok := input.GetFirstLabel(allure.Owner); ok {
+		target.AddLabel(owner)
 	}
 
 	return target

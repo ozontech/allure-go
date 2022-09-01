@@ -9,20 +9,20 @@ Labels
 */
 
 // Label provides possibility to add any Label to test result
-func (a *allureManager) Label(label allure.Label) {
+func (a *allureManager) Label(label *allure.Label) {
 	a.safely(func(result *allure.Result) {
 		result.Labels = append(result.Labels, label)
 	})
 }
 
 // Labels provides possibility to add few Labels to test result
-func (a *allureManager) Labels(labels ...allure.Label) {
+func (a *allureManager) Labels(labels ...*allure.Label) {
 	a.safely(func(result *allure.Result) {
 		result.Labels = append(result.Labels, labels...)
 	})
 }
 
-func (a *allureManager) ReplaceLabel(label allure.Label) {
+func (a *allureManager) ReplaceLabel(label *allure.Label) {
 	a.safely(func(result *allure.Result) {
 		for idx := range result.Labels {
 			if result.Labels[idx].Name == label.Name {
@@ -51,28 +51,28 @@ func (a *allureManager) Story(value string) {
 
 // FrameWork adds FrameWork label to test result
 func (a *allureManager) FrameWork(value string) {
-	a.Label(allure.FrameWorkLabel(value))
+	a.ReplaceLabel(allure.FrameWorkLabel(value))
 }
 
 // Host adds Host label to test result
 func (a *allureManager) Host(value string) {
-	a.Label(allure.HostLabel(value))
+	a.ReplaceLabel(allure.HostLabel(value))
 }
 
 // Thread adds Thread label to test result
 // Seems like there is no way to access an identifier for the current goroutine in Go.
 func (a *allureManager) Thread(value string) {
-	a.Label(allure.ThreadLabel(value))
+	a.ReplaceLabel(allure.ThreadLabel(value))
 }
 
 // ID adds ID label to test result
 func (a *allureManager) ID(value string) {
-	a.Label(allure.IDLabel(value))
+	a.ReplaceLabel(allure.IDLabel(value))
 }
 
 // Language adds Language label to test result
 func (a *allureManager) Language(value string) {
-	a.Label(allure.LanguageLabel(value))
+	a.ReplaceLabel(allure.LanguageLabel(value))
 }
 
 // AddSuiteLabel adds suite label to test result
@@ -92,7 +92,7 @@ func (a *allureManager) AddParentSuite(value string) {
 
 // Severity adds Severity label to test result
 func (a *allureManager) Severity(value allure.SeverityType) {
-	a.Label(allure.SeverityLabel(value))
+	a.ReplaceLabel(allure.SeverityLabel(value))
 }
 
 // Tag adds Tag label to test result
@@ -107,7 +107,7 @@ func (a *allureManager) Tags(values ...string) {
 
 // Package adds Package label to test result
 func (a *allureManager) Package(value string) {
-	a.Label(allure.PackageLabel(value))
+	a.ReplaceLabel(allure.PackageLabel(value))
 }
 
 // Owner adds Owner label to test result
@@ -121,5 +121,5 @@ func (a *allureManager) Lead(value string) {
 }
 
 func (a *allureManager) AllureID(value string) {
-	a.Label(allure.IDAllureLabel(value))
+	a.ReplaceLabel(allure.IDAllureLabel(value))
 }

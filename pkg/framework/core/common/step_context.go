@@ -45,7 +45,7 @@ type stepCtx struct {
 	wg sync.WaitGroup
 }
 
-func NewStepCtx(t StepT, p StepProvider, stepName string, params ...allure.Parameter) InternalStepCtx {
+func NewStepCtx(t StepT, p StepProvider, stepName string, params ...*allure.Parameter) InternalStepCtx {
 	currentStep := allure.NewSimpleStep(stepName, params...)
 	newCtx := &stepCtx{t: t, p: p, currentStep: currentStep, wg: sync.WaitGroup{}}
 	newCtx.asserts = helper.NewAssertsHelper(newCtx)
@@ -53,7 +53,7 @@ func NewStepCtx(t StepT, p StepProvider, stepName string, params ...allure.Param
 	return newCtx
 }
 
-func (ctx *stepCtx) NewChildCtx(stepName string, params ...allure.Parameter) InternalStepCtx {
+func (ctx *stepCtx) NewChildCtx(stepName string, params ...*allure.Parameter) InternalStepCtx {
 	currentStep := allure.NewSimpleStep(stepName, params...)
 	newCtx := &stepCtx{t: ctx.t, p: ctx.p, currentStep: currentStep, parentStep: ctx, wg: sync.WaitGroup{}}
 	newCtx.asserts = helper.NewAssertsHelper(newCtx)
@@ -108,7 +108,7 @@ func (ctx *stepCtx) CurrentStep() *allure.Step {
 	return ctx.currentStep
 }
 
-func (ctx *stepCtx) WithParameters(parameters ...allure.Parameter) {
+func (ctx *stepCtx) WithParameters(parameters ...*allure.Parameter) {
 	ctx.currentStep.WithParameters(parameters...)
 }
 
@@ -140,12 +140,12 @@ func (ctx *stepCtx) Step(step *allure.Step) {
 	ctx.currentStep.WithChild(step)
 }
 
-func (ctx *stepCtx) NewStep(stepName string, parameters ...allure.Parameter) {
+func (ctx *stepCtx) NewStep(stepName string, parameters ...*allure.Parameter) {
 	newStep := allure.NewSimpleStep(stepName, parameters...)
 	ctx.currentStep.WithChild(newStep)
 }
 
-func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx), params ...allure.Parameter) {
+func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx), params ...*allure.Parameter) {
 	newCtx := ctx.NewChildCtx(stepName, params...)
 	defer ctx.currentStep.WithChild(newCtx.CurrentStep())
 	defer func() {
@@ -161,7 +161,7 @@ func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx)
 	step(newCtx)
 }
 
-func (ctx *stepCtx) WithNewAsyncStep(stepName string, step func(ctx provider.StepCtx), params ...allure.Parameter) {
+func (ctx *stepCtx) WithNewAsyncStep(stepName string, step func(ctx provider.StepCtx), params ...*allure.Parameter) {
 	var wg *sync.WaitGroup
 	wg = &ctx.wg
 	if ctx.parentStep != nil {

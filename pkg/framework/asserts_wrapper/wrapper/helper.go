@@ -25,7 +25,7 @@ func (h *assertHelper) getStepName(assertName string, msgAndArgs ...interface{})
 	return fmt.Sprintf("%s: %s", prefix, messageFromMsgAndArgs(msgAndArgs...))
 }
 
-func (h *assertHelper) withNewStep(t TestingT, provider Provider, assertName string, assert func(t TestingT) bool, params []allure.Parameter, msgAndArgs ...interface{}) bool {
+func (h *assertHelper) withNewStep(t TestingT, provider Provider, assertName string, assert func(t TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{}) bool {
 	var result bool
 	step := allure.NewSimpleStep(h.getStepName(assertName, msgAndArgs...), params...)
 	defer func() {

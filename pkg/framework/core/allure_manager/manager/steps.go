@@ -10,6 +10,6 @@ func (a *allureManager) Step(step *allure.Step) {
 }
 
 // NewStep creates new step and adds it to test result
-func (a *allureManager) NewStep(stepName string, params ...allure.Parameter) {
+func (a *allureManager) NewStep(stepName string, params ...*allure.Parameter) {
 	a.ExecutionContext().AddStep(allure.NewSimpleStep(stepName, params...))
 }

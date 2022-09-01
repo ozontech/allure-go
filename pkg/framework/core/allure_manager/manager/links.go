@@ -15,7 +15,7 @@ func (a *allureManager) SetTestCase(testCase string) {
 }
 
 // Link adds Link to struct.AllureResult
-func (a *allureManager) Link(link allure.Link) {
+func (a *allureManager) Link(link *allure.Link) {
 	a.safely(func(result *allure.Result) {
 		result.Links = append(result.Links, link)
 	})

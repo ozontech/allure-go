@@ -108,7 +108,10 @@ type parametrizedTest interface {
 func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t provider.T) {
 	return func(t provider.T) {
 		beforeAll(t)
-		newTests := runner.tests
+		newTests := make(map[string]Test)
+		for k, v := range runner.tests {
+			newTests[k] = v
+		}
 		for name, test := range runner.tests {
 			if strings.HasPrefix(name, tableTestPrefix) {
 				params, err := getParams(runner.suite, name)
@@ -119,6 +122,7 @@ func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t pr
 				delete(newTests, name)
 				for tName, body := range temp {
 					newTests[tName] = body
+					runner.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(body.GetMeta().GetResult().UUID)
 				}
 			}
 		}
@@ -138,19 +142,22 @@ func getParamTests(parentTest Test, params map[string]interface{}) map[string]Te
 			result        = parentMeta.GetResult()
 			suiteFullName = result.FullName
 		)
-		if suites := result.GetLabel(allure.Suite); len(suites) > 0 {
-			suiteName = suites[0].Value
+		if suite, ok := result.GetFirstLabel(allure.Suite); ok {
+			suiteName = suite.Value
 		}
-		if packages := result.GetLabel(allure.Package); len(packages) > 0 {
-			packageName = packages[0].Value
+
+		if _package, ok := result.GetFirstLabel(allure.Package); ok {
+			packageName = _package.Value
 		}
-		for _, tag := range result.GetLabel(allure.Tag) {
+		for _, tag := range result.GetLabels(allure.Tag) {
 			tags = append(tags, tag.Value)
 		}
 
 		for pName, param := range params {
-			meta := adapter.NewTestMeta(fmt.Sprintf("%s/%s", suiteFullName, suiteName), parentMeta.GetResult().Name, pName, packageName, tags...)
-			meta.GetResult().SetLabel(allure.ParentSuiteLabel(suiteName))
+			meta := adapter.NewTestMeta(suiteFullName, suiteName, pName, packageName, tags...)
+			if parentSuite, ok := result.GetFirstLabel(allure.ParentSuite); ok {
+				meta.GetResult().ReplaceLabel(parentSuite)
+			}
 			res[pName] = &testMethod{
 				testMeta: meta,
 				testBody: paramTest.GetRawBody(),
@@ -176,7 +183,7 @@ func getParams(suite TestSuite, methodName string) (res map[string]interface{}, 
 	for i := 0; i < params.Len(); i++ {
 		paramV := params.Index(i)
 		param := reflect.NewAt(paramV.Type(), unsafe.Pointer(paramV.UnsafeAddr())).Elem().Interface()
-		pName := fmt.Sprintf("%+v", param)
+		pName := fmt.Sprintf("%s_%+v", paramName, param)
 		res[pName] = param
 	}
 	return
