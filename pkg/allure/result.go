@@ -28,9 +28,9 @@ type Result struct {
 	TestCaseID    string        `json:"testCaseId,omitempty"`    // ID of the test case (based on the hash of the full call)
 	Description   string        `json:"description,omitempty"`   // Test description
 	Attachments   []*Attachment `json:"attachments,omitempty"`   // Test case attachments
-	Parameters    []Parameter   `json:"parameters,omitempty"`    // Test case parameters
-	Labels        []Label       `json:"labels,omitempty"`        // Array of labels
-	Links         []Link        `json:"links,omitempty"`         // Array of references
+	Parameters    []*Parameter  `json:"parameters,omitempty"`    // Test case parameters
+	Labels        []*Label      `json:"labels,omitempty"`        // Array of labels
+	Links         []*Link       `json:"links,omitempty"`         // Array of references
 	Steps         []*Step       `json:"steps,omitempty"`         // Array of steps
 	ToPrint       bool          `json:"-"`                       // If false - the report will not be saved to a file
 }
@@ -85,14 +85,22 @@ func (result *Result) addLabel(labelType LabelType, labelValue string) {
 	result.Labels = append(result.Labels, label)
 }
 
-// SetLabel Adds all passed in arguments `allure.Label` to the report
-func (result *Result) SetLabel(labels ...Label) {
+// AddLabel Adds all passed in arguments `allure.Label` to the report
+func (result *Result) AddLabel(labels ...*Label) {
 	result.Labels = append(result.Labels, labels...)
 }
 
-// GetLabel Returns all `allure.Label` whose `LabelType` matches the one specified in the argument.
-func (result *Result) GetLabel(labelType LabelType) []Label {
-	labels := make([]Label, 0)
+// GetFirstLabel returns first label in labels list and true if something have been found, return false if nothing was found
+func (result *Result) GetFirstLabel(labelType LabelType) (label *Label, ok bool) {
+	if labels := result.GetLabels(labelType); len(labels) > 0 {
+		return labels[0], true
+	}
+	return
+}
+
+// GetLabels Returns all `allure.Label` whose `LabelType` matches the one specified in the argument.
+func (result *Result) GetLabels(labelType LabelType) []*Label {
+	labels := make([]*Label, 0)
 	for _, label := range result.Labels {
 		if label.Name == labelType.ToString() {
 			labels = append(labels, label)
@@ -103,11 +111,11 @@ func (result *Result) GetLabel(labelType LabelType) []Label {
 
 // SetNewLabelMap Adds all passed in arguments `allure.Label` to the report
 func (result *Result) SetNewLabelMap(kv map[LabelType]string) {
-	var labels []Label
+	var labels []*Label
 	for k, v := range kv {
 		labels = append(labels, NewLabel(k, v))
 	}
-	result.SetLabel(labels...)
+	result.AddLabel(labels...)
 }
 
 // WithParentSuite Adds `allure.Label` with type `Parent` to the report.
@@ -116,21 +124,21 @@ func (result *Result) WithParentSuite(parentName string) *Result {
 	if parentName == "" {
 		return result
 	}
-	result.addLabel(ParentSuite, parentName)
+	result.ReplaceNewLabel(ParentSuite, parentName)
 	return result
 }
 
 // WithSuite Adds `allure.Label` with type `Suite` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithSuite(suiteName string) *Result {
-	result.addLabel(Suite, suiteName)
+	result.ReplaceNewLabel(Suite, suiteName)
 	return result
 }
 
 // WithHost Adds `allure.Label` with type `Host` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithHost(hostName string) *Result {
-	result.addLabel(Host, hostName)
+	result.ReplaceNewLabel(Host, hostName)
 	return result
 }
 
@@ -146,35 +154,35 @@ func (result *Result) WithSubSuites(children ...string) *Result {
 // WithFrameWork Adds `allure.Label` with type `Framework` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithFrameWork(framework string) *Result {
-	result.addLabel(Framework, framework)
+	result.ReplaceNewLabel(Framework, framework)
 	return result
 }
 
 // WithLanguage Adds `allure.Label` with type `Language` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithLanguage(language string) *Result {
-	result.addLabel(Language, language)
+	result.ReplaceNewLabel(Language, language)
 	return result
 }
 
 // WithThread Adds `allure.Label` with type `Thread` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithThread(thread string) *Result {
-	result.addLabel(Thread, thread)
+	result.ReplaceNewLabel(Thread, thread)
 	return result
 }
 
 // WithPackage Adds `allure.Label` with type `Package` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithPackage(pkg string) *Result {
-	result.addLabel(Package, pkg)
+	result.ReplaceNewLabel(Package, pkg)
 	return result
 }
 
 // WithLabels Adds an array of `allure.Label`.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
-func (result *Result) WithLabels(label ...Label) *Result {
-	result.SetLabel(label...)
+func (result *Result) WithLabels(label ...*Label) *Result {
+	result.AddLabel(label...)
 	return result
 }
 
@@ -256,6 +264,22 @@ func (result *Result) Done() error {
 	}
 	result.Finish()
 	return result.Print()
+}
+
+// ReplaceNewLabel creates new label and replaces it in the allure.Result object by label's name
+func (result *Result) ReplaceNewLabel(name LabelType, value string) {
+	result.ReplaceLabel(NewLabel(name, value))
+}
+
+// ReplaceLabel replaces label in the allure.Result object by label's name
+func (result *Result) ReplaceLabel(label *Label) {
+	for _, l := range result.Labels {
+		if label.Name == l.Name {
+			l.Value = label.Value
+			return
+		}
+	}
+	result.Labels = append(result.Labels, label)
 }
 
 // ToJSON marshall allure.Result to json file

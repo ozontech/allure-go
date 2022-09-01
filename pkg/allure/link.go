@@ -28,24 +28,24 @@ const (
 )
 
 // NewLink Constructor. Builds and returns a new `allure.Link` object.
-func NewLink(name string, _type LinkTypes, url string) Link {
-	return Link{name, string(_type), url}
+func NewLink(name string, _type LinkTypes, url string) *Link {
+	return &Link{name, string(_type), url}
 }
 
 // TestCaseLink returns TESTCASE type link
-func TestCaseLink(testCase string) Link {
+func TestCaseLink(testCase string) *Link {
 	linkName := fmt.Sprintf("TestCase[%s]", testCase)
 	return NewLink(linkName, TESTCASE, fmt.Sprintf(getTestCasePattern(), testCase))
 }
 
 // IssueLink returns ISSUE type link
-func IssueLink(issue string) Link {
+func IssueLink(issue string) *Link {
 	linkName := fmt.Sprintf("Issue[%s]", issue)
 	return NewLink(linkName, ISSUE, fmt.Sprintf(getIssuePattern(), issue))
 }
 
 // LinkLink returns LINK type link
-func LinkLink(linkname, link string) Link {
+func LinkLink(linkname, link string) *Link {
 	return NewLink(linkname, LINK, link)
 }
 

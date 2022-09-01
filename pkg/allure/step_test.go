@@ -16,7 +16,7 @@ func TestNewStep(t *testing.T) {
 	stepStatus := Passed
 	stepStart := time.Now().UnixNano() / int64(time.Millisecond)
 	stepStop := time.Now().UnixNano()/int64(time.Millisecond) + 1
-	parameters := []Parameter{
+	parameters := []*Parameter{
 		{"Param1", "val1"},
 		{"Param2", "val2"},
 	}

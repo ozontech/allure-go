@@ -7,13 +7,13 @@ type Step struct {
 	Start       int64         `json:"start,omitempty"`
 	Stop        int64         `json:"stop,omitempty"`
 	Steps       []*Step       `json:"steps,omitempty"`
-	Parameters  []Parameter   `json:"parameters,omitempty"`
+	Parameters  []*Parameter  `json:"parameters,omitempty"`
 	parent      *Step
 }
 
 // NewStep Constructor. Creates a new `allure.Step` object with field values passed in arguments
 // and returns a pointer to it.
-func NewStep(name string, status Status, start int64, stop int64, parameters []Parameter) *Step {
+func NewStep(name string, status Status, start int64, stop int64, parameters []*Parameter) *Step {
 	return &Step{
 		Name:       name,
 		Status:     status,
@@ -31,9 +31,9 @@ func NewStep(name string, status Status, start int64, stop int64, parameters []P
 // | status     | `passed`         |
 // | start      | `allure.GetNow()`|
 // | stop       | `allure.GetNow()`|
-// | parameters | ...Parameter     |
+// | parameters | ...*Parameter     |
 // =================================
-func NewSimpleStep(name string, parameters ...Parameter) *Step {
+func NewSimpleStep(name string, parameters ...*Parameter) *Step {
 	return NewStep(name, Passed, GetNow(), GetNow(), parameters)
 }
 
@@ -51,7 +51,7 @@ func (s *Step) WithAttachments(attachments ...*Attachment) *Step {
 
 // WithParameters Adds to the `Step.Parameters` array all `allure.Parameter` passed in the `params` argument.
 // Returns a pointer to current Step (for Fluent Interface).
-func (s *Step) WithParameters(params ...Parameter) *Step {
+func (s *Step) WithParameters(params ...*Parameter) *Step {
 	s.Parameters = append(s.Parameters, params...)
 	return s
 }
