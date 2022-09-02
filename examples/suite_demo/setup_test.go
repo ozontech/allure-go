@@ -6,10 +6,10 @@ package suite_demo
 import (
 	"context"
 	"fmt"
-	"github.com/ozontech/allure-go/pkg/allure"
 	"testing"
 
 	"github.com/jackc/fake"
+	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
