@@ -30,7 +30,7 @@ func NewTestMeta(suiteFullName, suiteName, testName, packageName string, tags ..
 		fullName = fmt.Sprintf("%s/%s", fullName, testName)
 	}
 
-	var newTags []allure.Label
+	var newTags []*allure.Label
 	for _, tag := range tags {
 		newTags = append(newTags, allure.NewLabel(allure.Tag, tag))
 	}

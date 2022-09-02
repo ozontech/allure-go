@@ -233,15 +233,15 @@ func TestAllureManager_NewTest(t *testing.T) {
 	require.Equal(t, "TestName", manager.testMeta.GetResult().Name)
 	require.Equal(t, "prefix/name/TestName", manager.testMeta.GetResult().FullName)
 
-	require.NotNil(t, manager.testMeta.GetResult().GetLabel(allure.Suite))
-	require.NotEmpty(t, manager.testMeta.GetResult().GetLabel(allure.Suite))
-	require.Len(t, manager.testMeta.GetResult().GetLabel(allure.Suite), 1)
+	require.NotNil(t, manager.testMeta.GetResult().GetLabels(allure.Suite))
+	require.NotEmpty(t, manager.testMeta.GetResult().GetLabels(allure.Suite))
+	require.Len(t, manager.testMeta.GetResult().GetLabels(allure.Suite), 1)
 
-	require.Equal(t, "name", manager.testMeta.GetResult().GetLabel(allure.Suite)[0].Value)
-	require.NotEmpty(t, manager.testMeta.GetResult().GetLabel(allure.Package))
-	require.Len(t, manager.testMeta.GetResult().GetLabel(allure.Package), 1)
+	require.Equal(t, "name", manager.testMeta.GetResult().GetLabels(allure.Suite)[0].Value)
+	require.NotEmpty(t, manager.testMeta.GetResult().GetLabels(allure.Package))
+	require.Len(t, manager.testMeta.GetResult().GetLabels(allure.Package), 1)
 
-	require.Equal(t, "PackageName", manager.testMeta.GetResult().GetLabel(allure.Package)[0].Value)
+	require.Equal(t, "PackageName", manager.testMeta.GetResult().GetLabels(allure.Package)[0].Value)
 
 	require.NotNil(t, manager.testMeta.GetContainer())
 	require.NotEmpty(t, manager.testMeta.GetContainer().Children)

@@ -30,6 +30,11 @@ func (s *TestRunningDemoSuite) TestLabels(t provider.T) {
 	s.RunSuite(t, new(LabelsDemoSuite))
 }
 
+func (s *TestRunningDemoSuite) TestParametrized(t provider.T) {
+	t.Parallel()
+	s.RunSuite(t, new(ParametrizedSuite))
+}
+
 func TestRunDemo(t *testing.T) {
 	// use RunSuite to run suite of suites
 	t.Parallel()

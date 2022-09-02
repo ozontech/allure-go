@@ -10,7 +10,7 @@ import (
 
 // WithNewStep opens nesting for struct.Step
 // Any other struct.Step that will be added to struct.AllureResult object will be added as child step
-func (c *Common) WithNewStep(stepName string, step func(ctx provider.StepCtx), params ...allure.Parameter) {
+func (c *Common) WithNewStep(stepName string, step func(ctx provider.StepCtx), params ...*allure.Parameter) {
 	stCtx := NewStepCtx(c, c.Provider, stepName, params...)
 	defer c.Step(stCtx.CurrentStep())
 	defer func() {
@@ -28,7 +28,7 @@ func (c *Common) WithNewStep(stepName string, step func(ctx provider.StepCtx), p
 
 // WithNewAsyncStep opens nesting for struct.Step
 // Any other struct.Step that will be added to struct.AllureResult object will be added as child step
-func (c *Common) WithNewAsyncStep(stepName string, step func(ctx provider.StepCtx), params ...allure.Parameter) {
+func (c *Common) WithNewAsyncStep(stepName string, step func(ctx provider.StepCtx), params ...*allure.Parameter) {
 	c.wg.Add(1)
 	go func() {
 		defer c.wg.Done()

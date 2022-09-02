@@ -39,7 +39,7 @@ func TestResult_GetLabel(t *testing.T) {
 	result := NewResult(testName, testFullName)
 	require.NotNil(t, result)
 
-	langLabel := result.GetLabel(Language)
+	langLabel := result.GetLabels(Language)
 	require.NotNil(t, langLabel)
 	require.Len(t, langLabel, 1)
 	require.Equal(t, Language.ToString(), langLabel[0].Name)
@@ -73,7 +73,7 @@ func TestResult_WithFrameWork(t *testing.T) {
 	result := new(Result)
 	result.WithFrameWork(labelValue)
 
-	label := result.GetLabel(Framework)
+	label := result.GetLabels(Framework)
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Framework.ToString(), label[0].Name)
@@ -85,7 +85,7 @@ func TestResult_WithHost(t *testing.T) {
 	result := new(Result)
 	result.WithHost(labelValue)
 
-	label := result.GetLabel(Host)
+	label := result.GetLabels(Host)
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Host.ToString(), label[0].Name)
@@ -97,7 +97,7 @@ func TestResult_WithLanguage(t *testing.T) {
 	result := new(Result)
 	result.WithLanguage(labelValue)
 
-	label := result.GetLabel(Language)
+	label := result.GetLabels(Language)
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Language.ToString(), label[0].Name)
@@ -109,7 +109,7 @@ func TestResult_WithPackage(t *testing.T) {
 	result := new(Result)
 	result.WithPackage(labelValue)
 
-	label := result.GetLabel(Package)
+	label := result.GetLabels(Package)
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Package.ToString(), label[0].Name)
@@ -121,7 +121,7 @@ func TestResult_WithParentSuite(t *testing.T) {
 	result := new(Result)
 	result.WithParentSuite(labelValue)
 
-	label := result.GetLabel(ParentSuite)
+	label := result.GetLabels(ParentSuite)
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, ParentSuite.ToString(), label[0].Name)
@@ -133,7 +133,7 @@ func TestResult_WithSuite(t *testing.T) {
 	result := new(Result)
 	result.WithSuite(labelValue)
 
-	label := result.GetLabel(Suite)
+	label := result.GetLabels(Suite)
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Suite.ToString(), label[0].Name)
@@ -146,7 +146,7 @@ func TestResult_WithSubSuites(t *testing.T) {
 	result := new(Result)
 	result.WithSubSuites(labelValue1, labelValue2)
 
-	label := result.GetLabel(SubSuite)
+	label := result.GetLabels(SubSuite)
 	require.NotNil(t, label)
 	require.Len(t, label, 2)
 	require.Equal(t, SubSuite.ToString(), label[0].Name)
@@ -160,7 +160,7 @@ func TestResult_WithThread(t *testing.T) {
 	result := new(Result)
 	result.WithThread(labelValue)
 
-	label := result.GetLabel(Thread)
+	label := result.GetLabels(Thread)
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Thread.ToString(), label[0].Name)
@@ -205,7 +205,7 @@ func TestResult_SetLabel(t *testing.T) {
 	labelValue1 := "TestValue1"
 	labelValue2 := "TestValue2"
 	result := new(Result)
-	result.SetLabel(FrameWorkLabel(labelValue1), HostLabel(labelValue2))
+	result.AddLabel(FrameWorkLabel(labelValue1), HostLabel(labelValue2))
 
 	label := result.Labels
 	require.NotNil(t, label)
@@ -226,13 +226,13 @@ func TestResult_SetNewLabelMap(t *testing.T) {
 	}
 	result := new(Result)
 	result.SetNewLabelMap(labelMap)
-	labelFramework := result.GetLabel(Framework)
+	labelFramework := result.GetLabels(Framework)
 	require.NotNil(t, labelFramework)
 	require.Len(t, labelFramework, 1)
 	require.Equal(t, Framework.ToString(), labelFramework[0].Name)
 	require.Equal(t, labelValue1, labelFramework[0].Value)
 
-	labelHost := result.GetLabel(Host)
+	labelHost := result.GetLabels(Host)
 	require.NotNil(t, labelFramework)
 	require.Len(t, labelFramework, 1)
 	require.Equal(t, Host.ToString(), labelHost[0].Name)
@@ -252,7 +252,7 @@ func TestResult_WithLaunchTags_withTags(t *testing.T) {
 	result.WithLaunchTags()
 	require.NotNil(t, result.Labels)
 
-	labels := result.GetLabel(Tag)
+	labels := result.GetLabels(Tag)
 	require.Len(t, labels, 2)
 	require.Equal(t, Tag.ToString(), labels[0].Name)
 	require.Equal(t, "tag1", labels[0].Value)

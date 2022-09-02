@@ -17,24 +17,24 @@ func TestNewTestMeta(t *testing.T) {
 	require.Equal(t, "testName", adapter.GetResult().Name)
 	require.Equal(t, "fullName/testName", adapter.GetResult().FullName)
 
-	require.Len(t, adapter.GetResult().GetLabel(allure.Host), 1)
-	require.Equal(t, adapter.GetResult().GetLabel(allure.Host)[0].Value, host)
+	require.Len(t, adapter.GetResult().GetLabels(allure.Host), 1)
+	require.Equal(t, adapter.GetResult().GetLabels(allure.Host)[0].Value, host)
 
-	require.Len(t, adapter.GetResult().GetLabel(allure.Framework), 1)
-	require.Equal(t, adapter.GetResult().GetLabel(allure.Framework)[0].Value, allure.DefaultVersion)
+	require.Len(t, adapter.GetResult().GetLabels(allure.Framework), 1)
+	require.Equal(t, adapter.GetResult().GetLabels(allure.Framework)[0].Value, allure.DefaultVersion)
 
-	require.Len(t, adapter.GetResult().GetLabel(allure.Thread), 1)
-	require.Equal(t, "fullName/testName", adapter.GetResult().GetLabel(allure.Thread)[0].Value)
+	require.Len(t, adapter.GetResult().GetLabels(allure.Thread), 1)
+	require.Equal(t, "fullName/testName", adapter.GetResult().GetLabels(allure.Thread)[0].Value)
 
-	require.Len(t, adapter.GetResult().GetLabel(allure.Suite), 1)
-	require.Equal(t, "suiteName", adapter.GetResult().GetLabel(allure.Suite)[0].Value)
+	require.Len(t, adapter.GetResult().GetLabels(allure.Suite), 1)
+	require.Equal(t, "suiteName", adapter.GetResult().GetLabels(allure.Suite)[0].Value)
 
-	require.Len(t, adapter.GetResult().GetLabel(allure.Package), 1)
-	require.Equal(t, "packageName", adapter.GetResult().GetLabel(allure.Package)[0].Value)
+	require.Len(t, adapter.GetResult().GetLabels(allure.Package), 1)
+	require.Equal(t, "packageName", adapter.GetResult().GetLabels(allure.Package)[0].Value)
 
-	require.Len(t, adapter.GetResult().GetLabel(allure.Tag), 2)
-	require.Equal(t, "tag1", adapter.GetResult().GetLabel(allure.Tag)[0].Value)
-	require.Equal(t, "tag2", adapter.GetResult().GetLabel(allure.Tag)[1].Value)
+	require.Len(t, adapter.GetResult().GetLabels(allure.Tag), 2)
+	require.Equal(t, "tag1", adapter.GetResult().GetLabels(allure.Tag)[0].Value)
+	require.Equal(t, "tag2", adapter.GetResult().GetLabels(allure.Tag)[1].Value)
 
 }
 

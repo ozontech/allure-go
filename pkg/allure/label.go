@@ -8,8 +8,8 @@ type Label struct {
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
-func NewLabel(labelType LabelType, value string) Label {
-	return Label{
+func NewLabel(labelType LabelType, value string) *Label {
+	return &Label{
 		Name:  labelType.ToString(),
 		Value: value,
 	}
@@ -59,28 +59,28 @@ func (s SeverityType) ToString() string {
 }
 
 // LanguageLabel returns Language Label
-func LanguageLabel(language string) Label {
+func LanguageLabel(language string) *Label {
 	return NewLabel(Language, language)
 }
 
 // FrameWorkLabel returns Framework Label
-func FrameWorkLabel(framework string) Label {
+func FrameWorkLabel(framework string) *Label {
 	return NewLabel(Framework, framework)
 }
 
 // IDLabel returns ID Label
-func IDLabel(testID string) Label {
+func IDLabel(testID string) *Label {
 	return NewLabel(ID, testID)
 }
 
 // TagLabel returns Tag Label
-func TagLabel(tag string) Label {
+func TagLabel(tag string) *Label {
 	return NewLabel(Tag, tag)
 }
 
 // TagLabels returns array of Tag Label
-func TagLabels(tags ...string) []Label {
-	var result []Label
+func TagLabels(tags ...string) []*Label {
+	var result []*Label
 	for _, tag := range tags {
 		result = append(result, TagLabel(tag))
 	}
@@ -88,66 +88,66 @@ func TagLabels(tags ...string) []Label {
 }
 
 // HostLabel returns Host Label
-func HostLabel(host string) Label {
+func HostLabel(host string) *Label {
 	return NewLabel(Host, host)
 }
 
 // ThreadLabel returns Thread Label
-func ThreadLabel(thread string) Label {
+func ThreadLabel(thread string) *Label {
 	return NewLabel(Thread, thread)
 }
 
 // SeverityLabel returns Severity Label
-func SeverityLabel(severity SeverityType) Label {
+func SeverityLabel(severity SeverityType) *Label {
 	return NewLabel(Severity, severity.ToString())
 }
 
 // SubSuiteLabel returns SubSuite Label
-func SubSuiteLabel(subSuite string) Label {
+func SubSuiteLabel(subSuite string) *Label {
 	return NewLabel(SubSuite, subSuite)
 }
 
 // EpicLabel returns Epic Label
-func EpicLabel(epic string) Label {
+func EpicLabel(epic string) *Label {
 	return NewLabel(Epic, epic)
 }
 
 // StoryLabel returns Story Label
-func StoryLabel(story string) Label {
+func StoryLabel(story string) *Label {
 	return NewLabel(Story, story)
 }
 
 // FeatureLabel returns Feature Label
-func FeatureLabel(feature string) Label {
+func FeatureLabel(feature string) *Label {
 	return NewLabel(Feature, feature)
 }
 
 // ParentSuiteLabel returns ParentSuite Label
-func ParentSuiteLabel(parent string) Label {
+func ParentSuiteLabel(parent string) *Label {
 	return NewLabel(ParentSuite, parent)
 }
 
 // SuiteLabel returns Suite Label
-func SuiteLabel(suite string) Label {
+func SuiteLabel(suite string) *Label {
 	return NewLabel(Suite, suite)
 }
 
 // PackageLabel returns Package Label
-func PackageLabel(packageName string) Label {
+func PackageLabel(packageName string) *Label {
 	return NewLabel(Package, packageName)
 }
 
 // OwnerLabel returns Owner Label
-func OwnerLabel(ownerName string) Label {
+func OwnerLabel(ownerName string) *Label {
 	return NewLabel(Owner, ownerName)
 }
 
 // LeadLabel returns Lead Label
-func LeadLabel(leadName string) Label {
+func LeadLabel(leadName string) *Label {
 	return NewLabel(Lead, leadName)
 }
 
 // IDAllureLabel returns AllureID Label
-func IDAllureLabel(allureID string) Label {
+func IDAllureLabel(allureID string) *Label {
 	return NewLabel(AllureID, allureID)
 }
