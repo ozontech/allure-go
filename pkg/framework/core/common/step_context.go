@@ -22,6 +22,8 @@ type StepT interface {
 	Errorf(format string, args ...interface{})
 	Log(args ...interface{})
 	Logf(format string, args ...interface{})
+	Break(args ...interface{})
+	Breakf(format string, args ...interface{})
 	Name() string
 }
 
@@ -188,4 +190,14 @@ func (ctx *stepCtx) Broken() {
 	if ctx.parentStep != nil {
 		ctx.parentStep.Broken()
 	}
+}
+
+func (ctx *stepCtx) Break(args ...interface{}) {
+	ctx.Broken()
+	ctx.t.Break(args...)
+}
+
+func (ctx *stepCtx) Breakf(format string, args ...interface{}) {
+	ctx.Broken()
+	ctx.t.Breakf(format, args...)
 }

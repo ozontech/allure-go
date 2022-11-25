@@ -137,6 +137,22 @@ func (c *Common) Fatalf(format string, args ...interface{}) {
 	c.TestingT.Fatalf(format, args...)
 }
 
+// Break ...
+func (c *Common) Break(args ...interface{}) {
+	c.safely(func(result *allure.Result) {
+		result.Status = allure.Broken
+	})
+	c.Fatal(args...)
+}
+
+// Breakf ...
+func (c *Common) Breakf(format string, args ...interface{}) {
+	c.safely(func(result *allure.Result) {
+		result.Status = allure.Broken
+	})
+	c.Fatalf(format, args...)
+}
+
 // Name ...
 func (c *Common) Name() string {
 	if c.GetProvider() != nil && c.GetProvider().GetResult() != nil {
@@ -157,6 +173,22 @@ func (c *Common) FailNow() {
 		if result.Status != allure.Broken {
 			result.Status = allure.Failed
 		}
+	})
+	c.TestingT.FailNow()
+}
+
+// Broken ...
+func (c *Common) Broken() {
+	c.safely(func(result *allure.Result) {
+		result.Status = allure.Broken
+	})
+	c.TestingT.Fail()
+}
+
+// BrokenNow ...
+func (c *Common) BrokenNow() {
+	c.safely(func(result *allure.Result) {
+		result.Status = allure.Broken
 	})
 	c.TestingT.FailNow()
 }
