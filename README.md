@@ -50,6 +50,8 @@ Check out [our example](./examples/suite_demo/setup_test.go) for more informatio
 :information_source: Yes, it works with t.Parallel, but HIGHLY recommended to run t.Parallel AFTER TestSetup.<br>
 :information_source: Yes, it works with TableTest.<br>
 
+
+
 **Release v0.6.16**
 
 #### :zap: Parametrized tests

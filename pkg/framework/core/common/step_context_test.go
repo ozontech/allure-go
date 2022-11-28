@@ -64,6 +64,7 @@ func (m *providerTMockStep) Failed() bool {
 
 func (m *providerTMockStep) Error(args ...interface{}) {
 	m.error = true
+	m.failed = true
 }
 
 func (m *providerTMockStep) Log(args ...interface{}) {
