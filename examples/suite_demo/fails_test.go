@@ -110,6 +110,110 @@ func (s *FailsDemoSuite) TestPanicInnerSteps(t provider.T) {
 	})
 }
 
+func (s *FailsDemoSuite) TestBrokenStatusNoMessage(t provider.T) {
+	t.Title("This test fails with broken status")
+	t.Description(`
+		This Test will Failed as Fail().
+		Test status will be "Broken" in allure.
+		No any message expected there`)
+
+	t.Tags("fail", "broken")
+
+	t.NewStep("This step will be reached before failing")
+	t.Broken()
+	t.NewStep("This step will be reached after failing")
+}
+
+func (s *FailsDemoSuite) TestBrokenNowStatusNoMessage(t provider.T) {
+	t.Title("This test fails immediately with broken status")
+	t.Description(`
+		This Test will Failed as Fail().
+		Test status will be "Broken" in allure.
+		No any message expected there`)
+
+	t.Tags("fail", "broken")
+
+	t.NewStep("This step will be reached before failing")
+	t.BrokenNow()
+	t.NewStep("This step will never be reached after failing")
+}
+
+func (s *FailsDemoSuite) TestBrokenNowStatusMessage(t provider.T) {
+	t.Title("This test fails immediately with broken status and message")
+	t.Description(`
+		This Test will Failed as FailNow().
+		Test status will be "Broken" in allure.
+		No any message expected there`)
+
+	t.Tags("fail", "broken")
+
+	t.NewStep("This step will be reached before failing")
+	t.Breakf("Test fails as FailNow()")
+	t.NewStep("This step will never be reached after failing")
+}
+
+func (s *FailsDemoSuite) TestBrokenStatusNoMessageStep(t provider.T) {
+	t.Title("This test fails with broken status inside step")
+	t.Description(`
+		This Test will Failed as Fail().
+		Test status will be "Broken" in allure.
+		No any message expected there`)
+
+	t.Tags("fail", "broken")
+
+	t.WithNewStep("This step will be broken", func(sCtx provider.StepCtx) {
+		sCtx.Broken()
+	})
+	t.NewStep("This step will be reached after failing")
+}
+
+func (s *FailsDemoSuite) TestBrokenNowStatusNoMessageStep(t provider.T) {
+	t.Title("This test fails immediately with broken status inside step")
+	t.Description(`
+		This Test will Failed as Fail().
+		Test status will be "Broken" in allure.
+		No any message expected there`)
+
+	t.Tags("fail", "broken")
+
+	t.WithNewStep("This step will be broken", func(sCtx provider.StepCtx) {
+		sCtx.BrokenNow()
+	})
+	t.NewStep("This step will never be reached after failing")
+}
+
+func (s *FailsDemoSuite) TestBrokenNowStatusMessageStep(t provider.T) {
+	t.Title("This test fails immediately with broken status and message inside step")
+	t.Description(`
+		This Test will Failed as FailNow().
+		Test status will be "Broken" in allure.
+		No any message expected there`)
+
+	t.Tags("fail", "broken")
+
+	t.WithNewStep("This step will be broken", func(sCtx provider.StepCtx) {
+		sCtx.Breakf("Test fails as FailNow()")
+	})
+	t.NewStep("This step will never be reached after failing")
+}
+
+func (s *FailsDemoSuite) TestBrokenNowStatusMessageInnerStep(t provider.T) {
+	t.Title("This test fails immediately with broken status and message inside inner step")
+	t.Description(`
+		This Test will Failed as FailNow().
+		Test status will be "Broken" in allure.
+		No any message expected there`)
+
+	t.Tags("fail", "broken", "inner")
+
+	t.WithNewStep("This step will be broken", func(sCtx provider.StepCtx) {
+		sCtx.WithNewStep("Inner step", func(sCtx provider.StepCtx) {
+			sCtx.Breakf("Test fails as FailNow()")
+		})
+	})
+	t.NewStep("This step will never be reached after failing")
+}
+
 func TestFails(t *testing.T) {
 	t.Parallel()
 	suite.RunSuite(t, new(FailsDemoSuite))

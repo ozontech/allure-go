@@ -59,6 +59,7 @@ type StepCtx interface {
 	CurrentStep() *allure.Step
 
 	Broken()
+	BrokenNow()
 
 	Fail()
 	FailNow()

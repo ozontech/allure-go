@@ -47,9 +47,9 @@ func (c *Common) registerError(fullMessage string) {
 			c.Skip(fullMessage)
 		}
 		result.Status = allure.Failed
-		result.StatusDetails.Message = extractErrorMessages(fullMessage)
-		result.StatusDetails.Trace = fmt.Sprintf("%s\n%s", result.StatusDetails.Trace, fullMessage)
 	}
+	result.StatusDetails.Message = extractErrorMessages(fullMessage)
+	result.StatusDetails.Trace = fmt.Sprintf("%s\n%s", result.StatusDetails.Trace, fullMessage)
 }
 
 func (c *Common) safely(f func(result *allure.Result)) {
@@ -142,7 +142,9 @@ func (c *Common) Break(args ...interface{}) {
 	c.safely(func(result *allure.Result) {
 		result.Status = allure.Broken
 	})
-	c.Fatal(args...)
+	fullMessage := fmt.Sprintf("%s", args...)
+	c.registerError(fullMessage)
+	c.FailNow()
 }
 
 // Breakf ...
@@ -150,7 +152,9 @@ func (c *Common) Breakf(format string, args ...interface{}) {
 	c.safely(func(result *allure.Result) {
 		result.Status = allure.Broken
 	})
-	c.Fatalf(format, args...)
+	fullMessage := fmt.Sprintf(format, args...)
+	c.registerError(fullMessage)
+	c.FailNow()
 }
 
 // Name ...
