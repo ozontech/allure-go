@@ -15,6 +15,7 @@ func (c *Common) WithNewStep(stepName string, step func(ctx provider.StepCtx), p
 	defer c.Step(stCtx.CurrentStep())
 	defer func() {
 		r := recover()
+		stCtx.WG().Wait()
 		stCtx.CurrentStep().Finish()
 		if r != nil {
 			ctxName := c.ExecutionContext().GetName()
