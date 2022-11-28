@@ -150,6 +150,7 @@ func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx)
 	defer ctx.currentStep.WithChild(newCtx.CurrentStep())
 	defer func() {
 		r := recover()
+		newCtx.WG().Wait()
 		newCtx.CurrentStep().Finish()
 		if r != nil {
 			ctxName := newCtx.ExecutionContextName()
@@ -168,7 +169,6 @@ func (ctx *stepCtx) WithNewAsyncStep(stepName string, step func(ctx provider.Ste
 		wg = ctx.parentStep.WG()
 	}
 	wg.Add(1)
-	defer wg.Wait()
 
 	go func() {
 		defer wg.Done()
