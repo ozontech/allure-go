@@ -20,7 +20,24 @@ type providerTMockStep struct {
 	log     bool
 	logf    bool
 	failNow bool
+	failed  bool
 	name    string
+}
+
+func (m *providerTMockStep) Break(args ...interface{}) {
+	m.failed = true
+}
+
+func (m *providerTMockStep) Breakf(format string, args ...interface{}) {
+	m.failed = true
+}
+
+func (m *providerTMockStep) Broken() {
+	m.failed = true
+}
+
+func (m *providerTMockStep) BrokenNow() {
+	m.failed = true
 }
 
 func newStepProviderMock() *providerTMockStep {
@@ -33,10 +50,16 @@ func (m *providerTMockStep) Step(step *allure.Step) {
 
 func (m *providerTMockStep) Errorf(format string, args ...interface{}) {
 	m.errorF = true
+	m.failed = true
 }
 
 func (m *providerTMockStep) FailNow() {
 	m.failNow = true
+	m.failed = true
+}
+
+func (m *providerTMockStep) Failed() bool {
+	return m.failed
 }
 
 func (m *providerTMockStep) Error(args ...interface{}) {
@@ -139,7 +162,7 @@ func TestStepCtx_NewChildCtx(t *testing.T) {
 }
 
 func TestStepCtx_Broken_noParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Broken()
@@ -148,7 +171,7 @@ func TestStepCtx_Broken_noParent(t *testing.T) {
 }
 
 func TestStepCtx_Broken_withParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	parentStep := allure.NewSimpleStep("parentStep")
 	parentCtx := &stepCtx{t: mockT, currentStep: parentStep}
 	step := allure.NewSimpleStep("testStep")
@@ -168,7 +191,7 @@ func TestStepCtx_FailNow(t *testing.T) {
 }
 
 func TestStepCtx_Fail_noParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Fail()
@@ -177,7 +200,7 @@ func TestStepCtx_Fail_noParent(t *testing.T) {
 }
 
 func TestStepCtx_Fail_withParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	parentStep := allure.NewSimpleStep("parentStep")
 	parentCtx := &stepCtx{t: mockT, currentStep: parentStep}
 	step := allure.NewSimpleStep("testStep")
@@ -204,7 +227,7 @@ func TestStepCtx_Step(t *testing.T) {
 }
 
 func TestStepCtx_Errorf_withParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	parentStep := allure.NewSimpleStep("parentStep")
 	parentCtx := &stepCtx{t: mockT, currentStep: parentStep}
 	step := allure.NewSimpleStep("testStep")
@@ -216,7 +239,7 @@ func TestStepCtx_Errorf_withParent(t *testing.T) {
 }
 
 func TestStepCtx_Errorf_noParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Errorf("test")
@@ -225,7 +248,7 @@ func TestStepCtx_Errorf_noParent(t *testing.T) {
 }
 
 func TestStepCtx_Error_withParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	parentStep := allure.NewSimpleStep("parentStep", allure.NewParameters("paramParent1", "v1", "paramParent2", "v2")...)
 	parentCtx := &stepCtx{t: mockT, currentStep: parentStep}
 	step := allure.NewSimpleStep("testStep")
@@ -237,7 +260,7 @@ func TestStepCtx_Error_withParent(t *testing.T) {
 }
 
 func TestStepCtx_Error_noParent(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Error("test")
@@ -266,7 +289,7 @@ func TestStepCtx_WG(t *testing.T) {
 }
 
 func TestStepCtx_WithParameters(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 
 	params := allure.NewParameters("p1", "v1", "p2", "v2")
@@ -280,7 +303,7 @@ func TestStepCtx_WithParameters(t *testing.T) {
 }
 
 func TestStepCtx_WithNewParameters(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 
 	ctx := stepCtx{t: mockT, currentStep: step}
@@ -296,7 +319,7 @@ func TestStepCtx_WithNewParameters(t *testing.T) {
 }
 
 func TestStepCtx_WithAttachments(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 
 	ctx := stepCtx{t: mockT, currentStep: step}
@@ -313,7 +336,7 @@ func TestStepCtx_WithAttachments(t *testing.T) {
 }
 
 func TestStepCtx_WithNewAttachment(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 
 	ctx := stepCtx{t: mockT, currentStep: step}
@@ -327,7 +350,7 @@ func TestStepCtx_WithNewAttachment(t *testing.T) {
 }
 
 func TestStepCtx_NewStep(t *testing.T) {
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 
 	ctx := stepCtx{t: mockT, currentStep: step}
@@ -349,7 +372,7 @@ func TestStepCtx_WithNewStep(t *testing.T) {
 		flag = true
 	}
 
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 
 	ctx := stepCtx{t: mockT, currentStep: step}
@@ -375,7 +398,7 @@ func TestStepCtx_WithNewAsyncStep(t *testing.T) {
 		defer wg.Done()
 	}
 
-	mockT := new(testing.T)
+	mockT := new(providerTMockStep)
 	step := allure.NewSimpleStep("testStep")
 
 	ctx := stepCtx{t: mockT, currentStep: step}
