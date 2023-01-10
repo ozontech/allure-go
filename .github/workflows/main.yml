@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.17.8'
       - name: allure-golangci-lint
         run: cd ./pkg/allure && make lint
       - name: provider-golangci-lint
