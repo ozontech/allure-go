@@ -22,6 +22,10 @@ type T interface {
 
 	RealT() TestingT
 	XSkip()
+	Break(args ...interface{})
+	Breakf(format string, args ...interface{})
+	Broken()
+	BrokenNow()
 	SkipOnPrint()
 	Assert() Asserts
 	Require() Asserts
@@ -55,6 +59,7 @@ type StepCtx interface {
 	CurrentStep() *allure.Step
 
 	Broken()
+	BrokenNow()
 
 	Fail()
 	FailNow()
@@ -62,6 +67,8 @@ type StepCtx interface {
 	Logf(format string, args ...interface{})
 	Error(args ...interface{})
 	Errorf(format string, args ...interface{})
+	Break(args ...interface{})
+	Breakf(format string, args ...interface{})
 	Name() string
 }
 

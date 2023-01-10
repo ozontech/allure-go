@@ -173,6 +173,7 @@ type stepsStepsCommTMock struct {
 	errorf     string
 	errorfFlag bool
 	failNow    bool
+	fail       bool
 	parallel   bool
 	run        bool
 	skipped    bool
@@ -196,6 +197,10 @@ func (m *stepsStepsCommTMock) Errorf(format string, args ...interface{}) {
 
 func (m *stepsStepsCommTMock) Error(args ...interface{}) {
 	m.errorfFlag = true
+}
+
+func (m *stepsStepsCommTMock) Fail() {
+	m.fail = true
 }
 
 func (m *stepsStepsCommTMock) FailNow() {

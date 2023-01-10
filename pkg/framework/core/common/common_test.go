@@ -50,6 +50,14 @@ type providerMockCommon struct {
 	executionMock *executionContextCommMock
 }
 
+func newProviderMockCommon(name, fullName string) *providerMockCommon {
+	return &providerMockCommon{
+		testMetaMock:  &testMetaMockCommon{result: allure.NewResult(name, fullName)},
+		suiteMetaMock: nil,
+		executionMock: nil,
+	}
+}
+
 func (m *providerMockCommon) GetResult() *allure.Result {
 	return m.testMetaMock.GetResult()
 }
@@ -228,26 +236,14 @@ func TestCommon_Require(t *testing.T) {
 
 func TestCommon_Error(t *testing.T) {
 	mock := newCommonTMock()
-	cfg := manager.NewProviderConfig().
-		WithRunner("WithRunner").
-		WithPackageName("WithPackageName").
-		WithSuiteName("WithSuiteName").
-		WithFullName("WithFullName")
-
-	comm := Common{TestingT: mock, Provider: manager.NewProvider(cfg)}
+	comm := Common{TestingT: mock, Provider: newProviderMockCommon("name", "fullName")}
 	comm.Error("test")
 	require.True(t, mock.errorfFlag)
 }
 
 func TestCommon_Errorf(t *testing.T) {
 	mock := newCommonTMock()
-	cfg := manager.NewProviderConfig().
-		WithRunner("WithRunner").
-		WithPackageName("WithPackageName").
-		WithSuiteName("WithSuiteName").
-		WithFullName("WithFullName")
-
-	comm := Common{TestingT: mock, Provider: manager.NewProvider(cfg)}
+	comm := Common{TestingT: mock, Provider: newProviderMockCommon("name", "fullName")}
 	comm.Errorf("test")
 	require.True(t, mock.errorfFlag)
 }
