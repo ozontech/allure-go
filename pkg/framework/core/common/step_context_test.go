@@ -58,6 +58,10 @@ func (m *providerTMockStep) FailNow() {
 	m.failed = true
 }
 
+func (m *providerTMockStep) Fail() {
+	m.failed = true
+}
+
 func (m *providerTMockStep) Failed() bool {
 	return m.failed
 }
@@ -167,7 +171,7 @@ func TestStepCtx_Broken_noParent(t *testing.T) {
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Broken()
-	require.False(t, mockT.Failed())
+	require.True(t, mockT.Failed())
 	require.Equal(t, allure.Broken, step.Status)
 }
 
@@ -178,7 +182,7 @@ func TestStepCtx_Broken_withParent(t *testing.T) {
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step, parentStep: parentCtx}
 	ctx.Broken()
-	require.False(t, mockT.Failed())
+	require.True(t, mockT.Failed())
 	require.Equal(t, allure.Broken, step.Status)
 	require.Equal(t, allure.Broken, parentStep.Status)
 }
