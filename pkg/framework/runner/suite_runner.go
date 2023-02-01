@@ -67,6 +67,8 @@ func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, 
 	return r
 }
 
+// collectTests filters suite methods according to set regular expression and
+// adds filtered methods to tests of runner
 func collectTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
 	var (
 		methodFinder  = reflect.TypeOf(suite)
@@ -105,6 +107,9 @@ type parametrizedTest interface {
 	GetMeta() provider.TestMeta
 }
 
+// parametrizedWrap executes beforeAll function, finds test methods with tableTestPrefix,
+// gets map with parameters, gets map with parameterized tests,
+// replaces tests in runner with parameterized tests with results
 func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t provider.T) {
 	return func(t provider.T) {
 		beforeAll(t)
@@ -130,6 +135,8 @@ func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t pr
 	}
 }
 
+// getParamTests create instance of TestAdapter for every param from params
+// and returns map whose elements are a pair (<param name>, <pointer to instance of testMethod>)
 func getParamTests(parentTest Test, params map[string]interface{}) map[string]Test {
 	if paramTest, ok := parentTest.(parametrizedTest); ok {
 		var (
@@ -169,6 +176,9 @@ func getParamTests(parentTest Test, params map[string]interface{}) map[string]Te
 	panic(fmt.Sprintf("missing interface implementaion (parametrizedTest) for test: %s", parentTest.GetMeta().GetResult().Name))
 }
 
+// getParams checks that the parameter extending the suite is of the slice type
+// and returns a map whose elements are a pair
+// (<method name without tableTestPrefix>_<value of slice element>, <value of slice element>)
 func getParams(suite TestSuite, methodName string) (res map[string]interface{}, err error) {
 	var (
 		structSuite = reflect.ValueOf(suite).Elem()
