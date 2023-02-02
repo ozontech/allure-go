@@ -184,6 +184,9 @@ func getParams(suite TestSuite, methodName string) (res map[string]interface{}, 
 		paramV := params.Index(i)
 		param := reflect.NewAt(paramV.Type(), unsafe.Pointer(paramV.UnsafeAddr())).Elem().Interface()
 		pName := fmt.Sprintf("%s_%+v", paramName, param)
+		if len(pName) > 150 { // workaround for t.TempDir()
+			pName = pName[:150]
+		}
 		res[pName] = param
 	}
 	return
