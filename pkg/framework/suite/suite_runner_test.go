@@ -1,14 +1,14 @@
 package suite
 
 import (
-	"github.com/ozontech/allure-go/pkg/framework/runner"
 	"os"
 	"sync"
 	"testing"
-
-	"github.com/stretchr/testify/require"
+	"time"
 
 	"github.com/ozontech/allure-go/pkg/framework/provider"
+	"github.com/ozontech/allure-go/pkg/framework/runner"
+	"github.com/stretchr/testify/require"
 )
 
 type suiteRunnerTMock struct {
@@ -138,4 +138,33 @@ func TestRunner_hooks(t *testing.T) {
 	require.True(t, suite.afterEach)
 	require.True(t, suite.afterAll)
 	require.True(t, suite.testSome1)
+}
+
+type TestSuiteStartTimeOfConsistentTests struct {
+	Suite
+}
+
+func (s *TestSuiteStartTimeOfConsistentTests) TestSome1(t provider.T) {
+	t.WithNewStep("step 1", func(sCtx provider.StepCtx) {
+		time.Sleep(1 * time.Second)
+	})
+}
+
+func (s *TestSuiteStartTimeOfConsistentTests) TestSome2(t provider.T) {
+	t.WithNewStep("step 2", func(sCtx provider.StepCtx) {
+		time.Sleep(1 * time.Second)
+	})
+}
+
+func TestSuiteRunner_StartTimeAndDurationOfConsistentTests(t *testing.T) {
+	allureDir := "./allure-results"
+	defer os.RemoveAll(allureDir)
+
+	suite := new(TestSuiteStartTimeOfConsistentTests)
+	r := runner.NewSuiteRunner(t, "packageName", "suiteName", suite)
+	results := r.RunTests().GetAllTestResults()
+
+	require.True(t, results[1].GetResult().Start-results[0].GetResult().Stop <= 15)
+	require.Equal(t, time.UnixMilli(results[0].GetResult().Stop-results[0].GetResult().Start).Second(), 1)
+	require.Equal(t, time.UnixMilli(results[1].GetResult().Stop-results[1].GetResult().Start).Second(), 1)
 }
