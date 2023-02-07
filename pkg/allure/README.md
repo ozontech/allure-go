@@ -56,6 +56,8 @@ Supported test statuses:
 | `Broken`  | `broken`  |
 | `Unknown` | `unknown` |
 
+NOTE: Tests failed in the BeforeAll/BeforeEach functions have the status Unknown
+
 ## Attachment
 
 [`allure.Attachment`](attachment.go) - is the implementation of the appendices to the report in allure. It is most often used to contain
