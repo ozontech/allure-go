@@ -168,7 +168,7 @@ func (r *runner) RunTests() SuiteResult {
 			for _, testData := range r.tests {
 				test := testData
 				wg.Add(1)
-				r.realT().Run(test.GetMeta().GetResult().Name, func(t *testing.T) {
+				r.realT().Run(test.GetMeta().GetResult().Begin().Name, func(t *testing.T) {
 					defer wg.Done()
 					defer func() {
 						result.NewResult(finishTest(t, test.GetMeta()))
