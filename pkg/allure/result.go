@@ -19,6 +19,7 @@ import (
 type Result struct {
 	Name          string        `json:"name,omitempty"`          // Test name
 	FullName      string        `json:"fullName,omitempty"`      // Full path to the test
+	Stage         string        `json:"stage,omitempty"`         // Stage of test execution
 	Status        Status        `json:"status,omitempty"`        // Status of the test execution
 	StatusDetails StatusDetail  `json:"statusDetails,omitempty"` // Details about the test (for example, errors during test execution will be recorded here)
 	Start         int64         `json:"start,omitempty"`         // Start of test execution
@@ -116,6 +117,13 @@ func (result *Result) SetNewLabelMap(kv map[LabelType]string) {
 		labels = append(labels, NewLabel(k, v))
 	}
 	result.AddLabel(labels...)
+}
+
+// WithStage sets Stage field to result
+// Returns a pointer to the current `allure.Result` (for Fluent Interface).
+func (result *Result) WithStage(stage string) *Result {
+	result.Stage = stage
+	return result
 }
 
 // WithParentSuite Adds `allure.Label` with type `Parent` to the report.
