@@ -33,3 +33,17 @@ func (a *allureManager) Descriptionf(format string, args ...interface{}) {
 		result.Description = fmt.Sprintf(format, args...)
 	})
 }
+
+// Stage provides staqe to test result(using fmt.Sprint)
+func (a *allureManager) Stage(args ...interface{}) {
+	a.safely(func(result *allure.Result) {
+		result.Stage = fmt.Sprint(args...)
+	})
+}
+
+// Stagef provides staqe to test result(using fmt.Sprintf)
+func (a *allureManager) Stagef(format string, args ...interface{}) {
+	a.safely(func(result *allure.Result) {
+		result.Stage = fmt.Sprintf(format, args...)
+	})
+}

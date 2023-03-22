@@ -45,6 +45,8 @@ type DescriptionFields interface {
 	Titlef(format string, args ...interface{})
 	Description(args ...interface{})
 	Descriptionf(format string, args ...interface{})
+	Stage(args ...interface{})
+	Stagef(format string, args ...interface{})
 }
 
 type AllureSteps interface {
