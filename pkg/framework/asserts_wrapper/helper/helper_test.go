@@ -336,7 +336,7 @@ func TestAssertNotContains_Success(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Not Contains", params[1].Name)
+	require.Equal(t, "Should Not Contain", params[1].Name)
 	require.Equal(t, "\"4\"", params[1].Value)
 
 	require.False(t, mockT.errorF)
@@ -359,7 +359,7 @@ func TestAssertNotContains_Failed(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Not Contains", params[1].Name)
+	require.Equal(t, "Should Not Contain", params[1].Name)
 	require.Equal(t, "\"est\"", params[1].Value)
 
 	require.True(t, mockT.errorF)
@@ -381,7 +381,7 @@ func TestAssertContains_Success(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Contains", params[1].Name)
+	require.Equal(t, "Should Contain", params[1].Name)
 	require.Equal(t, "\"est\"", params[1].Value)
 
 	require.False(t, mockT.errorF)
@@ -404,7 +404,7 @@ func TestAssertContains_Failed(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Contains", params[1].Name)
+	require.Equal(t, "Should Contain", params[1].Name)
 	require.Equal(t, "\"4\"", params[1].Value)
 
 	require.True(t, mockT.errorF)
@@ -1440,7 +1440,7 @@ func TestRequireNotContains_Success(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Not Contains", params[1].Name)
+	require.Equal(t, "Should Not Contain", params[1].Name)
 	require.Equal(t, "\"4\"", params[1].Value)
 
 	require.False(t, mockT.errorF)
@@ -1463,7 +1463,7 @@ func TestRequireNotContains_Failed(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Not Contains", params[1].Name)
+	require.Equal(t, "Should Not Contain", params[1].Name)
 	require.Equal(t, "\"est\"", params[1].Value)
 
 	require.True(t, mockT.errorF)
@@ -1485,7 +1485,7 @@ func TestRequireContains_Success(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Contains", params[1].Name)
+	require.Equal(t, "Should Contain", params[1].Name)
 	require.Equal(t, "\"est\"", params[1].Value)
 
 	require.False(t, mockT.errorF)
@@ -1508,7 +1508,7 @@ func TestRequireContains_Failed(t *testing.T) {
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
 	require.Equal(t, "\"test\"", params[0].Value)
-	require.Equal(t, "Should Contains", params[1].Name)
+	require.Equal(t, "Should Contain", params[1].Name)
 	require.Equal(t, "\"4\"", params[1].Value)
 
 	require.True(t, mockT.errorF)
