@@ -43,7 +43,8 @@ const (
 	Webm MimeType = "video/webm"
 	Mpeg MimeType = "video/mpeg"
 
-	Pdf MimeType = "application/pdf"
+	Pdf  MimeType = "application/pdf"
+	Xlsx MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
 var mimeTypeMap = map[MimeType]string{
@@ -67,6 +68,7 @@ var mimeTypeMap = map[MimeType]string{
 	Webm:    "webm",
 	Mpeg:    "mpeg",
 	Pdf:     "pdf",
+	Xlsx:    "xlsx",
 }
 
 // NewAttachment - Constructor. Returns pointer to new attachment object.
