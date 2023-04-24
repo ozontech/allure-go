@@ -341,7 +341,7 @@ func (a *asserts) Contains(provider Provider, s interface{}, contains interface{
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.Contains(t, s, contains, msgAndArgs...) },
-		allure.NewParameters("Target Struct", sString, "Should Contains", containsString),
+		allure.NewParameters("Target Struct", sString, "Should Contain", containsString),
 		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
@@ -358,7 +358,7 @@ func (a *asserts) NotContains(provider Provider, s interface{}, contains interfa
 		provider,
 		assertName,
 		func(t TestingT) bool { return assert.NotContains(t, s, contains, msgAndArgs...) },
-		allure.NewParameters("Target Struct", sString, "Should Not Contains", containsString),
+		allure.NewParameters("Target Struct", sString, "Should Not Contain", containsString),
 		msgAndArgs...,
 	)
 	if !success && a.resultHelper.required {
