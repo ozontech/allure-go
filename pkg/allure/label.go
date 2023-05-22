@@ -20,6 +20,7 @@ type LabelType string
 // LabelType constants
 const (
 	Epic        LabelType = "epic"
+	Layer       LabelType = "layer"
 	Feature     LabelType = "feature"
 	Story       LabelType = "story"
 	ID          LabelType = "as_id"
@@ -32,7 +33,6 @@ const (
 	Host        LabelType = "host"
 	Tag         LabelType = "tag"
 	Framework   LabelType = "framework"
-	Layer       LabelType = "layer"
 	Language    LabelType = "language"
 	Owner       LabelType = "owner"
 	Lead        LabelType = "lead"
