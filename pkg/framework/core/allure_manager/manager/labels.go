@@ -39,6 +39,11 @@ func (a *allureManager) Epic(value string) {
 	a.Label(allure.EpicLabel(value))
 }
 
+// Layer adds Layer label to test result
+func (a *allureManager) Layer(value string) {
+	a.Label(allure.LayerLabel(value))
+}
+
 // Feature adds Feature label to test result
 func (a *allureManager) Feature(value string) {
 	a.Label(allure.FeatureLabel(value))

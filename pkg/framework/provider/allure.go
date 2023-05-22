@@ -22,6 +22,7 @@ type DescriptionLabels interface {
 	ID(value string)
 	AllureID(value string)
 	Epic(value string)
+	Layer(value string)
 	Feature(value string)
 	Story(value string)
 	Severity(severityType allure.SeverityType)

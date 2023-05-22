@@ -64,6 +64,7 @@ func (s *StepDemoSuite) TestQuickWorkWithSteps(t provider.T) {
 
 func (s *StepDemoSuite) TestInnerStep(t provider.T) {
 	t.Epic("Demo")
+	t.Layer("Layer")
 	t.Feature("Steps")
 	t.Title("Add child steps to existed step.")
 	t.Description(`

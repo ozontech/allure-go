@@ -32,6 +32,7 @@ const (
 	Host        LabelType = "host"
 	Tag         LabelType = "tag"
 	Framework   LabelType = "framework"
+	Layer       LabelType = "layer"
 	Language    LabelType = "language"
 	Owner       LabelType = "owner"
 	Lead        LabelType = "lead"
@@ -110,6 +111,11 @@ func SubSuiteLabel(subSuite string) *Label {
 // EpicLabel returns Epic Label
 func EpicLabel(epic string) *Label {
 	return NewLabel(Epic, epic)
+}
+
+// LayerLabel returns Layer Label
+func LayerLabel(layer string) *Label {
+	return NewLabel(Layer, layer)
 }
 
 // StoryLabel returns Story Label
