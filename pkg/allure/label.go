@@ -20,6 +20,7 @@ type LabelType string
 // LabelType constants
 const (
 	Epic        LabelType = "epic"
+	Layer       LabelType = "layer"
 	Feature     LabelType = "feature"
 	Story       LabelType = "story"
 	ID          LabelType = "as_id"
@@ -110,6 +111,11 @@ func SubSuiteLabel(subSuite string) *Label {
 // EpicLabel returns Epic Label
 func EpicLabel(epic string) *Label {
 	return NewLabel(Epic, epic)
+}
+
+// LayerLabel returns Layer Label
+func LayerLabel(layer string) *Label {
+	return NewLabel(Layer, layer)
 }
 
 // StoryLabel returns Story Label

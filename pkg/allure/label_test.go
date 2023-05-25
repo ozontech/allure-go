@@ -8,6 +8,7 @@ import (
 
 func TestLabelType_ToString(t *testing.T) {
 	epic := "epic"
+	layer := "layer"
 	feature := "feature"
 	story := "story"
 	as_id := "as_id"
@@ -26,6 +27,7 @@ func TestLabelType_ToString(t *testing.T) {
 	allure_id := "ALLURE_ID"
 
 	require.Equal(t, epic, Epic.ToString())
+	require.Equal(t, layer, Layer.ToString())
 	require.Equal(t, feature, Feature.ToString())
 	require.Equal(t, story, Story.ToString())
 	require.Equal(t, as_id, ID.ToString())
@@ -60,6 +62,7 @@ func TestSeverityType_ToString(t *testing.T) {
 
 func TestLabelCreation(t *testing.T) {
 	epic := EpicLabel("epicTest")
+	layer := LayerLabel("layerTest")
 	feature := FeatureLabel("featureTest")
 	story := StoryLabel("storyTest")
 	as_id := IDLabel("idTest")
@@ -78,6 +81,7 @@ func TestLabelCreation(t *testing.T) {
 	idAllure := IDAllureLabel("idAllureTest")
 
 	require.Equal(t, epic.Name, Epic.ToString())
+	require.Equal(t, layer.Name, Layer.ToString())
 	require.Equal(t, feature.Name, Feature.ToString())
 	require.Equal(t, story.Name, Story.ToString())
 	require.Equal(t, as_id.Name, ID.ToString())
