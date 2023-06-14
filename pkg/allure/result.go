@@ -302,7 +302,7 @@ func getMD5Hash(text string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-// getTimeSumOfSteps gets start first step start time and last step end time
+// getTimeSumOfSteps gets first step start time and last step end time
 func getTimeSumOfSteps(result *Result) (startTimeInt int64, endTimeInt int64) {
 	startTime := result.Steps[0].Start
 	endTime := result.Steps[0].Start
