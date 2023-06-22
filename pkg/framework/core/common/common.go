@@ -48,8 +48,10 @@ func (c *Common) registerError(fullMessage string) {
 		}
 		result.Status = allure.Failed
 	}
-	result.StatusDetails.Message = extractErrorMessages(fullMessage)
-	result.StatusDetails.Trace = fmt.Sprintf("%s\n%s", result.StatusDetails.Trace, fullMessage)
+	if result != nil {
+		result.StatusDetails.Message = extractErrorMessages(fullMessage)
+		result.StatusDetails.Trace = fmt.Sprintf("%s\n%s", result.StatusDetails.Trace, fullMessage)
+	}
 }
 
 func (c *Common) safely(f func(result *allure.Result)) {
