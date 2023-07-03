@@ -11,5 +11,6 @@ func TestConfig(t *testing.T) {
 	require.Equal(t, "ALLURE_ISSUE_PATTERN", issuePatternEnvKey)
 	require.Equal(t, "ALLURE_TESTCASE_PATTERN", testCasePatternEnvKey)
 	require.Equal(t, "ALLURE_LAUNCH_TAGS", defaultTagsEnvKey)
+	require.Equal(t, "ALLURE_TMS_LINK_PATTERN", tmsLinkPatternEnvKey)
 	require.Equal(t, 0644, fileSystemPermissionCode)
 }

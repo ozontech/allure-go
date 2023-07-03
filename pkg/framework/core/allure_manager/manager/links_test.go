@@ -69,3 +69,23 @@ func TestAllureManager_SetIssue(t *testing.T) {
 	require.Equal(t, "Issue[Issue]", manager.GetResult().Links[0].Name)
 	require.Equal(t, string(allure.ISSUE), manager.GetResult().Links[0].Type)
 }
+
+func TestAllureManager_TmsLink(t *testing.T) {
+	manager := allureManager{testMeta: &testMetaMockLinks{result: &allure.Result{}}}
+	manager.TmsLink("TmsLink")
+	require.NotEmpty(t, manager.GetResult().Links)
+	require.Len(t, manager.GetResult().Links, 1)
+	require.Equal(t, "TmsLink", manager.GetResult().Links[0].Name)
+	require.Equal(t, string(allure.TMS), manager.GetResult().Links[0].Type)
+}
+
+func TestAllureManager_TmsLinks(t *testing.T) {
+	manager := allureManager{testMeta: &testMetaMockLinks{result: &allure.Result{}}}
+	manager.TmsLinks("TmsLink1", "TmsLink2")
+	require.NotEmpty(t, manager.GetResult().Links)
+	require.Len(t, manager.GetResult().Links, 2)
+	require.Equal(t, "TmsLink1", manager.GetResult().Links[0].Name)
+	require.Equal(t, "TmsLink2", manager.GetResult().Links[1].Name)
+	require.Equal(t, string(allure.TMS), manager.GetResult().Links[0].Type)
+	require.Equal(t, string(allure.TMS), manager.GetResult().Links[1].Type)
+}
