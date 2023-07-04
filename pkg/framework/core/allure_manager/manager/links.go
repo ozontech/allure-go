@@ -34,8 +34,6 @@ func (a *allureManager) Link(link *allure.Link) {
 // Links adds multiple Link to struct.AllureResult
 func (a *allureManager) Links(links []*allure.Link) {
 	a.safely(func(result *allure.Result) {
-		for _, link := range links {
-			result.Links = append(result.Links, link)
-		}
+		result.Links = append(result.Links, links...)
 	})
 }
