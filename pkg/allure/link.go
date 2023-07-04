@@ -25,6 +25,7 @@ const (
 	LINK     LinkTypes = "link"
 	ISSUE    LinkTypes = "issue"
 	TESTCASE LinkTypes = "test_case"
+	TMS      LinkTypes = "tms"
 )
 
 // NewLink Constructor. Builds and returns a new `allure.Link` object.
@@ -49,12 +50,30 @@ func LinkLink(linkname, link string) *Link {
 	return NewLink(linkname, LINK, link)
 }
 
+// TmsLink returns TMS type link
+func TmsLink(testCase string) *Link {
+	return NewLink(testCase, TMS, fmt.Sprintf(getTmsPattern(), testCase))
+}
+
+// TmsLinks returns multiple TmsLink type link
+func TmsLinks(testCases ...string) []*Link {
+	var result []*Link
+	for _, testCase := range testCases {
+		result = append(result, NewLink(testCase, TMS, fmt.Sprintf(getTmsPattern(), testCase)))
+	}
+	return result
+}
+
 func getIssuePattern() string {
 	return getPattern(issuePatternEnvKey, "%s")
 }
 
 func getTestCasePattern() string {
 	return getPattern(testCasePatternEnvKey, "%s")
+}
+
+func getTmsPattern() string {
+	return getPattern(tmsLinkPatternEnvKey, "%s")
 }
 
 func getPattern(envKey string, defaultPattern string) string {

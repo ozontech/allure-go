@@ -39,6 +39,8 @@ type Links interface {
 	SetIssue(issue string)
 	SetTestCase(testCase string)
 	Link(link *allure.Link)
+	TmsLink(tmsCase string)
+	TmsLinks(tmsCases ...string)
 }
 
 type DescriptionFields interface {
