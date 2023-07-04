@@ -5,7 +5,7 @@ go 1.17
 replace github.com/ozontech/allure-go/pkg/allure => ../allure
 
 require (
-	github.com/ozontech/allure-go/pkg/allure v0.6.7
+	github.com/ozontech/allure-go/pkg/allure v0.6.8
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
 )
