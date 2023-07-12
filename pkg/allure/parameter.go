@@ -1,6 +1,7 @@
 package allure
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -9,8 +10,8 @@ import (
 // which Allure uses as additional information describing the test Step
 // (for example - request host or server address)
 type Parameter struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name  string          `json:"name"`
+	Value json.RawMessage `json:"value"`
 }
 
 // NewParameter Constructor. Builds and returns a new `Parameter` object,
@@ -19,7 +20,7 @@ func NewParameter(name string, value ...interface{}) *Parameter {
 	val := trimBrackets(messageFromMsgAndArgs(value))
 	return &Parameter{
 		Name:  name,
-		Value: val,
+		Value: []byte("\"" + val + "\""),
 	}
 }
 
@@ -37,6 +38,10 @@ func NewParameters(kv ...interface{}) []*Parameter {
 		result[i/2] = NewParameter(messageFromMsgAndArgs(kv[i]), val)
 	}
 	return result
+}
+
+func (p *Parameter) GetValue() string {
+	return strings.Trim(string(p.Value), "\"")
 }
 
 func trimBrackets(val string) string {

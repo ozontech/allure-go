@@ -17,8 +17,8 @@ func TestNewStep(t *testing.T) {
 	stepStart := time.Now().UnixNano() / int64(time.Millisecond)
 	stepStop := time.Now().UnixNano()/int64(time.Millisecond) + 1
 	parameters := []*Parameter{
-		{"Param1", "val1"},
-		{"Param2", "val2"},
+		{"Param1", []byte("val1")},
+		{"Param2", []byte("val2")},
 	}
 	step := NewStep(stepName, stepStatus, stepStart, stepStop, parameters)
 	assert.Equal(t, stepName, step.Name)
@@ -26,8 +26,10 @@ func TestNewStep(t *testing.T) {
 	assert.Equal(t, stepStart, step.Start)
 	assert.Equal(t, stepStop, step.Stop)
 	require.Equal(t, 2, len(step.Parameters))
-	assert.Equal(t, parameters[0], step.Parameters[0])
-	assert.Equal(t, parameters[1], step.Parameters[1])
+	assert.Equal(t, parameters[0].Name, step.Parameters[0].Name)
+	assert.Equal(t, parameters[0].GetValue(), step.Parameters[0].GetValue())
+	assert.Equal(t, parameters[1].Name, step.Parameters[1].Name)
+	assert.Equal(t, parameters[1].GetValue(), step.Parameters[1].GetValue())
 	assert.Nil(t, step.GetParent())
 	assert.Nil(t, step.Attachments)
 }
@@ -134,9 +136,9 @@ func TestStep_WithNewParameters_even(t *testing.T) {
 	require.NotNil(t, step.Parameters)
 	require.Len(t, step.Parameters, 2)
 	require.Equal(t, "param1", step.Parameters[0].Name)
-	require.Equal(t, "val1", step.Parameters[0].Value)
+	require.Equal(t, "val1", step.Parameters[0].GetValue())
 	require.Equal(t, "param2", step.Parameters[1].Name)
-	require.Equal(t, "val2", step.Parameters[1].Value)
+	require.Equal(t, "val2", step.Parameters[1].GetValue())
 }
 
 func TestStep_WithNewParameters_odd(t *testing.T) {
@@ -145,7 +147,7 @@ func TestStep_WithNewParameters_odd(t *testing.T) {
 	require.NotNil(t, step.Parameters)
 	require.Len(t, step.Parameters, 1)
 	require.Equal(t, "param1", step.Parameters[0].Name)
-	require.Equal(t, "val1", step.Parameters[0].Value)
+	require.Equal(t, "val1", step.Parameters[0].GetValue())
 }
 
 func TestStep_WithParameters(t *testing.T) {
@@ -154,9 +156,9 @@ func TestStep_WithParameters(t *testing.T) {
 	require.NotNil(t, step.Parameters)
 	require.Len(t, step.Parameters, 2)
 	require.Equal(t, "param1", step.Parameters[0].Name)
-	require.Equal(t, "val1", step.Parameters[0].Value)
+	require.Equal(t, "val1", step.Parameters[0].GetValue())
 	require.Equal(t, "param2", step.Parameters[1].Name)
-	require.Equal(t, "val2", step.Parameters[1].Value)
+	require.Equal(t, "val2", step.Parameters[1].GetValue())
 }
 
 func TestStep_WithParent(t *testing.T) {
