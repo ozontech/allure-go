@@ -318,9 +318,9 @@ func TestStepCtx_WithNewParameters(t *testing.T) {
 	require.NotEmpty(t, step.Parameters)
 	require.Len(t, step.Parameters, 2)
 	require.Equal(t, "p1", step.Parameters[0].Name)
-	require.Equal(t, "v1", step.Parameters[0].Value)
+	require.Equal(t, "v1", step.Parameters[0].GetValue())
 	require.Equal(t, "p2", step.Parameters[1].Name)
-	require.Equal(t, "v2", step.Parameters[1].Value)
+	require.Equal(t, "v2", step.Parameters[1].GetValue())
 }
 
 func TestStepCtx_WithAttachments(t *testing.T) {
@@ -368,7 +368,7 @@ func TestStepCtx_NewStep(t *testing.T) {
 	require.NotEmpty(t, ctx.currentStep.Steps[0].Parameters)
 	require.Len(t, ctx.currentStep.Steps[0].Parameters, 1)
 	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Name, "p1")
-	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Value, "v1")
+	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].GetValue(), "v1")
 }
 
 func TestStepCtx_WithNewStep(t *testing.T) {
@@ -391,7 +391,7 @@ func TestStepCtx_WithNewStep(t *testing.T) {
 	require.NotEmpty(t, ctx.currentStep.Steps[0].Parameters)
 	require.Len(t, ctx.currentStep.Steps[0].Parameters, 1)
 	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Name, "p1")
-	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Value, "v1")
+	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].GetValue(), "v1")
 }
 
 func TestStepCtx_WithNewAsyncStep(t *testing.T) {
@@ -418,7 +418,7 @@ func TestStepCtx_WithNewAsyncStep(t *testing.T) {
 	require.NotEmpty(t, ctx.currentStep.Steps[0].Parameters)
 	require.Len(t, ctx.currentStep.Steps[0].Parameters, 1)
 	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Name, "p1")
-	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Value, "v1")
+	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].GetValue(), "v1")
 }
 
 func TestStepCtx_WithNewStep_panic(t *testing.T) {
@@ -446,7 +446,7 @@ func TestStepCtx_WithNewStep_panic(t *testing.T) {
 	require.NotEmpty(t, ctx.currentStep.Steps[0].Parameters)
 	require.Len(t, ctx.currentStep.Steps[0].Parameters, 1)
 	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Name, "p1")
-	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Value, "v1")
+	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].GetValue(), "v1")
 }
 
 func TestStepCtx_WithNewAsyncStep_panic(t *testing.T) {
@@ -477,7 +477,7 @@ func TestStepCtx_WithNewAsyncStep_panic(t *testing.T) {
 	require.NotEmpty(t, ctx.currentStep.Steps[0].Parameters)
 	require.Len(t, ctx.currentStep.Steps[0].Parameters, 1)
 	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Name, "p1")
-	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].Value, "v1")
+	require.Equal(t, ctx.currentStep.Steps[0].Parameters[0].GetValue(), "v1")
 }
 
 func TestStepCtx_Name(t *testing.T) {

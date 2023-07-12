@@ -9,8 +9,8 @@ replace (
 
 require (
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733
-	github.com/ozontech/allure-go/pkg/allure v0.6.9
-	github.com/ozontech/allure-go/pkg/framework v0.6.23
+	github.com/ozontech/allure-go/pkg/allure v0.6.10
+	github.com/ozontech/allure-go/pkg/framework v0.6.25
 )
 
 require (

@@ -52,9 +52,9 @@ func TestAssertEqual_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "1", params[1].Value)
+	require.Equal(t, "1", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -72,9 +72,9 @@ func TestAssertEqual_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "2", params[1].Value)
+	require.Equal(t, "2", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -92,9 +92,9 @@ func TestAssertNotEqual_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "2", params[1].Value)
+	require.Equal(t, "2", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -112,9 +112,9 @@ func TestAssertNotEqual_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "1", params[1].Value)
+	require.Equal(t, "1", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -133,7 +133,7 @@ func TestAssertError_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%+v", err), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%+v", err), params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -151,7 +151,7 @@ func TestAssertError_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -169,7 +169,7 @@ func TestAssertNoError_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -188,7 +188,7 @@ func TestAssertNoError_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%+v", err), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%+v", err), params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -209,7 +209,7 @@ func TestAssertNotNil_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "struct {}(struct {}{})", params[0].Value)
+	require.Equal(t, "struct {}(struct {}{})", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -229,7 +229,7 @@ func TestAssertNotNil_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -249,7 +249,7 @@ func TestAssertNil_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -270,7 +270,7 @@ func TestAssertNil_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "struct {}(struct {}{})", params[0].Value)
+	require.Equal(t, "struct {}(struct {}{})", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -290,9 +290,9 @@ func TestAssertLen_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "string(\"test\")", params[0].Value)
+	require.Equal(t, "string(\"test\")", params[0].GetValue())
 	require.Equal(t, "Expected Len", params[1].Name)
-	require.Equal(t, "int(4)", params[1].Value)
+	require.Equal(t, "int(4)", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -313,9 +313,9 @@ func TestAssertLen_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "string(\"test1\")", params[0].Value)
+	require.Equal(t, "string(\"test1\")", params[0].GetValue())
 	require.Equal(t, "Expected Len", params[1].Name)
-	require.Equal(t, "int(4)", params[1].Value)
+	require.Equal(t, "int(4)", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -335,9 +335,9 @@ func TestAssertNotContains_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Not Contain", params[1].Name)
-	require.Equal(t, "\"4\"", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -358,9 +358,9 @@ func TestAssertNotContains_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Not Contain", params[1].Name)
-	require.Equal(t, "\"est\"", params[1].Value)
+	require.Equal(t, "est", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -380,9 +380,9 @@ func TestAssertContains_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Contain", params[1].Name)
-	require.Equal(t, "\"est\"", params[1].Value)
+	require.Equal(t, "est", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -403,9 +403,9 @@ func TestAssertContains_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Contain", params[1].Name)
-	require.Equal(t, "\"4\"", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -426,9 +426,9 @@ func TestAssertGreater_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "3", params[1].Value)
+	require.Equal(t, "3", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -449,9 +449,9 @@ func TestAssertGreater_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -472,9 +472,9 @@ func TestAssertGreaterOrEqual_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "4", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -495,9 +495,9 @@ func TestAssertGreaterOrEqual_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -518,9 +518,9 @@ func TestAssertLess_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "3", params[0].Value)
+	require.Equal(t, "3", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "4", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -541,9 +541,9 @@ func TestAssertLess_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "5", params[0].Value)
+	require.Equal(t, "5", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -564,9 +564,9 @@ func TestAssertLesOrEqual_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "4", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -587,9 +587,9 @@ func TestAssertLessOrEqual_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "6", params[0].Value)
+	require.Equal(t, "6", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -615,9 +615,9 @@ func TestAssertImplements_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Interface Object", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].GetValue())
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -643,9 +643,9 @@ func TestAssertImplements_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Interface Object", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].GetValue())
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -666,7 +666,7 @@ func TestAssertEmpty_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"\")", params[0].Value)
+	require.Equal(t, "string(\"\")", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -687,7 +687,7 @@ func TestAssertEmpty_False(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"123\")", params[0].Value)
+	require.Equal(t, "string(\"123\")", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -708,7 +708,7 @@ func TestAssertNotEmpty_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"123\")", params[0].Value)
+	require.Equal(t, "string(\"123\")", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -729,7 +729,7 @@ func TestAssertNotEmpty_False(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"\")", params[0].Value)
+	require.Equal(t, "string(\"\")", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -752,13 +752,13 @@ func TestAssertWithDuration_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 3)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, test.String(), params[0].Value)
+	require.Equal(t, test.String(), params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, test2.String(), params[1].Value)
+	require.Equal(t, test2.String(), params[1].GetValue())
 
 	require.Equal(t, "Delta", params[2].Name)
-	require.Equal(t, delta.String(), params[2].Value)
+	require.Equal(t, delta.String(), params[2].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -782,13 +782,13 @@ func TestAssertWithDuration_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 3)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, test.String(), params[0].Value)
+	require.Equal(t, test.String(), params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, test2.String(), params[1].Value)
+	require.Equal(t, test2.String(), params[1].GetValue())
 
 	require.Equal(t, "Delta", params[2].Name)
-	require.Equal(t, delta.String(), params[2].Value)
+	require.Equal(t, delta.String(), params[2].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -810,10 +810,10 @@ func TestAssertJSONEq_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, exp, params[1].Value)
+	require.Equal(t, exp, params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -836,10 +836,10 @@ func TestAssertJSONEq_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, actual, params[1].Value)
+	require.Equal(t, actual, params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -862,10 +862,10 @@ func TestAssertJSONContains_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, actual, params[1].Value)
+	require.Equal(t, actual, params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -888,10 +888,10 @@ func TestAssertJSONContains_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, actual, params[1].Value)
+	require.Equal(t, actual, params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -914,10 +914,10 @@ func TestAssertSubset_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "List", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[0].GetValue())
 
 	require.Equal(t, "Subset", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].Value)
+	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -940,10 +940,10 @@ func TestAssertSubset_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "List", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[0].GetValue())
 
 	require.Equal(t, "Subset", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].Value)
+	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -968,10 +968,10 @@ func TestAssertIsType_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected Type", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[0].GetValue())
 
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[1].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -999,10 +999,10 @@ func TestAssertIsType_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected Type", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testStruct(%#v)", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testStruct(%#v)", test), params[0].GetValue())
 
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*helper.failTestStruct(%#v)", act), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*helper.failTestStruct(%#v)", act), params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1023,7 +1023,7 @@ func TestAssertTrue_Success(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(true)", params[0].Value)
+	require.Equal(t, "bool(true)", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1044,7 +1044,7 @@ func TestAssertTrue_Fail(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(false)", params[0].Value)
+	require.Equal(t, "bool(false)", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1065,7 +1065,7 @@ func TestAssertFalse_Success(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(false)", params[0].Value)
+	require.Equal(t, "bool(false)", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1086,7 +1086,7 @@ func TestAssertFalse_Fail(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(true)", params[0].Value)
+	require.Equal(t, "bool(true)", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1109,10 +1109,10 @@ func TestAssertRegexp_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+	require.Equal(t, rx, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+	require.Equal(t, str, params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1135,10 +1135,10 @@ func TestAssertRegexp_Failed(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+	require.Equal(t, rx, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+	require.Equal(t, str, params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1156,9 +1156,9 @@ func TestRequireEqual_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "1", params[1].Value)
+	require.Equal(t, "1", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1176,9 +1176,9 @@ func TestRequireEqual_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "2", params[1].Value)
+	require.Equal(t, "2", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1196,9 +1196,9 @@ func TestRequireNotEqual_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "2", params[1].Value)
+	require.Equal(t, "2", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1216,9 +1216,9 @@ func TestRequireNotEqual_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 2)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, "1", params[0].Value)
+	require.Equal(t, "1", params[0].GetValue())
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, "1", params[1].Value)
+	require.Equal(t, "1", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1237,7 +1237,7 @@ func TestRequireError_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%+v", err), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%+v", err), params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1255,7 +1255,7 @@ func TestRequireError_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1273,7 +1273,7 @@ func TestRequireNoError_Success(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1292,7 +1292,7 @@ func TestRequireNoError_Fail(t *testing.T) {
 	require.NotEmpty(t, params)
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%+v", err), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%+v", err), params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1313,7 +1313,7 @@ func TestRequireNotNil_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "struct {}(struct {}{})", params[0].Value)
+	require.Equal(t, "struct {}(struct {}{})", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1333,7 +1333,7 @@ func TestRequireNotNil_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1353,7 +1353,7 @@ func TestRequireNil_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "<nil>", params[0].Value)
+	require.Equal(t, "<nil>", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1374,7 +1374,7 @@ func TestRequireNil_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "struct {}(struct {}{})", params[0].Value)
+	require.Equal(t, "struct {}(struct {}{})", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1394,9 +1394,9 @@ func TestRequireLen_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "string(\"test\")", params[0].Value)
+	require.Equal(t, "string(\"test\")", params[0].GetValue())
 	require.Equal(t, "Expected Len", params[1].Name)
-	require.Equal(t, "int(4)", params[1].Value)
+	require.Equal(t, "int(4)", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1417,9 +1417,9 @@ func TestRequireLen_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Actual", params[0].Name)
-	require.Equal(t, "string(\"test1\")", params[0].Value)
+	require.Equal(t, "string(\"test1\")", params[0].GetValue())
 	require.Equal(t, "Expected Len", params[1].Name)
-	require.Equal(t, "int(4)", params[1].Value)
+	require.Equal(t, "int(4)", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1439,9 +1439,9 @@ func TestRequireNotContains_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Not Contain", params[1].Name)
-	require.Equal(t, "\"4\"", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1462,9 +1462,9 @@ func TestRequireNotContains_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Not Contain", params[1].Name)
-	require.Equal(t, "\"est\"", params[1].Value)
+	require.Equal(t, "est", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1484,9 +1484,9 @@ func TestRequireContains_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Contain", params[1].Name)
-	require.Equal(t, "\"est\"", params[1].Value)
+	require.Equal(t, "est", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1507,9 +1507,9 @@ func TestRequireContains_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Target Struct", params[0].Name)
-	require.Equal(t, "\"test\"", params[0].Value)
+	require.Equal(t, "test", params[0].GetValue())
 	require.Equal(t, "Should Contain", params[1].Name)
-	require.Equal(t, "\"4\"", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1530,9 +1530,9 @@ func TestRequireGreater_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "3", params[1].Value)
+	require.Equal(t, "3", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1553,9 +1553,9 @@ func TestRequireGreater_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1576,9 +1576,9 @@ func TestRequireGreaterOrEqual_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "4", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1599,9 +1599,9 @@ func TestRequireGreaterOrEqual_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1622,9 +1622,9 @@ func TestRequireLess_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "3", params[0].Value)
+	require.Equal(t, "3", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "4", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1645,9 +1645,9 @@ func TestRequireLess_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "5", params[0].Value)
+	require.Equal(t, "5", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1668,9 +1668,9 @@ func TestRequireLesOrEqual_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "4", params[0].Value)
+	require.Equal(t, "4", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "4", params[1].Value)
+	require.Equal(t, "4", params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1691,9 +1691,9 @@ func TestRequireLessOrEqual_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "First Element", params[0].Name)
-	require.Equal(t, "6", params[0].Value)
+	require.Equal(t, "6", params[0].GetValue())
 	require.Equal(t, "Second Element", params[1].Name)
-	require.Equal(t, "5", params[1].Value)
+	require.Equal(t, "5", params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1719,9 +1719,9 @@ func TestRequireImplements_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Interface Object", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].GetValue())
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1747,9 +1747,9 @@ func TestRequireImplements_Failed(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 2)
 	require.Equal(t, "Interface Object", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testInterface(%#v)", ti), params[0].GetValue())
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testStructSuc(%#v)", ts), params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1770,7 +1770,7 @@ func TestRequireEmpty_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"\")", params[0].Value)
+	require.Equal(t, "string(\"\")", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1791,7 +1791,7 @@ func TestRequireEmpty_False(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"123\")", params[0].Value)
+	require.Equal(t, "string(\"123\")", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1812,7 +1812,7 @@ func TestRequireNotEmpty_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"123\")", params[0].Value)
+	require.Equal(t, "string(\"123\")", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1833,7 +1833,7 @@ func TestRequireNotEmpty_False(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 1)
 	require.Equal(t, "Object", params[0].Name)
-	require.Equal(t, "string(\"\")", params[0].Value)
+	require.Equal(t, "string(\"\")", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1856,13 +1856,13 @@ func TestRequireWithDuration_Success(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 3)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, test.String(), params[0].Value)
+	require.Equal(t, test.String(), params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, test2.String(), params[1].Value)
+	require.Equal(t, test2.String(), params[1].GetValue())
 
 	require.Equal(t, "Delta", params[2].Name)
-	require.Equal(t, delta.String(), params[2].Value)
+	require.Equal(t, delta.String(), params[2].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1886,13 +1886,13 @@ func TestRequireWithDuration_Fail(t *testing.T) {
 	params := steps[0].Parameters
 	require.Len(t, params, 3)
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, test.String(), params[0].Value)
+	require.Equal(t, test.String(), params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, test2.String(), params[1].Value)
+	require.Equal(t, test2.String(), params[1].GetValue())
 
 	require.Equal(t, "Delta", params[2].Name)
-	require.Equal(t, delta.String(), params[2].Value)
+	require.Equal(t, delta.String(), params[2].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1914,10 +1914,10 @@ func TestRequireJSONEq_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, exp, params[1].Value)
+	require.Equal(t, exp, params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1940,10 +1940,10 @@ func TestRequireJSONEq_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, actual, params[1].Value)
+	require.Equal(t, actual, params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -1966,10 +1966,10 @@ func TestRequireJSONContains_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, actual, params[1].Value)
+	require.Equal(t, actual, params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -1992,10 +1992,10 @@ func TestRequireJSONContains_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, exp, params[0].Value)
+	require.Equal(t, exp, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, actual, params[1].Value)
+	require.Equal(t, actual, params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -2018,10 +2018,10 @@ func TestRequireSubset_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "List", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[0].GetValue())
 
 	require.Equal(t, "Subset", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].Value)
+	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -2044,10 +2044,10 @@ func TestRequireSubset_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "List", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[0].GetValue())
 
 	require.Equal(t, "Subset", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].Value)
+	require.Equal(t, fmt.Sprintf("%#v", subset), params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -2072,10 +2072,10 @@ func TestRequireIsType_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected Type", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[0].GetValue())
 
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", test), params[1].Value)
+	require.Equal(t, fmt.Sprintf("%#v", test), params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -2103,10 +2103,10 @@ func TestRequireIsType_Fail(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected Type", params[0].Name)
-	require.Equal(t, fmt.Sprintf("*helper.testStruct(%#v)", test), params[0].Value)
+	require.Equal(t, fmt.Sprintf("*helper.testStruct(%#v)", test), params[0].GetValue())
 
 	require.Equal(t, "Object", params[1].Name)
-	require.Equal(t, fmt.Sprintf("*helper.failTestStruct(%#v)", act), params[1].Value)
+	require.Equal(t, fmt.Sprintf("*helper.failTestStruct(%#v)", act), params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -2127,7 +2127,7 @@ func TestRequireTrue_Success(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(true)", params[0].Value)
+	require.Equal(t, "bool(true)", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -2148,7 +2148,7 @@ func TestRequireTrue_Fail(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(false)", params[0].Value)
+	require.Equal(t, "bool(false)", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -2169,7 +2169,7 @@ func TestRequireFalse_Success(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(false)", params[0].Value)
+	require.Equal(t, "bool(false)", params[0].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -2190,7 +2190,7 @@ func TestRequireFalse_Fail(t *testing.T) {
 	require.Len(t, params, 1)
 
 	require.Equal(t, "Actual Value", params[0].Name)
-	require.Equal(t, "bool(true)", params[0].Value)
+	require.Equal(t, "bool(true)", params[0].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
@@ -2213,10 +2213,10 @@ func TestRequireRegexp_Success(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+	require.Equal(t, rx, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+	require.Equal(t, str, params[1].GetValue())
 
 	require.False(t, mockT.errorF)
 	require.False(t, mockT.failNow)
@@ -2239,10 +2239,10 @@ func TestRequireRegexp_Failed(t *testing.T) {
 	require.Len(t, params, 2)
 
 	require.Equal(t, "Expected", params[0].Name)
-	require.Equal(t, fmt.Sprintf("%#v", rx), params[0].Value)
+	require.Equal(t, rx, params[0].GetValue())
 
 	require.Equal(t, "Actual", params[1].Name)
-	require.Equal(t, fmt.Sprintf("%#v", str), params[1].Value)
+	require.Equal(t, str, params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)

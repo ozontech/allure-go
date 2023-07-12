@@ -53,7 +53,7 @@ func TestAssertHelper_withNewStep_requireFalse(t *testing.T) {
 	require.NotEmpty(t, mock.steps[0].Parameters)
 	require.Len(t, mock.steps[0].Parameters, 1)
 	require.Equal(t, param[0].Name, mock.steps[0].Parameters[0].Name)
-	require.Equal(t, param[0].Value, mock.steps[0].Parameters[0].Value)
+	require.Equal(t, param[0].GetValue(), mock.steps[0].Parameters[0].GetValue())
 
 	mock2 := newTMock()
 	param2 := allure.NewParameter("pName", "pValue")
@@ -66,7 +66,7 @@ func TestAssertHelper_withNewStep_requireFalse(t *testing.T) {
 	require.NotEmpty(t, mock2.steps[0].Parameters)
 	require.Len(t, mock2.steps[0].Parameters, 1)
 	require.Equal(t, param2.Name, mock2.steps[0].Parameters[0].Name)
-	require.Equal(t, param2.Value, mock2.steps[0].Parameters[0].Value)
+	require.Equal(t, param2.GetValue(), mock2.steps[0].Parameters[0].GetValue())
 }
 
 func TestAssertHelper_withNewStep_requireTrue(t *testing.T) {
@@ -82,7 +82,7 @@ func TestAssertHelper_withNewStep_requireTrue(t *testing.T) {
 	require.NotEmpty(t, mock.steps[0].Parameters)
 	require.Len(t, mock.steps[0].Parameters, 1)
 	require.Equal(t, param[0].Name, mock.steps[0].Parameters[0].Name)
-	require.Equal(t, param[0].Value, mock.steps[0].Parameters[0].Value)
+	require.Equal(t, param[0].GetValue(), mock.steps[0].Parameters[0].GetValue())
 
 	mock2 := newTMock()
 	param2 := allure.NewParameter("pName", "pValue")
@@ -95,5 +95,5 @@ func TestAssertHelper_withNewStep_requireTrue(t *testing.T) {
 	require.NotEmpty(t, mock2.steps[0].Parameters)
 	require.Len(t, mock2.steps[0].Parameters, 1)
 	require.Equal(t, param2.Name, mock2.steps[0].Parameters[0].Name)
-	require.Equal(t, param2.Value, mock2.steps[0].Parameters[0].Value)
+	require.Equal(t, param2.GetValue(), mock2.steps[0].Parameters[0].GetValue())
 }

@@ -40,6 +40,7 @@ func NewParameters(kv ...interface{}) []*Parameter {
 	return result
 }
 
+// GetValue returns param value as string
 func (p *Parameter) GetValue() string {
 	return strings.Trim(string(p.Value), "\"")
 }
