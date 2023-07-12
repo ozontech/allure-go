@@ -46,4 +46,5 @@ type AssertsWrapper interface {
 	Condition(provider Provider, condition assert.Comparison, msgAndArgs ...interface{})
 	Zero(provider Provider, i interface{}, msgAndArgs ...interface{})
 	NotZero(provider Provider, i interface{}, msgAndArgs ...interface{})
+	InDelta(provider Provider, expected, actual interface{}, delta float64, msgAndArgs ...interface{})
 }

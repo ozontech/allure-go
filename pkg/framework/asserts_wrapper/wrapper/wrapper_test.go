@@ -1742,6 +1742,64 @@ func TestAssertNotZero_Fail(t *testing.T) {
 	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
+func TestAssertInDelta_Success(t *testing.T) {
+	mockT := newMock()
+
+	expected := 10.1
+	actual := 9.9
+	delta := 0.2
+	NewAsserts(mockT).InDelta(mockT, expected, actual, delta)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: In Delta", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 3)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", expected), params[0].GetValue())
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", actual), params[1].GetValue())
+
+	require.Equal(t, "Delta", params[2].Name)
+	require.Equal(t, fmt.Sprintf("%v", delta), params[2].GetValue())
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestAssertInDelta_Fail(t *testing.T) {
+	mockT := newMock()
+
+	expected := 10
+	actual := 11.1
+	delta := float64(1)
+	NewAsserts(mockT).InDelta(mockT, expected, actual, delta)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: In Delta", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 3)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", expected), params[0].GetValue())
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", actual), params[1].GetValue())
+
+	require.Equal(t, "Delta", params[2].Name)
+	require.Equal(t, fmt.Sprintf("%v", delta), params[2].GetValue())
+
+	require.True(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
 func TestRequireExactly_Success(t *testing.T) {
 	mockT := newMock()
 	NewRequire(mockT).Exactly(mockT, 1, 1)
@@ -3428,6 +3486,64 @@ func TestRequireNotZero_Fail(t *testing.T) {
 
 	require.Equal(t, "Target", params[0].Name)
 	require.Equal(t, "0", params[0].GetValue())
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireInDelta_Success(t *testing.T) {
+	mockT := newMock()
+
+	expected := 10.1
+	actual := 9.9
+	delta := 0.2
+	NewRequire(mockT).InDelta(mockT, expected, actual, delta)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: In Delta", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 3)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", expected), params[0].GetValue())
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", actual), params[1].GetValue())
+
+	require.Equal(t, "Delta", params[2].Name)
+	require.Equal(t, fmt.Sprintf("%v", delta), params[2].GetValue())
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireInDelta_Fail(t *testing.T) {
+	mockT := newMock()
+
+	expected := 10
+	actual := 11.1
+	delta := float64(1)
+	NewRequire(mockT).InDelta(mockT, expected, actual, delta)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: In Delta", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 3)
+	require.Equal(t, "Expected", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", expected), params[0].GetValue())
+
+	require.Equal(t, "Actual", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", actual), params[1].GetValue())
+
+	require.Equal(t, "Delta", params[2].Name)
+	require.Equal(t, fmt.Sprintf("%v", delta), params[2].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)
