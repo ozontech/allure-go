@@ -200,3 +200,8 @@ func (a *a) Zero(i interface{}, msgAndArgs ...interface{}) {
 func (a *a) NotZero(i interface{}, msgAndArgs ...interface{}) {
 	a.asserts.NotZero(a.t, i, msgAndArgs...)
 }
+
+// InDelta ...
+func (a *a) InDelta(expected, actual interface{}, delta float64, msgAndArgs ...interface{}) {
+	a.asserts.InDelta(a.t, expected, actual, delta, msgAndArgs...)
+}

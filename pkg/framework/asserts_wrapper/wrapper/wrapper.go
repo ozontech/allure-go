@@ -717,6 +717,23 @@ func (a *asserts) NotZero(provider Provider, i interface{}, msgAndArgs ...interf
 	}
 }
 
+// InDelta ...
+func (a *asserts) InDelta(provider Provider, expected, actual interface{}, delta float64, msgAndArgs ...interface{}) {
+	assertName := "In Delta"
+
+	success := a.resultHelper.withNewStep(
+		a.t,
+		provider,
+		assertName,
+		func(t TestingT) bool { return assert.InDelta(t, expected, actual, delta, msgAndArgs...) },
+		allure.NewParameters("Expected", expected, "Actual", actual, "Delta", delta),
+		msgAndArgs...,
+	)
+	if !success && a.resultHelper.required {
+		a.t.FailNow()
+	}
+}
+
 // formatUnequalValues takes two values of arbitrary types and returns string
 // representations appropriate to be presented to the user.
 //

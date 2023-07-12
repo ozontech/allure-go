@@ -112,4 +112,5 @@ type Asserts interface {
 	Condition(condition assert.Comparison, msgAndArgs ...interface{})
 	Zero(i interface{}, msgAndArgs ...interface{})
 	NotZero(i interface{}, msgAndArgs ...interface{})
+	InDelta(expected, actual interface{}, delta float64, msgAndArgs ...interface{})
 }
