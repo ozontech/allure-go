@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -80,4 +81,20 @@ func TestContainer_Print(t *testing.T) {
 
 	require.Equal(t, containerBefore, before)
 	require.Equal(t, containerAfter, after)
+}
+
+func TestMarshallingContainer(t *testing.T) {
+	container := NewContainer()
+	b := `grpc_cli call --json_input --json_output myendpoint.com:82 bla.bla/GetBla '{"bla":"blabla"}' -metadata 'x-bla::x-app-bla:bla-qa/bla-tests:x-bla-version::x-nocache:true:x-pf-nocache:true:x-s2s:*****'`
+	container.Befores = append(container.Befores, &Step{
+		Name:        "name",
+		Status:      Passed,
+		Attachments: nil,
+		Start:       time.Now().UnixNano(),
+		Stop:        time.Now().UnixNano(),
+		Steps:       nil,
+		Parameters:  []*Parameter{NewParameter("p", b)}})
+
+	_, err := container.ToJSON()
+	require.NoError(t, err)
 }

@@ -1,7 +1,7 @@
 package allure
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -10,8 +10,8 @@ import (
 // which Allure uses as additional information describing the test Step
 // (for example - request host or server address)
 type Parameter struct {
-	Name  string          `json:"name"`
-	Value json.RawMessage `json:"value"`
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
 }
 
 // NewParameter Constructor. Builds and returns a new `Parameter` object,
@@ -20,7 +20,7 @@ func NewParameter(name string, value ...interface{}) *Parameter {
 	val := trimBrackets(messageFromMsgAndArgs(value))
 	return &Parameter{
 		Name:  name,
-		Value: []byte("\"" + val + "\""),
+		Value: val,
 	}
 }
 
@@ -42,7 +42,7 @@ func NewParameters(kv ...interface{}) []*Parameter {
 
 // GetValue returns param value as string
 func (p *Parameter) GetValue() string {
-	return strings.Trim(string(p.Value), "\"")
+	return strings.Trim(fmt.Sprintf("%s", p.Value), "\"")
 }
 
 func trimBrackets(val string) string {
@@ -58,10 +58,14 @@ func messageFromMsgAndArgs(msgAndArgs ...interface{}) string {
 	}
 	if len(msgAndArgs) == 1 {
 		msg := msgAndArgs[0]
-		if msgAsStr, ok := msg.(string); ok {
-			return msgAsStr
+		switch m := msg.(type) {
+		case string:
+			return m
+		case int:
+			return fmt.Sprintf("%d", m)
+		default:
+			return fmt.Sprintf("%+v", m)
 		}
-		return fmt.Sprintf("%+v", msg)
 	}
 	if len(msgAndArgs) > 1 {
 		return fmt.Sprintf(msgAndArgs[0].(string), msgAndArgs[1:]...)
