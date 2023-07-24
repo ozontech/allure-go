@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
@@ -12,7 +13,7 @@ import (
 type suiteResult struct {
 	Container   *allure.Container `json:"container,omitempty"`
 	TestResults []TestResult      `json:"test_results,omitempty"`
-	mu sync.Mutex
+	mu          sync.Mutex
 }
 
 // NewSuiteResult Returns new SuiteResult
@@ -23,8 +24,9 @@ func NewSuiteResult(container *allure.Container) SuiteResult {
 // NewResult appends test result to suite result
 func (sr *suiteResult) NewResult(result TestResult) {
 	sr.mu.Lock()
+	defer sr.mu.Unlock()
+
 	sr.TestResults = append(sr.TestResults, result)
-	sr.mu.Unlock()
 }
 
 // GetContainer returns parent Container
