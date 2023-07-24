@@ -12,6 +12,7 @@ import (
 type suiteResult struct {
 	Container   *allure.Container `json:"container,omitempty"`
 	TestResults []TestResult      `json:"test_results,omitempty"`
+	mu sync.Mutex
 }
 
 // NewSuiteResult Returns new SuiteResult
@@ -21,7 +22,9 @@ func NewSuiteResult(container *allure.Container) SuiteResult {
 
 // NewResult appends test result to suite result
 func (sr *suiteResult) NewResult(result TestResult) {
+	sr.mu.Lock()
 	sr.TestResults = append(sr.TestResults, result)
+	sr.mu.Unlock()
 }
 
 // GetContainer returns parent Container
