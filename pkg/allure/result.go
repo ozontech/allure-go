@@ -323,7 +323,6 @@ func overWriteStartAndEndTime(result *Result) {
 	if result.Status == Skipped {
 		result.Stop = result.Start
 	} else {
-		result.Start, _ = getTimeSumOfSteps(result)
-		_, result.Stop = getTimeSumOfSteps(result)
+		result.Start, result.Stop = getTimeSumOfSteps(result)
 	}
 }
