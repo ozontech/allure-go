@@ -307,12 +307,12 @@ func getTimeSumOfSteps(result *Result) (startTimeInt int64, endTimeInt int64) {
 	startTime := result.Steps[0].Start
 	endTime := result.Steps[0].Start
 
-	for i := range result.Steps {
-		if result.Steps[i].Stop > endTime {
-			endTime = result.Steps[i].Stop
+	for _, step := range result.Steps {
+		if step.Stop > endTime {
+			endTime = step.Stop
 		}
-		if result.Steps[i].Start < startTime {
-			startTime = result.Steps[i].Start
+		if step.Start < startTime {
+			startTime = step.Start
 		}
 	}
 
