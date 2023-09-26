@@ -70,6 +70,14 @@ func (s *SetupSuite) TableTestMyTest(t provider.T, example *Example) {
 		year    int
 		ctx     context.Context
 	)
+
+	defer t.WithTestTeardown(func(t provider.T) {
+		t.WithNewStep("Close ctx", func(sCtx provider.StepCtx) {
+			ctx.Done()
+			sCtx.WithNewParameters("ctx", ctx)
+		})
+	})
+
 	t.WithTestSetup(func(t provider.T) {
 		t.WithNewStep("init country", func(sCtx provider.StepCtx) {
 			country = example.country
@@ -88,13 +96,6 @@ func (s *SetupSuite) TableTestMyTest(t provider.T, example *Example) {
 	t.Require().NotEqual("PonyCountry", country, "No magic countries in the list")
 	t.Require().NotEqual(2007, year, "No one returned to 2007")
 	t.Require().NotNil(ctx, "Not empty context")
-
-	defer t.WithTestTeardown(func(t provider.T) {
-		t.WithNewStep("Close ctx", func(sCtx provider.StepCtx) {
-			ctx.Done()
-			sCtx.WithNewParameters("ctx", ctx)
-		})
-	})
 }
 
 func (s *SetupSuite) TestMyOtherTest(t provider.T) {
