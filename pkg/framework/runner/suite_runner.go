@@ -150,14 +150,14 @@ func getParamTests(parentTest Test, params map[string]interface{}) map[string]Te
 			suiteFullName = result.FullName
 		)
 		if suite, ok := result.GetFirstLabel(allure.Suite); ok {
-			suiteName = suite.Value
+			suiteName = suite.GetValue()
 		}
 
 		if _package, ok := result.GetFirstLabel(allure.Package); ok {
-			packageName = _package.Value
+			packageName = _package.GetValue()
 		}
 		for _, tag := range result.GetLabels(allure.Tag) {
-			tags = append(tags, tag.Value)
+			tags = append(tags, tag.GetValue())
 		}
 
 		for pName, param := range params {

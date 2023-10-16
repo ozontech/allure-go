@@ -31,7 +31,7 @@ func TestNewResult(t *testing.T) {
 	require.Equal(t, getMD5Hash(getMD5Hash(testFullName)), result.HistoryID)
 	require.Len(t, result.Labels, 1)
 	require.Equal(t, Language.ToString(), result.Labels[0].Name)
-	require.Equal(t, runtime.Version(), result.Labels[0].Value)
+	require.Equal(t, runtime.Version(), result.Labels[0].GetValue())
 	require.Equal(t, now, result.Start)
 }
 
@@ -43,7 +43,7 @@ func TestResult_GetLabel(t *testing.T) {
 	require.NotNil(t, langLabel)
 	require.Len(t, langLabel, 1)
 	require.Equal(t, Language.ToString(), langLabel[0].Name)
-	require.Equal(t, runtime.Version(), langLabel[0].Value)
+	require.Equal(t, runtime.Version(), langLabel[0].GetValue())
 }
 
 func TestResult_Begin(t *testing.T) {
@@ -77,7 +77,7 @@ func TestResult_WithFrameWork(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Framework.ToString(), label[0].Name)
-	require.Equal(t, labelValue, label[0].Value)
+	require.Equal(t, labelValue, label[0].GetValue())
 }
 
 func TestResult_WithHost(t *testing.T) {
@@ -89,7 +89,7 @@ func TestResult_WithHost(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Host.ToString(), label[0].Name)
-	require.Equal(t, labelValue, label[0].Value)
+	require.Equal(t, labelValue, label[0].GetValue())
 }
 
 func TestResult_WithLanguage(t *testing.T) {
@@ -101,7 +101,7 @@ func TestResult_WithLanguage(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Language.ToString(), label[0].Name)
-	require.Equal(t, labelValue, label[0].Value)
+	require.Equal(t, labelValue, label[0].GetValue())
 }
 
 func TestResult_WithPackage(t *testing.T) {
@@ -113,7 +113,7 @@ func TestResult_WithPackage(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Package.ToString(), label[0].Name)
-	require.Equal(t, labelValue, label[0].Value)
+	require.Equal(t, labelValue, label[0].GetValue())
 }
 
 func TestResult_WithParentSuite(t *testing.T) {
@@ -125,7 +125,7 @@ func TestResult_WithParentSuite(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, ParentSuite.ToString(), label[0].Name)
-	require.Equal(t, labelValue, label[0].Value)
+	require.Equal(t, labelValue, label[0].GetValue())
 }
 
 func TestResult_WithSuite(t *testing.T) {
@@ -137,7 +137,7 @@ func TestResult_WithSuite(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Suite.ToString(), label[0].Name)
-	require.Equal(t, labelValue, label[0].Value)
+	require.Equal(t, labelValue, label[0].GetValue())
 }
 
 func TestResult_WithSubSuites(t *testing.T) {
@@ -150,9 +150,9 @@ func TestResult_WithSubSuites(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 2)
 	require.Equal(t, SubSuite.ToString(), label[0].Name)
-	require.Equal(t, labelValue1, label[0].Value)
+	require.Equal(t, labelValue1, label[0].GetValue())
 	require.Equal(t, SubSuite.ToString(), label[1].Name)
-	require.Equal(t, labelValue2, label[1].Value)
+	require.Equal(t, labelValue2, label[1].GetValue())
 }
 
 func TestResult_WithThread(t *testing.T) {
@@ -164,7 +164,7 @@ func TestResult_WithThread(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 1)
 	require.Equal(t, Thread.ToString(), label[0].Name)
-	require.Equal(t, labelValue, label[0].Value)
+	require.Equal(t, labelValue, label[0].GetValue())
 }
 
 func TestResult_SetStatusMessage(t *testing.T) {
@@ -211,9 +211,9 @@ func TestResult_SetLabel(t *testing.T) {
 	require.NotNil(t, label)
 	require.Len(t, label, 2)
 	require.Equal(t, Framework.ToString(), label[0].Name)
-	require.Equal(t, labelValue1, label[0].Value)
+	require.Equal(t, labelValue1, label[0].GetValue())
 	require.Equal(t, Host.ToString(), label[1].Name)
-	require.Equal(t, labelValue2, label[1].Value)
+	require.Equal(t, labelValue2, label[1].GetValue())
 }
 
 func TestResult_SetNewLabelMap(t *testing.T) {
@@ -230,13 +230,13 @@ func TestResult_SetNewLabelMap(t *testing.T) {
 	require.NotNil(t, labelFramework)
 	require.Len(t, labelFramework, 1)
 	require.Equal(t, Framework.ToString(), labelFramework[0].Name)
-	require.Equal(t, labelValue1, labelFramework[0].Value)
+	require.Equal(t, labelValue1, labelFramework[0].GetValue())
 
 	labelHost := result.GetLabels(Host)
 	require.NotNil(t, labelFramework)
 	require.Len(t, labelFramework, 1)
 	require.Equal(t, Host.ToString(), labelHost[0].Name)
-	require.Equal(t, labelValue2, labelHost[0].Value)
+	require.Equal(t, labelValue2, labelHost[0].GetValue())
 }
 
 func TestResult_WithLaunchTags_noTags(t *testing.T) {
@@ -255,9 +255,9 @@ func TestResult_WithLaunchTags_withTags(t *testing.T) {
 	labels := result.GetLabels(Tag)
 	require.Len(t, labels, 2)
 	require.Equal(t, Tag.ToString(), labels[0].Name)
-	require.Equal(t, "tag1", labels[0].Value)
+	require.Equal(t, "tag1", labels[0].GetValue())
 	require.Equal(t, Tag.ToString(), labels[1].Name)
-	require.Equal(t, "tag2", labels[1].Value)
+	require.Equal(t, "tag2", labels[1].GetValue())
 }
 
 func TestResult_WithLabels(t *testing.T) {
@@ -272,9 +272,9 @@ func TestResult_WithLabels(t *testing.T) {
 	labels := result.Labels
 	require.Len(t, labels, 2)
 	require.Equal(t, Framework.ToString(), labels[0].Name)
-	require.Equal(t, labelValue1, labels[0].Value)
+	require.Equal(t, labelValue1, labels[0].GetValue())
 	require.Equal(t, Language.ToString(), labels[1].Name)
-	require.Equal(t, labelValue2, labels[1].Value)
+	require.Equal(t, labelValue2, labels[1].GetValue())
 }
 
 func TestResult_PrintAttachments(t *testing.T) {
@@ -333,7 +333,7 @@ func TestResult_Print(t *testing.T) {
 
 	require.Len(t, emptyResult.Labels, 1)
 	require.Equal(t, result.Labels[0].Name, emptyResult.Labels[0].Name)
-	require.Equal(t, result.Labels[0].Value, emptyResult.Labels[0].Value)
+	require.Equal(t, result.Labels[0].GetValue(), emptyResult.Labels[0].GetValue())
 	require.Equal(t, result.Start, emptyResult.Start)
 }
 
@@ -385,7 +385,7 @@ func TestResult_Print_withAttachment(t *testing.T) {
 
 	require.Len(t, emptyResult.Labels, 1)
 	require.Equal(t, result.Labels[0].Name, emptyResult.Labels[0].Name)
-	require.Equal(t, result.Labels[0].Value, emptyResult.Labels[0].Value)
+	require.Equal(t, result.Labels[0].GetValue(), emptyResult.Labels[0].GetValue())
 	require.Equal(t, result.Start, emptyResult.Start)
 
 	attachFile, _ := os.Open(fmt.Sprintf("%s/%s", allureDir, attachByte.Name()))
@@ -441,7 +441,7 @@ func TestResult_Done(t *testing.T) {
 
 	require.Len(t, emptyResult.Labels, 1)
 	require.Equal(t, result.Labels[0].Name, emptyResult.Labels[0].Name)
-	require.Equal(t, result.Labels[0].Value, emptyResult.Labels[0].Value)
+	require.Equal(t, result.Labels[0].GetValue(), emptyResult.Labels[0].GetValue())
 	require.Equal(t, result.Start, emptyResult.Start)
 	require.Equal(t, now, emptyResult.Stop)
 

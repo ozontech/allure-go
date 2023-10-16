@@ -18,23 +18,23 @@ func TestNewTestMeta(t *testing.T) {
 	require.Equal(t, "fullName/testName", adapter.GetResult().FullName)
 
 	require.Len(t, adapter.GetResult().GetLabels(allure.Host), 1)
-	require.Equal(t, adapter.GetResult().GetLabels(allure.Host)[0].Value, host)
+	require.Equal(t, adapter.GetResult().GetLabels(allure.Host)[0].GetValue(), host)
 
 	require.Len(t, adapter.GetResult().GetLabels(allure.Framework), 1)
-	require.Equal(t, adapter.GetResult().GetLabels(allure.Framework)[0].Value, allure.DefaultVersion)
+	require.Equal(t, adapter.GetResult().GetLabels(allure.Framework)[0].GetValue(), allure.DefaultVersion)
 
 	require.Len(t, adapter.GetResult().GetLabels(allure.Thread), 1)
-	require.Equal(t, "fullName/testName", adapter.GetResult().GetLabels(allure.Thread)[0].Value)
+	require.Equal(t, "fullName/testName", adapter.GetResult().GetLabels(allure.Thread)[0].GetValue())
 
 	require.Len(t, adapter.GetResult().GetLabels(allure.Suite), 1)
-	require.Equal(t, "suiteName", adapter.GetResult().GetLabels(allure.Suite)[0].Value)
+	require.Equal(t, "suiteName", adapter.GetResult().GetLabels(allure.Suite)[0].GetValue())
 
 	require.Len(t, adapter.GetResult().GetLabels(allure.Package), 1)
-	require.Equal(t, "packageName", adapter.GetResult().GetLabels(allure.Package)[0].Value)
+	require.Equal(t, "packageName", adapter.GetResult().GetLabels(allure.Package)[0].GetValue())
 
 	require.Len(t, adapter.GetResult().GetLabels(allure.Tag), 2)
-	require.Equal(t, "tag1", adapter.GetResult().GetLabels(allure.Tag)[0].Value)
-	require.Equal(t, "tag2", adapter.GetResult().GetLabels(allure.Tag)[1].Value)
+	require.Equal(t, "tag1", adapter.GetResult().GetLabels(allure.Tag)[0].GetValue())
+	require.Equal(t, "tag2", adapter.GetResult().GetLabels(allure.Tag)[1].GetValue())
 
 }
 
