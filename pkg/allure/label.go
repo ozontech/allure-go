@@ -1,10 +1,20 @@
 package allure
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Label is the implementation of the label.
 // A label is an entity used by Allure to make metrics and grouping of tests.
 type Label struct {
-	Name  string `json:"name"`  // Label's name
-	Value string `json:"value"` // Label's value
+	Name  string      `json:"name"`  // Label's name
+	Value interface{} `json:"value"` // Label's value
+}
+
+// GetValue returns label value as string
+func (l *Label) GetValue() string {
+	return strings.Trim(fmt.Sprintf("%s", l.Value), "\"")
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.

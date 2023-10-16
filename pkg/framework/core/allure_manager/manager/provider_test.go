@@ -215,7 +215,7 @@ func TestAllureManager_FinishTest(t *testing.T) {
 
 	require.Len(t, emptyResult.Labels, 1)
 	require.Equal(t, result.Labels[0].Name, emptyResult.Labels[0].Name)
-	require.Equal(t, result.Labels[0].Value, emptyResult.Labels[0].Value)
+	require.Equal(t, result.Labels[0].GetValue(), emptyResult.Labels[0].GetValue())
 	require.Equal(t, result.Start, emptyResult.Start)
 	require.Equal(t, now, emptyResult.Stop)
 
@@ -237,11 +237,11 @@ func TestAllureManager_NewTest(t *testing.T) {
 	require.NotEmpty(t, manager.testMeta.GetResult().GetLabels(allure.Suite))
 	require.Len(t, manager.testMeta.GetResult().GetLabels(allure.Suite), 1)
 
-	require.Equal(t, "name", manager.testMeta.GetResult().GetLabels(allure.Suite)[0].Value)
+	require.Equal(t, "name", manager.testMeta.GetResult().GetLabels(allure.Suite)[0].GetValue())
 	require.NotEmpty(t, manager.testMeta.GetResult().GetLabels(allure.Package))
 	require.Len(t, manager.testMeta.GetResult().GetLabels(allure.Package), 1)
 
-	require.Equal(t, "PackageName", manager.testMeta.GetResult().GetLabels(allure.Package)[0].Value)
+	require.Equal(t, "PackageName", manager.testMeta.GetResult().GetLabels(allure.Package)[0].GetValue())
 
 	require.NotNil(t, manager.testMeta.GetContainer())
 	require.NotEmpty(t, manager.testMeta.GetContainer().Children)
