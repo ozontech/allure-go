@@ -83,6 +83,9 @@ func (m *providerTMockStep) Name() string {
 	return m.name
 }
 
+func (m *providerTMockStep) Helper() {
+}
+
 type providerMockStep struct {
 	status allure.Status
 	msg    string
@@ -102,6 +105,9 @@ func (m *providerMockStep) UpdateResultStatus(msg, trace string) {
 
 func (m *providerMockStep) ExecutionContext() provider.ExecutionContext {
 	return m.executionContext
+}
+
+func (m *providerMockStep) Helper() {
 }
 
 type executionCtxMock struct {

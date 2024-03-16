@@ -70,6 +70,7 @@ type StepCtx interface {
 	Break(args ...interface{})
 	Breakf(format string, args ...interface{})
 	Name() string
+	Helper()
 }
 
 // Asserts ...

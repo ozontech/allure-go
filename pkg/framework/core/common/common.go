@@ -99,6 +99,11 @@ func (c *Common) SkipOnPrint() {
 	c.GetResult().SkipOnPrint()
 }
 
+// Helper ...
+func (c *Common) Helper() {
+	c.TestingT.Helper()
+}
+
 // LogStep ...
 func (c *Common) LogStep(args ...interface{}) {
 	c.Provider.Step(allure.NewSimpleStep(fmt.Sprintln(args...)))
@@ -113,6 +118,8 @@ func (c *Common) LogfStep(format string, args ...interface{}) {
 
 // Error ...
 func (c *Common) Error(args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf("%s", args...)
 	c.registerError(fullMessage)
 	c.TestingT.Error(args...)
@@ -120,6 +127,8 @@ func (c *Common) Error(args ...interface{}) {
 
 // Errorf ...
 func (c *Common) Errorf(format string, args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
 	c.TestingT.Errorf(format, args...)
@@ -127,6 +136,8 @@ func (c *Common) Errorf(format string, args ...interface{}) {
 
 // Fatal ...
 func (c *Common) Fatal(args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf("%s", args...)
 	c.registerError(fullMessage)
 	c.TestingT.Fatal(args...)
@@ -134,6 +145,8 @@ func (c *Common) Fatal(args ...interface{}) {
 
 // Fatalf ...
 func (c *Common) Fatalf(format string, args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
 	c.TestingT.Fatalf(format, args...)

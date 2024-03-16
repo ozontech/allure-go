@@ -27,6 +27,7 @@ type StepT interface {
 	Broken()
 	BrokenNow()
 	Name() string
+	Helper()
 }
 
 type InternalStepCtx interface {
@@ -90,21 +91,33 @@ func (ctx *stepCtx) FailNow() {
 	ctx.t.FailNow()
 }
 
+func (ctx *stepCtx) Helper() {
+	ctx.t.Helper()
+}
+
 func (ctx *stepCtx) Error(args ...interface{}) {
+	ctx.t.Helper()
+
 	ctx.Fail()
 	ctx.t.Error(args...)
 }
 
 func (ctx *stepCtx) Errorf(format string, args ...interface{}) {
+	ctx.t.Helper()
+
 	ctx.Fail()
 	ctx.t.Errorf(format, args...)
 }
 
 func (ctx *stepCtx) Log(args ...interface{}) {
+	ctx.t.Helper()
+
 	ctx.t.Log(args...)
 }
 
 func (ctx *stepCtx) Logf(format string, args ...interface{}) {
+	ctx.t.Helper()
+
 	ctx.t.Logf(format, args...)
 }
 
