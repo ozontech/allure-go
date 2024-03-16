@@ -220,6 +220,8 @@ func (m *commonTMock) Run(testName string, testBody func(t *testing.T)) bool {
 	return m.run
 }
 
+func (m *commonTMock) Helper() {}
+
 func TestCommon_Assert(t *testing.T) {
 	asserts := helper.NewAssertsHelper(newCommonTMock())
 	comm := Common{assert: asserts}
