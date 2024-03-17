@@ -354,6 +354,10 @@ func (c *Common) SetRealT(realT provider.TestingT) {
 	c.TestingT = realT
 }
 
+func (c *Common) GetRealT() provider.TestingT {
+	return c.TestingT
+}
+
 func copyLabels(input, target *allure.Result) *allure.Result {
 	if input == nil || target == nil {
 		return target
