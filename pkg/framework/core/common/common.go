@@ -99,11 +99,6 @@ func (c *Common) SkipOnPrint() {
 	c.GetResult().SkipOnPrint()
 }
 
-// Helper ...
-func (c *Common) Helper() {
-	c.TestingT.Helper()
-}
-
 // LogStep ...
 func (c *Common) LogStep(args ...interface{}) {
 	c.Provider.Step(allure.NewSimpleStep(fmt.Sprintln(args...)))

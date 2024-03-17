@@ -184,6 +184,7 @@ type commonTMock struct {
 	parallel   bool
 	run        bool
 	skipped    bool
+	TestingT   *testing.T
 }
 
 func newCommonTMock() *commonTMock {

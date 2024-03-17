@@ -27,7 +27,6 @@ type StepT interface {
 	Broken()
 	BrokenNow()
 	Name() string
-	Helper()
 	GetRealT() provider.TestingT
 }
 
@@ -90,10 +89,6 @@ func (ctx *stepCtx) ExecutionContextName() string {
 func (ctx *stepCtx) FailNow() {
 	ctx.Fail()
 	ctx.t.FailNow()
-}
-
-func (ctx *stepCtx) Helper() {
-	ctx.t.GetRealT().Helper()
 }
 
 func (ctx *stepCtx) Error(args ...interface{}) {
@@ -225,4 +220,8 @@ func (ctx *stepCtx) Break(args ...interface{}) {
 func (ctx *stepCtx) Breakf(format string, args ...interface{}) {
 	ctx.Broken()
 	ctx.t.Breakf(format, args...)
+}
+
+func (ctx *stepCtx) GetRealT() provider.TestingT {
+	return ctx.t.GetRealT()
 }
