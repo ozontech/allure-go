@@ -22,6 +22,8 @@ type providerTMockStep struct {
 	failNow bool
 	failed  bool
 	name    string
+
+	testingT provider.TestingT
 }
 
 func (m *providerTMockStep) Break(args ...interface{}) {
@@ -87,7 +89,11 @@ func (m *providerTMockStep) Helper() {
 }
 
 func (m *providerTMockStep) GetRealT() provider.TestingT {
-	return nil
+	return m.testingT
+}
+
+func (m *providerTMockStep) SetRealT(realT provider.TestingT) {
+	m.testingT = realT
 }
 
 type providerMockStep struct {
@@ -243,6 +249,7 @@ func TestStepCtx_Step(t *testing.T) {
 
 func TestStepCtx_Errorf_withParent(t *testing.T) {
 	mockT := new(providerTMockStep)
+	mockT.SetRealT(t)
 	parentStep := allure.NewSimpleStep("parentStep")
 	parentCtx := &stepCtx{t: mockT, currentStep: parentStep}
 	step := allure.NewSimpleStep("testStep")
