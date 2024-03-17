@@ -86,6 +86,10 @@ func (m *providerTMockStep) Name() string {
 func (m *providerTMockStep) Helper() {
 }
 
+func (m *providerTMockStep) GetRealT() provider.TestingT {
+	return nil
+}
+
 type providerMockStep struct {
 	status allure.Status
 	msg    string
