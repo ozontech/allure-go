@@ -22,6 +22,8 @@ type providerTMockStep struct {
 	failNow bool
 	failed  bool
 	name    string
+
+	testingT provider.TestingT
 }
 
 func (m *providerTMockStep) Break(args ...interface{}) {
@@ -83,6 +85,14 @@ func (m *providerTMockStep) Name() string {
 	return m.name
 }
 
+func (m *providerTMockStep) GetRealT() provider.TestingT {
+	return m.testingT
+}
+
+func (m *providerTMockStep) SetRealT(realT provider.TestingT) {
+	m.testingT = realT
+}
+
 type providerMockStep struct {
 	status allure.Status
 	msg    string
@@ -102,6 +112,9 @@ func (m *providerMockStep) UpdateResultStatus(msg, trace string) {
 
 func (m *providerMockStep) ExecutionContext() provider.ExecutionContext {
 	return m.executionContext
+}
+
+func (m *providerMockStep) Helper() {
 }
 
 type executionCtxMock struct {
@@ -233,6 +246,7 @@ func TestStepCtx_Step(t *testing.T) {
 
 func TestStepCtx_Errorf_withParent(t *testing.T) {
 	mockT := new(providerTMockStep)
+	mockT.SetRealT(t)
 	parentStep := allure.NewSimpleStep("parentStep")
 	parentCtx := &stepCtx{t: mockT, currentStep: parentStep}
 	step := allure.NewSimpleStep("testStep")
@@ -245,6 +259,7 @@ func TestStepCtx_Errorf_withParent(t *testing.T) {
 
 func TestStepCtx_Errorf_noParent(t *testing.T) {
 	mockT := new(providerTMockStep)
+	mockT.SetRealT(t)
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Errorf("test")
@@ -254,6 +269,8 @@ func TestStepCtx_Errorf_noParent(t *testing.T) {
 
 func TestStepCtx_Error_withParent(t *testing.T) {
 	mockT := new(providerTMockStep)
+	mockT.SetRealT(t)
+
 	parentStep := allure.NewSimpleStep("parentStep", allure.NewParameters("paramParent1", "v1", "paramParent2", "v2")...)
 	parentCtx := &stepCtx{t: mockT, currentStep: parentStep}
 	step := allure.NewSimpleStep("testStep")
@@ -266,6 +283,8 @@ func TestStepCtx_Error_withParent(t *testing.T) {
 
 func TestStepCtx_Error_noParent(t *testing.T) {
 	mockT := new(providerTMockStep)
+	mockT.SetRealT(t)
+
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Error("test")

@@ -184,6 +184,7 @@ type commonTMock struct {
 	parallel   bool
 	run        bool
 	skipped    bool
+	TestingT   *testing.T
 }
 
 func newCommonTMock() *commonTMock {
@@ -219,6 +220,8 @@ func (m *commonTMock) Run(testName string, testBody func(t *testing.T)) bool {
 	testBody(m.t)
 	return m.run
 }
+
+func (m *commonTMock) Helper() {}
 
 func TestCommon_Assert(t *testing.T) {
 	asserts := helper.NewAssertsHelper(newCommonTMock())

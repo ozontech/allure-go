@@ -113,6 +113,8 @@ func (c *Common) LogfStep(format string, args ...interface{}) {
 
 // Error ...
 func (c *Common) Error(args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf("%s", args...)
 	c.registerError(fullMessage)
 	c.TestingT.Error(args...)
@@ -120,6 +122,8 @@ func (c *Common) Error(args ...interface{}) {
 
 // Errorf ...
 func (c *Common) Errorf(format string, args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
 	c.TestingT.Errorf(format, args...)
@@ -127,6 +131,8 @@ func (c *Common) Errorf(format string, args ...interface{}) {
 
 // Fatal ...
 func (c *Common) Fatal(args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf("%s", args...)
 	c.registerError(fullMessage)
 	c.TestingT.Fatal(args...)
@@ -134,6 +140,8 @@ func (c *Common) Fatal(args ...interface{}) {
 
 // Fatalf ...
 func (c *Common) Fatalf(format string, args ...interface{}) {
+	c.TestingT.Helper()
+
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
 	c.TestingT.Fatalf(format, args...)
@@ -339,6 +347,10 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 
 func (c *Common) SetRealT(realT provider.TestingT) {
 	c.TestingT = realT
+}
+
+func (c *Common) GetRealT() provider.TestingT {
+	return c.TestingT
 }
 
 func copyLabels(input, target *allure.Result) *allure.Result {
