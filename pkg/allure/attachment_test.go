@@ -85,6 +85,7 @@ func TestMimeTypeMap(t *testing.T) {
 			Webm:    "webm",
 			Mpeg:    "mpeg",
 			Pdf:     "pdf",
+			Xlsx:    "xlsx",
 		}
 		assert.Equal(t, len(_mimeTypeMap), len(mimeTypeMap), "Miss Some!")
 		for _type, _format := range _mimeTypeMap {
@@ -152,5 +153,8 @@ func TestMimeTypeMap(t *testing.T) {
 
 		var _Pdf MimeType = "application/pdf"
 		assert.Equal(t, _Pdf, Pdf)
+
+		var _Xlsx MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+		assert.Equal(t, _Xlsx, Xlsx)
 	})
 }
