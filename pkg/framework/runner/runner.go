@@ -54,7 +54,7 @@ func (r *runner) toRun(result *allure.Result) bool {
 
 func (r *runner) filterByTestPlan() map[string]Test {
 	if plan := r.testPlan; plan != nil {
-		var tests = make(map[string]Test)
+		tests := make(map[string]Test)
 		for fullName, testData := range r.tests {
 			if r.testPlan.IsSelected(testData.GetMeta().GetResult().TestCaseID, testData.GetMeta().GetResult().FullName) {
 				tests[fullName] = testData
@@ -175,6 +175,12 @@ func (r *runner) RunTests() SuiteResult {
 					}()
 					testT := setupTest(t, r.t().GetProvider(), test.GetMeta())
 
+					// after each hook
+					defer func() {
+						_, _ = runHook(testT, afterEachHook)
+					}()
+
+					// catch panic in test body context
 					defer func() {
 						rec := recover()
 						if rec != nil {
@@ -182,11 +188,6 @@ func (r *runner) RunTests() SuiteResult {
 							errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
 							common.TestError(testT, testT.GetProvider(), testT.GetProvider().ExecutionContext().GetName(), errMsg)
 						}
-					}()
-
-					// after each hook
-					defer func() {
-						_, _ = runHook(testT, afterEachHook)
 					}()
 
 					// before each hook
