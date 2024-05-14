@@ -62,9 +62,44 @@ func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, 
 		suite:       suite,
 	}
 	r = collectTests(r, suite)
+	r = collectParametrizedTests(r, suite)
 	r = collectHooks(r, suite)
 
 	return r
+}
+
+// collectParametrizedTests executes InitTestParams function, finds test methods with tableTestPrefix,
+// gets map with parameters, gets map with parameterized tests,
+// replaces tests in runner with parameterized tests with results
+func collectParametrizedTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
+	if initTestParamsSuit, ok := suite.(WithTestPramsSuite); ok {
+		initTestParamsSuit.InitTestParams()
+	}
+	newTests := make(map[string]Test)
+	for k, v := range runner.tests {
+		newTests[k] = v
+	}
+	for name, test := range runner.tests {
+		if strings.HasPrefix(name, tableTestPrefix) {
+			params, err := getParams(runner.suite, name)
+			if err != nil {
+				panic(err)
+			}
+			temp := getParamTests(test, params)
+			delete(newTests, name)
+			for tName, body := range temp {
+				tResult := body.GetMeta().GetResult()
+				id, ok := suite.FindAllureID(tName)
+				if ok {
+					tResult.AddLabel(allure.IDAllureLabel(id))
+				}
+				newTests[tName] = body
+				runner.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(tResult.UUID)
+			}
+		}
+	}
+	runner.tests = newTests
+	return runner
 }
 
 // collectTests filters suite methods according to set regular expression and
@@ -81,7 +116,7 @@ func collectTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
 		method := methodFinder.Method(i)
 		ok, err := methodFilter(method.Name)
 		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "allire-go: invalid regexp for -m: %s\n", err)
+			_, _ = fmt.Fprintf(os.Stderr, "allure-go: invalid regexp for -m: %s\n", err)
 			os.Exit(1)
 		}
 
@@ -90,6 +125,10 @@ func collectTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
 		}
 
 		testMeta := adapter.NewTestMeta(suiteFullName, suiteName, method.Name, packageName)
+		id, ok := suite.FindAllureID(method.Name)
+		if ok {
+			testMeta.GetResult().AddLabel(allure.IDAllureLabel(id))
+		}
 		runner.tests[method.Name] = &testMethod{
 			testMeta: testMeta,
 			testBody: method,
@@ -105,34 +144,6 @@ type parametrizedTest interface {
 	GetRawBody() reflect.Method
 	GetArgs() []reflect.Value
 	GetMeta() provider.TestMeta
-}
-
-// parametrizedWrap executes beforeAll function, finds test methods with tableTestPrefix,
-// gets map with parameters, gets map with parameterized tests,
-// replaces tests in runner with parameterized tests with results
-func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t provider.T) {
-	return func(t provider.T) {
-		beforeAll(t)
-		newTests := make(map[string]Test)
-		for k, v := range runner.tests {
-			newTests[k] = v
-		}
-		for name, test := range runner.tests {
-			if strings.HasPrefix(name, tableTestPrefix) {
-				params, err := getParams(runner.suite, name)
-				if err != nil {
-					panic(err)
-				}
-				temp := getParamTests(test, params)
-				delete(newTests, name)
-				for tName, body := range temp {
-					newTests[tName] = body
-					runner.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(body.GetMeta().GetResult().UUID)
-				}
-			}
-		}
-		runner.tests = newTests
-	}
 }
 
 // getParamTests create instance of TestAdapter for every param from params
@@ -204,7 +215,7 @@ func getParams(suite TestSuite, methodName string) (res map[string]interface{}, 
 
 func collectHooks(runner *suiteRunner, suite TestSuite) *suiteRunner {
 	if beforeAll, ok := suite.(AllureBeforeSuite); ok {
-		runner.BeforeAll(parametrizedWrap(runner, beforeAll.BeforeAll))
+		runner.BeforeAll(beforeAll.BeforeAll)
 	}
 
 	if beforeEach, ok := suite.(AllureBeforeTest); ok {
