@@ -26,14 +26,22 @@ type suiteRunner struct {
 }
 
 func NewSuiteRunnerWithParent(realT TestingT, packageName, suiteName, parentSuite string, suite TestSuite) TestRunner {
-	return newSuiteRunner(realT, packageName, suiteName, parentSuite, suite)
+	return newSuiteRunner(realT, packageName, suiteName, parentSuite, suite, false)
+}
+
+func NewInitParamsSuiteRunnerWithParent(realT TestingT, packageName, suiteName, parentSuite string, suite TestSuite) TestRunner {
+	return newSuiteRunner(realT, packageName, suiteName, parentSuite, suite, true)
 }
 
 func NewSuiteRunner(realT TestingT, packageName, suiteName string, suite TestSuite) TestRunner {
-	return newSuiteRunner(realT, packageName, suiteName, "", suite)
+	return newSuiteRunner(realT, packageName, suiteName, "", suite, false)
 }
 
-func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, suite TestSuite) TestRunner {
+func NewInitParamsSuiteRunner(realT TestingT, packageName, suiteName string, suite TestSuite) TestRunner {
+	return newSuiteRunner(realT, packageName, suiteName, "", suite, true)
+}
+
+func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, suite TestSuite, initParams bool) TestRunner {
 	newT := common.NewT(realT)
 
 	callers := strings.Split(realT.Name(), "/")
@@ -62,16 +70,18 @@ func newSuiteRunner(realT TestingT, packageName, suiteName, parentSuite string, 
 		suite:       suite,
 	}
 	r = collectTests(r, suite)
-	r = collectParametrizedTests(r, suite)
-	r = collectHooks(r, suite)
+	if initParams {
+		r = collectParametrizedTestsBeforeHooks(r, suite)
+	}
+	r = collectHooks(r, suite, initParams)
 
 	return r
 }
 
-// collectParametrizedTests executes InitTestParams function, finds test methods with tableTestPrefix,
+// collectParametrizedTestsBeforeHooks executes InitTestParams function, finds test methods with tableTestPrefix,
 // gets map with parameters, gets map with parameterized tests,
 // replaces tests in runner with parameterized tests with results
-func collectParametrizedTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
+func collectParametrizedTestsBeforeHooks(runner *suiteRunner, suite TestSuite) *suiteRunner {
 	if initTestParamsSuit, ok := suite.(WithTestPramsSuite); ok {
 		initTestParamsSuit.InitTestParams()
 	}
@@ -213,9 +223,41 @@ func getParams(suite TestSuite, methodName string) (res map[string]interface{}, 
 	return
 }
 
-func collectHooks(runner *suiteRunner, suite TestSuite) *suiteRunner {
+// parametrizedWrap executes beforeAll function, finds test methods with tableTestPrefix,
+// gets map with parameters, gets map with parameterized tests,
+// replaces tests in runner with parameterized tests with results
+func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t provider.T) {
+	return func(t provider.T) {
+		beforeAll(t)
+		newTests := make(map[string]Test)
+		for k, v := range runner.tests {
+			newTests[k] = v
+		}
+		for name, test := range runner.tests {
+			if strings.HasPrefix(name, tableTestPrefix) {
+				params, err := getParams(runner.suite, name)
+				if err != nil {
+					panic(err)
+				}
+				temp := getParamTests(test, params)
+				delete(newTests, name)
+				for tName, body := range temp {
+					newTests[tName] = body
+					runner.internalT.GetProvider().GetSuiteMeta().GetContainer().AddChild(body.GetMeta().GetResult().UUID)
+				}
+			}
+		}
+		runner.tests = newTests
+	}
+}
+
+func collectHooks(runner *suiteRunner, suite TestSuite, initParams bool) *suiteRunner {
 	if beforeAll, ok := suite.(AllureBeforeSuite); ok {
-		runner.BeforeAll(beforeAll.BeforeAll)
+		if initParams {
+			runner.BeforeAll(beforeAll.BeforeAll)
+		} else {
+			runner.BeforeAll(parametrizedWrap(runner, beforeAll.BeforeAll))
+		}
 	}
 
 	if beforeEach, ok := suite.(AllureBeforeTest); ok {
