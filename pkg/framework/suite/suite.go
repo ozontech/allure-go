@@ -10,20 +10,7 @@ import (
 )
 
 type Suite struct {
-	runner          runner.TestRunner
-	allureIDMapping map[string]string
-}
-
-func (s *Suite) AddAllureIDMapping(testName, allureID string) {
-	if s.allureIDMapping == nil {
-		s.allureIDMapping = make(map[string]string)
-	}
-	s.allureIDMapping[testName] = allureID
-}
-
-func (s *Suite) FindAllureID(testName string) (id string, ok bool) {
-	id, ok = s.allureIDMapping[testName]
-	return
+	runner runner.TestRunner
 }
 
 func (s *Suite) GetRunner() runner.TestRunner {

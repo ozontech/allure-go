@@ -30,7 +30,6 @@ The project started as a fork of testify, but over time it got its own runner an
   + [XSkip](#xskip)
   + [:rocket: Parametrized tests](#parametrized-test)
   + [Setup test](#setup-test)
-  + [Add ALLURE_ID to the tests before executing BeforeAll function](#Add-ALLURE_ID-to-the-tests-before-executing-BeforeAll-function)
 
 ## :zap: Features
 
@@ -729,10 +728,10 @@ type ParametrizedSuite struct {
   ParamCities []string
 }
 
-func (s *ParametrizedSuite) InitTestParams() {
+func (s *ParametrizedSuite) BeforeAll(t provider.T) {
   for i := 0; i < 10; i++ {
     s.ParamCities = append(s.ParamCities, fake.City())
-  }	
+  }
 }
 
 func (s *ParametrizedSuite) TableTestCities(t provider.T, city string) {
@@ -806,39 +805,3 @@ func TestRunner(t *testing.T) {
 Allure output:
 
 ![](.resources/example_setup_test.png)
-
-### [Add ALLURE_ID to the tests before executing BeforeAll function](examples/suite_demo/allureid_test.go)
-
-Function `AddAllureIDMapping(testName, allureID string)` allows to set ALLURE_ID label to the test during the suit's tests collecting step.
-If the code into `BeforeAll` function fails, Allure Report will not duplicate testcases in TestOps. 
-
-Test code:
-
-```go
-package suite_demo
-
-import (
-  "testing"
-
-  "github.com/ozontech/allure-go/pkg/framework/provider"
-  "github.com/ozontech/allure-go/pkg/framework/suite"
-)
-
-type AllureIdSuite struct {
-  suite.Suite
-}
-
-func (s *AllureIdSuite) BeforeAll(t provider.T) {
-  // code that can fail here
-}
-
-func (s *AllureIdSuite) TestMyTestWithAllureID(t provider.T) {
-  // code of your test here
-}
-
-func TestNewDemo(t *testing.T) {
-  ais := new(AllureIdSuite)
-  ais.AddAllureIDMapping("TestMyTestWithAllureID", "12345")
-  suite.RunSuite(t, ais)
-}
-```
