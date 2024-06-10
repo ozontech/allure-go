@@ -71,5 +71,8 @@ func (a *allureManager) NewTest(testName, packageName string, tags ...string) {
 }
 
 func (a *allureManager) FinishTest() error {
+	if err := a.testMeta.GetContainer().Done(); err != nil {
+		return err
+	}
 	return a.testMeta.GetResult().Done()
 }
