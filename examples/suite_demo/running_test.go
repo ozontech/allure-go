@@ -10,7 +10,7 @@ import (
 	"github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-//TestRunningDemoSuite demonstrate parallel running
+// TestRunningDemoSuite demonstrate parallel running
 type TestRunningDemoSuite struct {
 	suite.Suite
 }
