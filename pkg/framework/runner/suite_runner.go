@@ -75,7 +75,12 @@ func collectTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
 		packageName   = runner.packageName
 		suiteName     = runner.internalT.GetProvider().GetSuiteMeta().GetSuiteName()
 		suiteFullName = runner.internalT.GetProvider().GetSuiteMeta().GetSuiteFullName()
+		getAllureId   func(string) string
 	)
+
+	if ais, ok := suite.(AllureIdSuite); ok {
+		getAllureId = ais.GetAllureId
+	}
 
 	for i := 0; i < methodFinder.NumMethod(); i++ {
 		method := methodFinder.Method(i)
@@ -90,6 +95,14 @@ func collectTests(runner *suiteRunner, suite TestSuite) *suiteRunner {
 		}
 
 		testMeta := adapter.NewTestMeta(suiteFullName, suiteName, method.Name, packageName)
+
+		if getAllureId != nil {
+			id := getAllureId(method.Name)
+			if len(id) > 0 {
+				testMeta.GetResult().AddLabel(allure.IDAllureLabel(id))
+			}
+		}
+
 		runner.tests[method.Name] = &testMethod{
 			testMeta: testMeta,
 			testBody: method,

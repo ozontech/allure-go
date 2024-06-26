@@ -32,6 +32,12 @@ type AllureAfterSuite interface {
 	AfterAll(t provider.T)
 }
 
+// AllureIdSuite has a GetAllureId method,
+// which will produce allureIds for the test
+type AllureIdSuite interface {
+	GetAllureId(testName string) string
+}
+
 type TestSuite interface {
 	GetRunner() TestRunner
 	SetRunner(runner TestRunner)
