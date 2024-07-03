@@ -32,17 +32,28 @@ type AllureAfterSuite interface {
 	AfterAll(t provider.T)
 }
 
-// WithTestPramsSuite has an InitTestParams method, which will run before
-// collecting the tests in the suite.
-type WithTestPramsSuite interface {
-	InitTestParams()
+// AllureIDSuite has a GetAllureID method,
+// which will produce allureIDs for the test by its name
+type AllureIDSuite interface {
+	GetAllureID(testName string) string
+}
+
+// ParametrizedSuite suit can initialize parameters for
+// parametrized test before running hooks
+type ParametrizedSuite interface {
+	InitializeTestsParams()
+}
+
+// ParametrizedTestParam parameter for parametrized test
+// with custom AllureId and Title
+type ParametrizedTestParam interface {
+	GetAllureID() string
+	GetAllureTitle() string
 }
 
 type TestSuite interface {
 	GetRunner() TestRunner
 	SetRunner(runner TestRunner)
-	AddAllureIDMapping(testName, allureID string)
-	FindAllureID(testName string) (id string, ok bool)
 }
 
 type TestingT interface {

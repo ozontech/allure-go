@@ -282,7 +282,7 @@ func setupErrorHandler(msg string, err error, meta provider.TestMeta, result Sui
 	defer mtx.Unlock()
 
 	tRes := NewTestResult(meta.GetResult(), meta.GetContainer())
-	tRes.GetResult().Status = allure.Unknown
+	tRes.GetResult().Status = allure.Failed
 	tRes.GetResult().SetStatusMessage(msg)
 	tRes.GetResult().SetStatusTrace(fmt.Sprintf("%s. Reason:\n%s", msg, err.Error()))
 	_ = tRes.Print()

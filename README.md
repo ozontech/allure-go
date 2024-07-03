@@ -30,7 +30,7 @@ The project started as a fork of testify, but over time it got its own runner an
   + [XSkip](#xskip)
   + [:rocket: Parametrized tests](#parametrized-test)
   + [Setup test](#setup-test)
-  + [Add ALLURE_ID to the tests before executing BeforeAll function](#Add-ALLURE_ID-to-the-tests-before-executing-BeforeAll-function)
+  + [Prevent loosing allureID in test results](#Prevent-loosing-allureID-in-test-results)
 
 ## :zap: Features
 
@@ -729,10 +729,10 @@ type ParametrizedSuite struct {
   ParamCities []string
 }
 
-func (s *ParametrizedSuite) InitTestParams() {
+func (s *ParametrizedSuite) BeforeAll(t provider.T) {
   for i := 0; i < 10; i++ {
     s.ParamCities = append(s.ParamCities, fake.City())
-  }	
+  }
 }
 
 func (s *ParametrizedSuite) TableTestCities(t provider.T, city string) {
@@ -807,12 +807,13 @@ Allure output:
 
 ![](.resources/example_setup_test.png)
 
-### [Add ALLURE_ID to the tests before executing BeforeAll function](examples/suite_demo/allureid_test.go)
+### Prevent loosing allureID in test results
 
-Function `AddAllureIDMapping(testName, allureID string)` allows to set ALLURE_ID label to the test during the suit's tests collecting step.
-If the code into `BeforeAll` function fails, Allure Report will not duplicate testcases in TestOps. 
+When suit fails at the setup stage (beforeAll), report will not contain `ALLURE_ID` field.
+To prevent it you can use `GetAllureID(testName string) string` method for common tests and
+`InitializeTestsParams()` method for parametrized tests.
 
-Test code:
+**Example for `GetAllureID` method:**
 
 ```go
 package suite_demo
@@ -824,21 +825,96 @@ import (
   "github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-type AllureIdSuite struct {
+type AllureIDSuite struct {
   suite.Suite
 }
 
-func (s *AllureIdSuite) BeforeAll(t provider.T) {
+func (testSuit *AllureIDSuite) GetAllureID(testName string) string {
+  switch testName {
+  case "TestWithAllureIDFirst":
+    return "9001"
+  case "TestWithAllureIDSecond":
+    return "9002"
+  default:
+    return ""
+  }
+}
+
+func (s *AllureIDSuite) BeforeAll(t provider.T) {
   // code that can fail here
 }
 
-func (s *AllureIdSuite) TestMyTestWithAllureID(t provider.T) {
+func (s *AllureIDSuite) TestWithAllureIDFirst(t provider.T) {
+  // code of your test here
+}
+
+func (s *AllureIDSuite) TestWithAllureIDSecond(t provider.T) {
   // code of your test here
 }
 
 func TestNewDemo(t *testing.T) {
-  ais := new(AllureIdSuite)
-  ais.AddAllureIDMapping("TestMyTestWithAllureID", "12345")
-  suite.RunSuite(t, ais)
+  suite.RunSuite(t, new(AllureIDSuite))
+}
+
+```
+
+**Example for `InitializeTestsParams` method:**
+
+```go
+package suite_demo
+
+import (
+  "testing"
+
+  "github.com/jackc/fake"
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type CitiesParam struct {
+	allureID    string
+	title       string
+	value       string
+}
+
+func (p CitiesParam) GetAllureID() string {
+  return p.allureID
+}
+func (p CitiesParam) GetAllureTitle() string {
+  return p.title
+}
+
+type ParametrizedSuite struct {
+  suite.Suite
+  ParamCities []CitiesParam
+}
+
+func (s *ParametrizedSuite) InitializeTestsParams() {
+  s.ParamCities = make([]CitiesParam, 2)
+  s.ParamCities[0] = CitiesParam{
+    title:    "Title for city test #1",
+    allureID: "101",
+    value:    fake.City(),
+  }
+
+  s.ParamCities[1] = CitiesParam{
+    title:    "Title for city test #2",
+    allureID: "102",
+    value:    fake.City(),
+  }
+}
+
+
+func (s *ParametrizedSuite) BeforeAll(t provider.T) {
+  // setup suit here
+}
+
+func (s *ParametrizedSuite) TableTestCities(t provider.T, city CitiesParam) {
+  t.Parallel()
+  t.Require().NotEmpty(city.value)
+}
+
+func TestNewParametrizedDemo(t *testing.T) {
+  suite.RunSuite(t, new(ParametrizedSuite))
 }
 ```
