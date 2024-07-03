@@ -76,11 +76,11 @@ func collectTests(runner *suiteRunner, tSuite TestSuite) {
 		packageName   = runner.packageName
 		suiteName     = runner.internalT.GetProvider().GetSuiteMeta().GetSuiteName()
 		suiteFullName = runner.internalT.GetProvider().GetSuiteMeta().GetSuiteFullName()
-		getAllureId   func(string) string
+		getAllureID   func(string) string
 	)
 
-	if ais, ok := tSuite.(AllureIdSuite); ok {
-		getAllureId = ais.GetAllureId
+	if ais, ok := tSuite.(AllureIDSuite); ok {
+		getAllureID = ais.GetAllureID
 	}
 
 	for i := 0; i < methodFinder.NumMethod(); i++ {
@@ -97,8 +97,8 @@ func collectTests(runner *suiteRunner, tSuite TestSuite) {
 
 		testMeta := adapter.NewTestMeta(suiteFullName, suiteName, method.Name, packageName)
 
-		if getAllureId != nil {
-			id := getAllureId(method.Name)
+		if getAllureID != nil {
+			id := getAllureID(method.Name)
 			if len(id) > 0 {
 				testMeta.GetResult().AddLabel(allure.IDAllureLabel(id))
 			}
@@ -196,7 +196,7 @@ func getParamTests(parentTest Test, params map[string]interface{}) map[string]Te
 
 			if ptp, ok := param.(ParametrizedTestParam); ok {
 				meta.GetResult().Name = ptp.GetAllureTitle()
-				meta.GetResult().AddLabel(allure.IDAllureLabel(ptp.GetAllureId()))
+				meta.GetResult().AddLabel(allure.IDAllureLabel(ptp.GetAllureID()))
 			}
 
 			res[pName] = &testMethod{

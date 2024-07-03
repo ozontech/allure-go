@@ -32,10 +32,10 @@ type AllureAfterSuite interface {
 	AfterAll(t provider.T)
 }
 
-// AllureIdSuite has a GetAllureId method,
-// which will produce allureIds for the test by its name
-type AllureIdSuite interface {
-	GetAllureId(testName string) string
+// AllureIDSuite has a GetAllureID method,
+// which will produce allureIDs for the test by its name
+type AllureIDSuite interface {
+	GetAllureID(testName string) string
 }
 
 // ParametrizedSuite suit can initialize parameters for
@@ -47,7 +47,7 @@ type ParametrizedSuite interface {
 // ParametrizedTestParam parameter for parametrized test
 // with custom AllureId and Title
 type ParametrizedTestParam interface {
-	GetAllureId() string
+	GetAllureID() string
 	GetAllureTitle() string
 }
 

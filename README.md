@@ -30,6 +30,7 @@ The project started as a fork of testify, but over time it got its own runner an
   + [XSkip](#xskip)
   + [:rocket: Parametrized tests](#parametrized-test)
   + [Setup test](#setup-test)
+  + [Prevent loosing allureID in test results](#Prevent-loosing-allureID-in-test-results)
 
 ## :zap: Features
 
@@ -806,13 +807,13 @@ Allure output:
 
 ![](.resources/example_setup_test.png)
 
-### Prevent loosing allureId in test results
+### Prevent loosing allureID in test results
 
-When suit fails at the setup stage (beforeAll), report will not contain `allureId` field.
-To prevent it you can use `GetAllureId(testName string) string` method for common tests and
+When suit fails at the setup stage (beforeAll), report will not contain `ALLURE_ID` field.
+To prevent it you can use `GetAllureID(testName string) string` method for common tests and
 `InitializeTestsParams()` method for parametrized tests.
 
-**Example for `GetAllureId` method:**
+**Example for `GetAllureID` method:**
 
 ```go
 package suite_demo
@@ -824,11 +825,11 @@ import (
   "github.com/ozontech/allure-go/pkg/framework/suite"
 )
 
-type AllureIdSuite struct {
+type AllureIDSuite struct {
   suite.Suite
 }
 
-func (testSuit *AllureIdSuite) GetAllureId(testName string) string {
+func (testSuit *AllureIDSuite) GetAllureID(testName string) string {
   switch testName {
   case "TestWithAllureIDFirst":
     return "9001"
@@ -839,20 +840,20 @@ func (testSuit *AllureIdSuite) GetAllureId(testName string) string {
   }
 }
 
-func (s *AllureIdSuite) BeforeAll(t provider.T) {
+func (s *AllureIDSuite) BeforeAll(t provider.T) {
   // code that can fail here
 }
 
-func (s *AllureIdSuite) TestWithAllureIDFirst(t provider.T) {
+func (s *AllureIDSuite) TestWithAllureIDFirst(t provider.T) {
   // code of your test here
 }
 
-func (s *AllureIdSuite) TestWithAllureIDSecond(t provider.T) {
+func (s *AllureIDSuite) TestWithAllureIDSecond(t provider.T) {
   // code of your test here
 }
 
 func TestNewDemo(t *testing.T) {
-  suite.RunSuite(t, new(AllureIdSuite))
+  suite.RunSuite(t, new(AllureIDSuite))
 }
 
 ```
@@ -871,13 +872,13 @@ import (
 )
 
 type CitiesParam struct {
-	allureId    string
+	allureID    string
 	title       string
 	value       string
 }
 
-func (p CitiesParam) GetAllureId() string {
-  return p.allureId
+func (p CitiesParam) GetAllureID() string {
+  return p.allureID
 }
 func (p CitiesParam) GetAllureTitle() string {
   return p.title
@@ -892,13 +893,13 @@ func (s *ParametrizedSuite) InitializeTestsParams() {
   s.ParamCities = make([]CitiesParam, 2)
   s.ParamCities[0] = CitiesParam{
     title:    "Title for city test #1",
-    allureId: "101",
+    allureID: "101",
     value:    fake.City(),
   }
 
   s.ParamCities[1] = CitiesParam{
     title:    "Title for city test #2",
-    allureId: "102",
+    allureID: "102",
     value:    fake.City(),
   }
 }
