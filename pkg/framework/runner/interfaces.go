@@ -33,9 +33,22 @@ type AllureAfterSuite interface {
 }
 
 // AllureIdSuite has a GetAllureId method,
-// which will produce allureIds for the test
+// which will produce allureIds for the test by its name
 type AllureIdSuite interface {
 	GetAllureId(testName string) string
+}
+
+// ParametrizedSuite suit can initialize parameters for
+// parametrized test before running hooks
+type ParametrizedSuite interface {
+	InitializeTestsParams()
+}
+
+// ParametrizedTestParam parameter for parametrized test
+// with custom AllureId and Title
+type ParametrizedTestParam interface {
+	GetAllureId() string
+	GetAllureTitle() string
 }
 
 type TestSuite interface {
