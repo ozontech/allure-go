@@ -805,3 +805,115 @@ func TestRunner(t *testing.T) {
 Allure output:
 
 ![](.resources/example_setup_test.png)
+
+### Prevent loosing allureId in test results
+
+When suit fails at the setup stage (beforeAll), report will not contain `allureId` field.
+To prevent it you can use `GetAllureId(testName string) string` method for common tests and
+`InitializeTestsParams()` method for parametrized tests.
+
+**Example for `GetAllureId` method:**
+
+```go
+package suite_demo
+
+import (
+  "testing"
+
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type AllureIdSuite struct {
+  suite.Suite
+}
+
+func (testSuit *AllureIdSuite) GetAllureId(testName string) string {
+  switch testName {
+  case "TestWithAllureIDFirst":
+    return "9001"
+  case "TestWithAllureIDSecond":
+    return "9002"
+  default:
+    return ""
+  }
+}
+
+func (s *AllureIdSuite) BeforeAll(t provider.T) {
+  // code that can fail here
+}
+
+func (s *AllureIdSuite) TestWithAllureIDFirst(t provider.T) {
+  // code of your test here
+}
+
+func (s *AllureIdSuite) TestWithAllureIDSecond(t provider.T) {
+  // code of your test here
+}
+
+func TestNewDemo(t *testing.T) {
+  suite.RunSuite(t, new(AllureIdSuite))
+}
+
+```
+
+**Example for `InitializeTestsParams` method:**
+
+```go
+package suite_demo
+
+import (
+  "testing"
+
+  "github.com/jackc/fake"
+  "github.com/ozontech/allure-go/pkg/framework/provider"
+  "github.com/ozontech/allure-go/pkg/framework/suite"
+)
+
+type CitiesParam struct {
+	allureId    string
+	title       string
+	value       string
+}
+
+func (p CitiesParam) GetAllureId() string {
+  return p.allureId
+}
+func (p CitiesParam) GetAllureTitle() string {
+  return p.title
+}
+
+type ParametrizedSuite struct {
+  suite.Suite
+  ParamCities []CitiesParam
+}
+
+func (s *ParametrizedSuite) InitializeTestsParams() {
+  s.ParamCities = make([]CitiesParam, 2)
+  s.ParamCities[0] = CitiesParam{
+    title:    "Title for city test #1",
+    allureId: "101",
+    value:    fake.City(),
+  }
+
+  s.ParamCities[1] = CitiesParam{
+    title:    "Title for city test #2",
+    allureId: "102",
+    value:    fake.City(),
+  }
+}
+
+
+func (s *ParametrizedSuite) BeforeAll(t provider.T) {
+  // setup suit here
+}
+
+func (s *ParametrizedSuite) TableTestCities(t provider.T, city CitiesParam) {
+  t.Parallel()
+  t.Require().NotEmpty(city.value)
+}
+
+func TestNewParametrizedDemo(t *testing.T) {
+  suite.RunSuite(t, new(ParametrizedSuite))
+}
+```
