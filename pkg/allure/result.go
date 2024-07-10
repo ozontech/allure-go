@@ -223,11 +223,12 @@ func (result *Result) SkipOnPrint() {
 }
 
 // Print If `Result.ToPrint` = `true` - the method terminates without creating any files. Otherwise:
-//	- Calls `Result.PrintAttachments()`.
-//	- Saves the file `uuid4-Result.json`.
-//	- Calls `Result.Container.Print()`
-//	- Returns error (if any)
+//   - Calls `Result.PrintAttachments()`.
+//   - Saves the file `uuid4-Result.json`.
+//   - Calls `Result.Container.Print()`
+//   - Returns error (if any)
 func (result *Result) Print() error {
+	overWriteStartAndEndTime(result)
 	if !result.ToPrint {
 		return nil
 	}
@@ -299,4 +300,29 @@ func (result *Result) ToJSON() ([]byte, error) {
 func getMD5Hash(text string) string {
 	hash := md5.Sum([]byte(text))
 	return hex.EncodeToString(hash[:])
+}
+
+// getTimeSumOfSteps gets first step start time and last step end time
+func getTimeSumOfSteps(result *Result) (startTimeInt int64, endTimeInt int64) {
+	startTime := result.Steps[0].Start
+	endTime := result.Steps[0].Start
+
+	for _, step := range result.Steps {
+		if step.Stop > endTime {
+			endTime = step.Stop
+		}
+		if step.Start < startTime {
+			startTime = step.Start
+		}
+	}
+
+	return startTime, endTime
+}
+
+func overWriteStartAndEndTime(result *Result) {
+	if result.Status == Skipped {
+		result.Stop = result.Start
+	} else {
+		result.Start, result.Stop = getTimeSumOfSteps(result)
+	}
 }
