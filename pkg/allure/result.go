@@ -65,7 +65,7 @@ func NewResult(testName, fullName string) *Result {
 		ToPrint:    true,
 	}
 	result.HistoryID = getMD5Hash(result.TestCaseID)
-	result.Labels = append(result.Labels, LanguageLabel(runtime.Version()))
+	result.AddLabel(LanguageLabel(runtime.Version()))
 	result.Begin()
 	return &result
 }
@@ -126,13 +126,11 @@ func (result *Result) GetLabels(labelType LabelType) []*Label {
 
 // SetNewLabelMap Adds all passed in arguments `allure.Label` to the report
 func (result *Result) SetNewLabelMap(kv map[LabelType]string) {
-	result.m.Lock()
-	defer result.m.Unlock()
-
 	var labels []*Label
 	for k, v := range kv {
 		labels = append(labels, NewLabel(k, v))
 	}
+
 	result.AddLabel(labels...)
 }
 
