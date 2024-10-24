@@ -18,7 +18,6 @@ const (
 )
 
 func TestNewResult(t *testing.T) {
-
 	result := NewResult(testName, testFullName)
 	now := GetNow()
 
