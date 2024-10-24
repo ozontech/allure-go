@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -17,23 +18,27 @@ import (
 // information about the test name, applications, description, status, references, labels,
 // steps, containers, and time of the test execution.
 type Result struct {
-	Name          string        `json:"name,omitempty"`          // Test name
-	FullName      string        `json:"fullName,omitempty"`      // Full path to the test
-	Stage         string        `json:"stage,omitempty"`         // Stage of test execution
-	Status        Status        `json:"status,omitempty"`        // Status of the test execution
-	StatusDetails StatusDetail  `json:"statusDetails,omitempty"` // Details about the test (for example, errors during test execution will be recorded here)
-	Start         int64         `json:"start,omitempty"`         // Start of test execution
-	Stop          int64         `json:"stop,omitempty"`          // End of test execution
-	UUID          uuid.UUID     `json:"uuid,omitempty"`          // Unique test ID
-	HistoryID     string        `json:"historyId,omitempty"`     // ID in the allure history
-	TestCaseID    string        `json:"testCaseId,omitempty"`    // ID of the test case (based on the hash of the full call)
-	Description   string        `json:"description,omitempty"`   // Test description
-	Attachments   []*Attachment `json:"attachments,omitempty"`   // Test case attachments
-	Parameters    []*Parameter  `json:"parameters,omitempty"`    // Test case parameters
-	Labels        []*Label      `json:"labels,omitempty"`        // Array of labels
-	Links         []*Link       `json:"links,omitempty"`         // Array of references
-	Steps         []*Step       `json:"steps,omitempty"`         // Array of steps
-	ToPrint       bool          `json:"-"`                       // If false - the report will not be saved to a file
+	Name          string       `json:"name,omitempty"`          // Test name
+	FullName      string       `json:"fullName,omitempty"`      // Full path to the test
+	Stage         string       `json:"stage,omitempty"`         // Stage of test execution
+	Status        Status       `json:"status,omitempty"`        // Status of the test execution
+	StatusDetails StatusDetail `json:"statusDetails,omitempty"` // Details about the test (for example, errors during test execution will be recorded here)
+	Start         int64        `json:"start,omitempty"`         // Start of test execution
+	Stop          int64        `json:"stop,omitempty"`          // End of test execution
+	UUID          uuid.UUID    `json:"uuid,omitempty"`          // Unique test ID
+	HistoryID     string       `json:"historyId,omitempty"`     // ID in the allure history
+	TestCaseID    string       `json:"testCaseId,omitempty"`    // ID of the test case (based on the hash of the full call)
+	Description   string       `json:"description,omitempty"`   // Test description
+
+	m sync.RWMutex
+
+	Attachments []*Attachment `json:"attachments,omitempty"` // Test case attachments
+	Parameters  []*Parameter  `json:"parameters,omitempty"`  // Test case parameters
+	Labels      []*Label      `json:"labels,omitempty"`      // Array of labels
+	Links       []*Link       `json:"links,omitempty"`       // Array of references
+	Steps       []*Step       `json:"steps,omitempty"`       // Array of steps
+
+	ToPrint bool `json:"-"` // If false - the report will not be saved to a file
 }
 
 // NewResult Constructor Builds a new `allure.Result`. Sets the default values for the structure.
@@ -82,12 +87,18 @@ func (result *Result) GetStatusTrace() string {
 }
 
 func (result *Result) addLabel(labelType LabelType, labelValue string) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
 	label := NewLabel(labelType, labelValue)
 	result.Labels = append(result.Labels, label)
 }
 
 // AddLabel Adds all passed in arguments `allure.Label` to the report
 func (result *Result) AddLabel(labels ...*Label) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
 	result.Labels = append(result.Labels, labels...)
 }
 
@@ -101,6 +112,9 @@ func (result *Result) GetFirstLabel(labelType LabelType) (label *Label, ok bool)
 
 // GetLabels Returns all `allure.Label` whose `LabelType` matches the one specified in the argument.
 func (result *Result) GetLabels(labelType LabelType) []*Label {
+	result.m.RLock()
+	defer result.m.RUnlock()
+
 	labels := make([]*Label, 0)
 	for _, label := range result.Labels {
 		if label.Name == labelType.ToString() {
@@ -112,6 +126,9 @@ func (result *Result) GetLabels(labelType LabelType) []*Label {
 
 // SetNewLabelMap Adds all passed in arguments `allure.Label` to the report
 func (result *Result) SetNewLabelMap(kv map[LabelType]string) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
 	var labels []*Label
 	for k, v := range kv {
 		labels = append(labels, NewLabel(k, v))
@@ -197,6 +214,9 @@ func (result *Result) WithLabels(label ...*Label) *Result {
 // WithLaunchTags Adds all Launch Tags from the global variable `ALLURE_LAUNCH_TAGS` as labels with type `Tag` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithLaunchTags() *Result {
+	result.m.Lock()
+	defer result.m.Unlock()
+
 	if tags := os.Getenv(defaultTagsEnvKey); tags != "" {
 		for _, tag := range strings.Split(tags, ",") {
 			result.Labels = append(result.Labels, TagLabel(strings.Trim(tag, " ")))
@@ -223,10 +243,10 @@ func (result *Result) SkipOnPrint() {
 }
 
 // Print If `Result.ToPrint` = `true` - the method terminates without creating any files. Otherwise:
-//	- Calls `Result.PrintAttachments()`.
-//	- Saves the file `uuid4-Result.json`.
-//	- Calls `Result.Container.Print()`
-//	- Returns error (if any)
+//   - Calls `Result.PrintAttachments()`.
+//   - Saves the file `uuid4-Result.json`.
+//   - Calls `Result.Container.Print()`
+//   - Returns error (if any)
 func (result *Result) Print() error {
 	if !result.ToPrint {
 		return nil
@@ -254,6 +274,9 @@ func (result *Result) printResult() error {
 // for each allure.Step calls the `Step.PrintAttachments()` method.
 // Then calls `Attachment.Print()` on all `allure.Attachment` of the `Result.Attachments` list.
 func (result *Result) PrintAttachments() {
+	result.m.RLock()
+	defer result.m.RUnlock()
+
 	for _, step := range result.Steps {
 		step.PrintAttachments()
 	}
@@ -270,6 +293,7 @@ func (result *Result) Done() error {
 	if result.Status == "" {
 		result.Status = Passed
 	}
+
 	result.Finish()
 	return result.Print()
 }
@@ -281,6 +305,9 @@ func (result *Result) ReplaceNewLabel(name LabelType, value string) {
 
 // ReplaceLabel replaces label in the allure.Result object by label's name
 func (result *Result) ReplaceLabel(label *Label) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
 	for _, l := range result.Labels {
 		if label.Name == l.Name {
 			l.Value = label.Value
@@ -299,4 +326,60 @@ func (result *Result) ToJSON() ([]byte, error) {
 func getMD5Hash(text string) string {
 	hash := md5.Sum([]byte(text))
 	return hex.EncodeToString(hash[:])
+}
+
+func (result *Result) AddStep(step *Step) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Steps = append(result.Steps, step)
+}
+
+func (result *Result) AddAttachment(attachment *Attachment) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Attachments = append(result.Attachments, attachment)
+}
+
+func (result *Result) AddParameter(parameter *Parameter) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Parameters = append(result.Parameters, parameter)
+}
+
+func (result *Result) AddLink(link *Link) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Links = append(result.Links, link)
+}
+
+func (result *Result) GetStep() []*Step {
+	result.m.RLock()
+	defer result.m.RUnlock()
+
+	return result.Steps
+}
+
+func (result *Result) GetAttachment() []*Attachment {
+	result.m.RLock()
+	defer result.m.RUnlock()
+
+	return result.Attachments
+}
+
+func (result *Result) GetParameter() []*Parameter {
+	result.m.RLock()
+	defer result.m.RUnlock()
+
+	return result.Parameters
+}
+
+func (result *Result) GetLink() []*Link {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	return result.Links
 }
