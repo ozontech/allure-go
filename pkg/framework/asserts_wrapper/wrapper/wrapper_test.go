@@ -3681,12 +3681,12 @@ func TestAssertsEventually_Success(t *testing.T) {
 	mockT := newMock()
 
 	var (
-		counter atomic.Int32
+		counter int32
 		waitFor = time.Second
 		tick    = 10 * time.Millisecond
 	)
 	NewAsserts(mockT).Eventually(mockT, func() bool {
-		if counter.Add(1) < 3 {
+		if atomic.AddInt32(&counter, 1) < 3 {
 			time.Sleep(20 * time.Millisecond)
 			return false
 		}
@@ -3715,12 +3715,12 @@ func TestAssertsEventually_Fail(t *testing.T) {
 	mockT := newMock()
 
 	var (
-		counter atomic.Int32
+		counter int32
 		waitFor = 10 * time.Millisecond
 		tick    = 10 * time.Millisecond
 	)
 	NewAsserts(mockT).Eventually(mockT, func() bool {
-		if counter.Add(1) < 3 {
+		if atomic.AddInt32(&counter, 1) < 3 {
 			time.Sleep(20 * time.Millisecond)
 			return false
 		}
@@ -3749,12 +3749,12 @@ func TestRequireEventually_Success(t *testing.T) {
 	mockT := newMock()
 
 	var (
-		counter atomic.Int32
+		counter int32
 		waitFor = time.Second
 		tick    = 10 * time.Millisecond
 	)
 	NewRequire(mockT).Eventually(mockT, func() bool {
-		if counter.Add(1) < 3 {
+		if atomic.AddInt32(&counter, 1) < 3 {
 			time.Sleep(20 * time.Millisecond)
 			return false
 		}
@@ -3783,12 +3783,12 @@ func TestRequireEventually_Fail(t *testing.T) {
 	mockT := newMock()
 
 	var (
-		counter atomic.Int32
+		counter int32
 		waitFor = 10 * time.Millisecond
 		tick    = 10 * time.Millisecond
 	)
 	NewRequire(mockT).Eventually(mockT, func() bool {
-		if counter.Add(1) < 3 {
+		if atomic.AddInt32(&counter, 1) < 3 {
 			time.Sleep(20 * time.Millisecond)
 			return false
 		}
