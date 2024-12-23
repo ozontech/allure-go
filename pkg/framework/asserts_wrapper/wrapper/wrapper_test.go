@@ -3,6 +3,7 @@ package wrapper
 import (
 	"fmt"
 	"os"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -40,6 +41,132 @@ func (p *providerTMock) Errorf(format string, msgAndArgs ...interface{}) {
 
 func (p *providerTMock) FailNow() {
 	p.failNow = true
+}
+
+func TestAssert_Decorate_Success(t *testing.T) {
+	a := NewAsserts(t)
+	dec, ok := a.(interface {
+		Decorate(provider Provider, name string, assertFunc func(TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{})
+	})
+	require.True(t, ok)
+
+	mockT := newMock()
+	dec.Decorate(
+		mockT,
+		"TestDecorate",
+		func(TestingT) bool { return true },
+		allure.NewParameters("TestParam", "param_val"),
+	)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "ASSERT: TestDecorate", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 1)
+	require.Equal(t, "TestParam", params[0].Name)
+	require.Equal(t, "param_val", params[0].GetValue())
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestAssert_Decorate_Fail(t *testing.T) {
+	mockT := newMock()
+	a := NewAsserts(mockT)
+	dec, ok := a.(interface {
+		Decorate(provider Provider, name string, assertFunc func(TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{})
+	})
+	require.True(t, ok)
+
+	assertFunc := func(t TestingT) bool {
+		t.Errorf("\n%s", "err")
+		return false
+	}
+
+	dec.Decorate(
+		mockT,
+		"TestDecorate",
+		assertFunc,
+		allure.NewParameters("TestParam", "param_val"),
+	)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "ASSERT: TestDecorate", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 1)
+	require.Equal(t, "TestParam", params[0].Name)
+	require.Equal(t, "param_val", params[0].GetValue())
+
+	require.True(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequire_Decorator_Success(t *testing.T) {
+	mockT := newMock()
+	a := NewRequire(mockT)
+	dec, ok := a.(interface {
+		Decorate(provider Provider, name string, assertFunc func(TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{})
+	})
+	require.True(t, ok)
+
+	dec.Decorate(
+		mockT,
+		"TestDecorate",
+		func(TestingT) bool { return true },
+		allure.NewParameters("TestParam", "param_val"),
+	)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: TestDecorate", mockT.steps[0].Name)
+	require.Equal(t, allure.Passed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 1)
+	require.Equal(t, "TestParam", params[0].Name)
+	require.Equal(t, "param_val", params[0].GetValue())
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestAssert_Decorate_Require(t *testing.T) {
+	mockT := newMock()
+	a := NewRequire(mockT)
+	dec, ok := a.(interface {
+		Decorate(provider Provider, name string, assertFunc func(TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{})
+	})
+	require.True(t, ok)
+
+	assertFunc := func(t TestingT) bool {
+		t.Errorf("\n%s", "err")
+		return false
+	}
+
+	dec.Decorate(
+		mockT,
+		"TestDecorate",
+		assertFunc,
+		allure.NewParameters("TestParam", "param_val"),
+	)
+	require.Len(t, mockT.steps, 1)
+	require.Equal(t, "REQUIRE: TestDecorate", mockT.steps[0].Name)
+	require.Equal(t, allure.Failed, mockT.steps[0].Status)
+
+	params := mockT.steps[0].Parameters
+	require.NotEmpty(t, params)
+	require.Len(t, params, 1)
+	require.Equal(t, "TestParam", params[0].Name)
+	require.Equal(t, "param_val", params[0].GetValue())
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
 }
 
 func TestAssertExactly_Success(t *testing.T) {
@@ -3544,6 +3671,142 @@ func TestRequireInDelta_Fail(t *testing.T) {
 
 	require.Equal(t, "Delta", params[2].Name)
 	require.Equal(t, fmt.Sprintf("%v", delta), params[2].GetValue())
+
+	require.True(t, mockT.errorF)
+	require.True(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestAssertsEventually_Success(t *testing.T) {
+	mockT := newMock()
+
+	var (
+		counter atomic.Int32
+		waitFor = time.Second
+		tick    = 10 * time.Millisecond
+	)
+	NewAsserts(mockT).Eventually(mockT, func() bool {
+		if counter.Add(1) < 3 {
+			time.Sleep(20 * time.Millisecond)
+			return false
+		}
+		return true
+	}, waitFor, tick)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: Eventually", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+	require.Equal(t, "WaitFor", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", waitFor), params[0].GetValue())
+
+	require.Equal(t, "Tick", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", tick), params[1].GetValue())
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestAssertsEventually_Fail(t *testing.T) {
+	mockT := newMock()
+
+	var (
+		counter atomic.Int32
+		waitFor = 10 * time.Millisecond
+		tick    = 10 * time.Millisecond
+	)
+	NewAsserts(mockT).Eventually(mockT, func() bool {
+		if counter.Add(1) < 3 {
+			time.Sleep(20 * time.Millisecond)
+			return false
+		}
+		return true
+	}, waitFor, tick)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "ASSERT: Eventually", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+	require.Equal(t, "WaitFor", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", waitFor), params[0].GetValue())
+
+	require.Equal(t, "Tick", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", tick), params[1].GetValue())
+
+	require.True(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Equal(t, "\n%s", mockT.errorFString)
+}
+
+func TestRequireEventually_Success(t *testing.T) {
+	mockT := newMock()
+
+	var (
+		counter atomic.Int32
+		waitFor = time.Second
+		tick    = 10 * time.Millisecond
+	)
+	NewRequire(mockT).Eventually(mockT, func() bool {
+		if counter.Add(1) < 3 {
+			time.Sleep(20 * time.Millisecond)
+			return false
+		}
+		return true
+	}, waitFor, tick)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Eventually", steps[0].Name)
+	require.Equal(t, allure.Passed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+	require.Equal(t, "WaitFor", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", waitFor), params[0].GetValue())
+
+	require.Equal(t, "Tick", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", tick), params[1].GetValue())
+
+	require.False(t, mockT.errorF)
+	require.False(t, mockT.failNow)
+	require.Empty(t, mockT.errorFString)
+}
+
+func TestRequireEventually_Fail(t *testing.T) {
+	mockT := newMock()
+
+	var (
+		counter atomic.Int32
+		waitFor = 10 * time.Millisecond
+		tick    = 10 * time.Millisecond
+	)
+	NewRequire(mockT).Eventually(mockT, func() bool {
+		if counter.Add(1) < 3 {
+			time.Sleep(20 * time.Millisecond)
+			return false
+		}
+		return true
+	}, waitFor, tick)
+
+	steps := mockT.steps
+	require.Len(t, steps, 1)
+	require.Equal(t, "REQUIRE: Eventually", steps[0].Name)
+	require.Equal(t, allure.Failed, steps[0].Status)
+
+	params := steps[0].Parameters
+	require.Len(t, params, 2)
+	require.Equal(t, "WaitFor", params[0].Name)
+	require.Equal(t, fmt.Sprintf("%v", waitFor), params[0].GetValue())
+
+	require.Equal(t, "Tick", params[1].Name)
+	require.Equal(t, fmt.Sprintf("%v", tick), params[1].GetValue())
 
 	require.True(t, mockT.errorF)
 	require.True(t, mockT.failNow)

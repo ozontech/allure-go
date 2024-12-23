@@ -203,3 +203,7 @@ func Zero(t ProviderT, i interface{}, msgAndArgs ...interface{}) {
 func NotZero(t ProviderT, i interface{}, msgAndArgs ...interface{}) {
 	wrapper.NewAsserts(t).NotZero(t, i, msgAndArgs...)
 }
+
+func Eventually(t ProviderT, condition func() bool, waitFor time.Duration, tick time.Duration, msgAndArgs ...interface{}) {
+	wrapper.NewAsserts(t).Eventually(t, condition, waitFor, tick, msgAndArgs...)
+}

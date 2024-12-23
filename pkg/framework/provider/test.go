@@ -113,4 +113,5 @@ type Asserts interface {
 	Zero(i interface{}, msgAndArgs ...interface{})
 	NotZero(i interface{}, msgAndArgs ...interface{})
 	InDelta(expected, actual interface{}, delta float64, msgAndArgs ...interface{})
+	Eventually(condition func() bool, waitFor time.Duration, tick time.Duration, msgAndArgs ...interface{})
 }

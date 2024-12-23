@@ -11,30 +11,26 @@ type Provider interface {
 }
 
 type assertHelper struct {
-	required bool
+	prefix string
 }
 
 func (h *assertHelper) getStepName(assertName string, msgAndArgs ...interface{}) string {
-	prefix := "ASSERT"
-	if h.required {
-		prefix = "REQUIRE"
-	}
 	if len(msgAndArgs) == 0 {
-		return fmt.Sprintf("%s: %s", prefix, assertName)
+		return fmt.Sprintf("%s: %s", h.prefix, assertName)
 	}
-	return fmt.Sprintf("%s: %s", prefix, messageFromMsgAndArgs(msgAndArgs...))
+	return fmt.Sprintf("%s: %s", h.prefix, messageFromMsgAndArgs(msgAndArgs...))
 }
 
-func (h *assertHelper) withNewStep(t TestingT, provider Provider, assertName string, assert func(t TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{}) bool {
-	var result bool
-	step := allure.NewSimpleStep(h.getStepName(assertName, msgAndArgs...), params...)
-	defer func() {
-		if !result {
-			step.Failed()
-		}
-		provider.Step(step)
-	}()
-	result = assert(t)
+func (h *assertHelper) WithNewStep(t TestingT, provider Provider, assertName string, assert func(t TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{}) bool {
+	var (
+		step   = allure.NewSimpleStep(h.getStepName(assertName, msgAndArgs...), params...)
+		result = assert(t)
+	)
+
+	provider.Step(step)
+	if !result {
+		step.Failed()
+	}
 
 	return result
 }

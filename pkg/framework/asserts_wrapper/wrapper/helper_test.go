@@ -33,18 +33,18 @@ func (p *tMock) FailNow() {
 }
 
 func TestAssertHelper_getStepName(t *testing.T) {
-	a := &assertHelper{}
+	a := &assertHelper{prefix: "ASSERT"}
 	require.Equal(t, "ASSERT: Test", a.getStepName("Test"))
 
-	b := &assertHelper{required: true}
+	b := &assertHelper{prefix: "REQUIRE"}
 	require.Equal(t, "REQUIRE: Test", b.getStepName("Test"))
 }
 
 func TestAssertHelper_withNewStep_requireFalse(t *testing.T) {
-	a := &assertHelper{}
+	a := &assertHelper{prefix: "ASSERT"}
 	mock := newTMock()
 	param := allure.NewParameters("pName", "pValue")
-	result := a.withNewStep(mock, mock, "Test", func(t TestingT) bool { return true }, param)
+	result := a.WithNewStep(mock, mock, "Test", func(t TestingT) bool { return true }, param)
 	require.True(t, result)
 	require.NotEmpty(t, mock.steps)
 	require.Len(t, mock.steps, 1)
@@ -57,7 +57,7 @@ func TestAssertHelper_withNewStep_requireFalse(t *testing.T) {
 
 	mock2 := newTMock()
 	param2 := allure.NewParameter("pName", "pValue")
-	result2 := a.withNewStep(mock2, mock2, "Test", func(t TestingT) bool { return false }, param)
+	result2 := a.WithNewStep(mock2, mock2, "Test", func(t TestingT) bool { return false }, param)
 	require.False(t, result2)
 	require.NotEmpty(t, mock2.steps)
 	require.Len(t, mock2.steps, 1)
@@ -70,10 +70,10 @@ func TestAssertHelper_withNewStep_requireFalse(t *testing.T) {
 }
 
 func TestAssertHelper_withNewStep_requireTrue(t *testing.T) {
-	a := &assertHelper{required: true}
+	a := &assertHelper{prefix: "REQUIRE"}
 	mock := newTMock()
 	param := allure.NewParameters("pName", "pValue")
-	result := a.withNewStep(mock, mock, "Test", func(t TestingT) bool { return true }, param)
+	result := a.WithNewStep(mock, mock, "Test", func(t TestingT) bool { return true }, param)
 	require.True(t, result)
 	require.NotEmpty(t, mock.steps)
 	require.Len(t, mock.steps, 1)
@@ -86,7 +86,7 @@ func TestAssertHelper_withNewStep_requireTrue(t *testing.T) {
 
 	mock2 := newTMock()
 	param2 := allure.NewParameter("pName", "pValue")
-	result2 := a.withNewStep(mock2, mock2, "Test", func(t TestingT) bool { return false }, param)
+	result2 := a.WithNewStep(mock2, mock2, "Test", func(t TestingT) bool { return false }, param)
 	require.False(t, result2)
 	require.NotEmpty(t, mock2.steps)
 	require.Len(t, mock2.steps, 1)
