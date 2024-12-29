@@ -3,6 +3,7 @@ package helper
 import (
 	"time"
 
+	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/wrapper"
 	"github.com/stretchr/testify/assert"
 )
@@ -10,6 +11,13 @@ import (
 type a struct {
 	t       ProviderT
 	asserts wrapper.AssertsWrapper
+}
+
+func (a *a) Decorate(name string, assertFunc func(t wrapper.TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{}) {
+	dec := a.asserts.(interface {
+		Decorate(p wrapper.Provider, name string, assertFunc func(t wrapper.TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{})
+	})
+	dec.Decorate(a.t, name, assertFunc, params, msgAndArgs...)
 }
 
 // Exactly ...
@@ -204,4 +212,9 @@ func (a *a) NotZero(i interface{}, msgAndArgs ...interface{}) {
 // InDelta ...
 func (a *a) InDelta(expected, actual interface{}, delta float64, msgAndArgs ...interface{}) {
 	a.asserts.InDelta(a.t, expected, actual, delta, msgAndArgs...)
+}
+
+// Eventually ...
+func (a *a) Eventually(condition func() bool, waitFor time.Duration, tick time.Duration, msgAndArgs ...interface{}) {
+	a.asserts.Eventually(a.t, condition, waitFor, tick, msgAndArgs...)
 }
