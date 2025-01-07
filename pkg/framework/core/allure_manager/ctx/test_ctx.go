@@ -7,7 +7,8 @@ import (
 )
 
 type testCtx struct {
-	name   string
+	name string
+
 	result *allure.Result
 }
 
