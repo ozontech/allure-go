@@ -1,14 +1,15 @@
 package allure
 
 type Step struct {
-	Name        string        `json:"name,omitempty"`
-	Status      Status        `json:"status,omitempty"`
-	Attachments []*Attachment `json:"attachments,omitempty"`
-	Start       int64         `json:"start,omitempty"`
-	Stop        int64         `json:"stop,omitempty"`
-	Steps       []*Step       `json:"steps,omitempty"`
-	Parameters  []*Parameter  `json:"parameters,omitempty"`
-	parent      *Step
+	Name          string        `json:"name,omitempty"`
+	Status        Status        `json:"status,omitempty"`
+	StatusDetails StatusDetail  `json:"statusDetails"`
+	Attachments   []*Attachment `json:"attachments,omitempty"`
+	Start         int64         `json:"start,omitempty"`
+	Stop          int64         `json:"stop,omitempty"`
+	Steps         []*Step       `json:"steps,omitempty"`
+	Parameters    []*Parameter  `json:"parameters,omitempty"`
+	parent        *Step
 }
 
 // NewStep Constructor. Creates a new `allure.Step` object with field values passed in arguments
@@ -24,7 +25,7 @@ func NewStep(name string, status Status, start int64, stop int64, parameters []*
 }
 
 // NewSimpleStep Constructor. Creates a `Step` object, by calling `allure.NewStep` with certain standard values
-//(except for the Step name and possible parameters)
+// (except for the Step name and possible parameters)
 // =================================
 // | Field Value| Default          |
 // =================================
@@ -63,6 +64,16 @@ func (s *Step) WithParameters(params ...*Parameter) *Step {
 // Returns pointer to the current Step (for Fluent Interface).
 func (s *Step) WithNewParameters(kv ...interface{}) *Step {
 	s.Parameters = append(s.Parameters, NewParameters(kv...)...)
+	return s
+}
+
+// WithStatusDetails accept error message and trace.
+// Returns pointer to the current Step (for Fluent Interface).
+func (s *Step) WithStatusDetails(message string, trace string) *Step {
+	s.StatusDetails = StatusDetail{
+		Message: message,
+		Trace:   trace,
+	}
 	return s
 }
 

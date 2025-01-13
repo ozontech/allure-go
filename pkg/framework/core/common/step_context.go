@@ -94,14 +94,14 @@ func (ctx *stepCtx) FailNow() {
 func (ctx *stepCtx) Error(args ...interface{}) {
 	ctx.t.GetRealT().Helper()
 
-	ctx.Fail()
+	ctx.FailWithMessage(fmt.Sprintln(args...))
 	ctx.t.Error(args...)
 }
 
 func (ctx *stepCtx) Errorf(format string, args ...interface{}) {
 	ctx.t.GetRealT().Helper()
 
-	ctx.Fail()
+	ctx.FailWithMessage(format, args...)
 	ctx.t.Errorf(format, args...)
 }
 
@@ -115,6 +115,10 @@ func (ctx *stepCtx) Logf(format string, args ...interface{}) {
 	ctx.t.GetRealT().Helper()
 
 	ctx.t.Logf(format, args...)
+}
+
+func (ctx *stepCtx) WithStatusDetails(message, trace string) {
+	ctx.currentStep.WithStatusDetails(message, trace)
 }
 
 func (ctx *stepCtx) CurrentStep() *allure.Step {
@@ -169,6 +173,7 @@ func (ctx *stepCtx) WithNewStep(stepName string, step func(ctx provider.StepCtx)
 			ctxName := newCtx.ExecutionContextName()
 			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, r, debug.Stack())
 			newCtx.Broken()
+			newCtx.WithStatusDetails(fmt.Sprintf("%s panicked", ctxName), errMsg)
 			TestError(ctx.t, ctx.p, ctxName, errMsg)
 		}
 	}()
@@ -210,6 +215,36 @@ func (ctx *stepCtx) BrokenNow() {
 		ctx.parentStep.Broken()
 	}
 	ctx.t.BrokenNow()
+}
+
+func (ctx *stepCtx) BrokenNowWithMessage(format string, args ...any) {
+	errMsg := fmt.Sprintf(format, args...)
+	short := errMsg
+	if len(errMsg) > 100 {
+		short = short[:100]
+	}
+	ctx.WithStatusDetails(short, errMsg)
+	ctx.BrokenNow()
+}
+
+func (ctx *stepCtx) FailWithMessage(format string, args ...any) {
+	errMsg := fmt.Sprintf(format, args...)
+	short := errMsg
+	if len(errMsg) > 100 {
+		short = short[:100]
+	}
+	ctx.WithStatusDetails(short, errMsg)
+	ctx.Fail()
+}
+
+func (ctx *stepCtx) BrokenWithMessage(format string, args ...any) {
+	errMsg := fmt.Sprintf(format, args...)
+	short := errMsg
+	if len(errMsg) > 100 {
+		short = short[:100]
+	}
+	ctx.WithStatusDetails(short, errMsg)
+	ctx.Broken()
 }
 
 func (ctx *stepCtx) Break(args ...interface{}) {

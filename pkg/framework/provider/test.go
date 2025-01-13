@@ -56,6 +56,7 @@ type StepCtx interface {
 
 	LogStep(args ...interface{})
 	LogfStep(format string, args ...interface{})
+	WithStatusDetails(message, trace string)
 	CurrentStep() *allure.Step
 
 	Broken()
