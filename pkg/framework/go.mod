@@ -1,6 +1,6 @@
 module github.com/ozontech/allure-go/pkg/framework
 
-go 1.18
+go 1.17
 
 replace github.com/ozontech/allure-go/pkg/allure => ../allure
 

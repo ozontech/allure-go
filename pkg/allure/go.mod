@@ -1,6 +1,6 @@
 module github.com/ozontech/allure-go/pkg/allure
 
-go 1.18
+go 1.17
 
 require (
 	github.com/google/uuid v1.3.0

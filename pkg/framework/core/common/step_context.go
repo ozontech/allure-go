@@ -217,7 +217,7 @@ func (ctx *stepCtx) BrokenNow() {
 	ctx.t.BrokenNow()
 }
 
-func (ctx *stepCtx) BrokenNowWithMessage(format string, args ...any) {
+func (ctx *stepCtx) BrokenNowWithMessage(format string, args ...interface{}) {
 	errMsg := fmt.Sprintf(format, args...)
 	short := errMsg
 	if len(errMsg) > 100 {
@@ -227,7 +227,7 @@ func (ctx *stepCtx) BrokenNowWithMessage(format string, args ...any) {
 	ctx.BrokenNow()
 }
 
-func (ctx *stepCtx) FailWithMessage(format string, args ...any) {
+func (ctx *stepCtx) FailWithMessage(format string, args ...interface{}) {
 	errMsg := fmt.Sprintf(format, args...)
 	short := errMsg
 	if len(errMsg) > 100 {
@@ -237,7 +237,7 @@ func (ctx *stepCtx) FailWithMessage(format string, args ...any) {
 	ctx.Fail()
 }
 
-func (ctx *stepCtx) BrokenWithMessage(format string, args ...any) {
+func (ctx *stepCtx) BrokenWithMessage(format string, args ...interface{}) {
 	errMsg := fmt.Sprintf(format, args...)
 	short := errMsg
 	if len(errMsg) > 100 {
