@@ -279,6 +279,7 @@ func TestResult_WithLabels(t *testing.T) {
 func TestResult_PrintAttachments(t *testing.T) {
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
 	result := new(Result)
+	result.Steps = append(result.Steps, NewStep(testName, "complete", 1, 1, []*Parameter{}))
 	result.Attachments = append(result.Attachments, NewAttachment("Text Attachment if TestAttachment", Text, []byte(attachmentText)))
 	result.PrintAttachments()
 	defer os.RemoveAll(allureDir)
@@ -297,6 +298,7 @@ func TestResult_PrintAttachments(t *testing.T) {
 
 func TestResult_Print_toPrintFalse(t *testing.T) {
 	result := new(Result)
+	result.Steps = append(result.Steps, NewStep(testName, "complete", 1, 1, []*Parameter{}))
 	err := result.Print()
 
 	require.NoError(t, err)
@@ -305,6 +307,7 @@ func TestResult_Print_toPrintFalse(t *testing.T) {
 
 func TestResult_Print(t *testing.T) {
 	result := NewResult(testName, testFullName)
+	result.Steps = append(result.Steps, NewStep(testName, "complete", 1, 1, []*Parameter{}))
 	err := result.Print()
 
 	require.NoError(t, err)
@@ -339,6 +342,7 @@ func TestResult_Print(t *testing.T) {
 func TestResult_Print_withAttachment(t *testing.T) {
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
 	result := NewResult(testName, testFullName)
+	result.Steps = append(result.Steps, NewStep(testName, "complete", 1, 1, []*Parameter{}))
 	result.Attachments = append(result.Attachments, NewAttachment("Text Attachment if TestAttachment", Text, []byte(attachmentText)))
 	result.PrintAttachments()
 	err := result.Print()
@@ -395,10 +399,11 @@ func TestResult_Print_withAttachment(t *testing.T) {
 
 func TestResult_Done(t *testing.T) {
 	attachmentText := `THIS IS A TEXT ATTACHMENT`
+	now := GetNow()
 	result := NewResult(testName, testFullName)
 	result.Attachments = append(result.Attachments, NewAttachment("Text Attachment if TestAttachment", Text, []byte(attachmentText)))
+	result.Steps = append(result.Steps, NewStep(testName, "complete", now, now, []*Parameter{}))
 	result.PrintAttachments()
-	now := GetNow()
 	result.Done()
 
 	defer os.RemoveAll(allureDir)
