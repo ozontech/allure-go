@@ -9,7 +9,7 @@ func (a *allureManager) SetIssue(issue string) {
 	a.Link(allure.IssueLink(issue))
 }
 
-// SetTestCase adds test case link due environment variable ALLURE_TEST_CASE_PATTERN
+// SetTestCase adds test case link due environment variable ALLURE_TESTCASE_PATTERN
 func (a *allureManager) SetTestCase(testCase string) {
 	a.Link(allure.TestCaseLink(testCase))
 }
