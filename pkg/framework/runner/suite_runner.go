@@ -207,7 +207,7 @@ func getParamTests(parentTest Test, params map[string]interface{}) map[string]Te
 		}
 		return res
 	}
-	panic(fmt.Sprintf("missing interface implementaion (parametrizedTest) for test: %s", parentTest.GetMeta().GetResult().Name))
+	panic(fmt.Sprintf("missing interface implementation (parametrizedTest) for test: %s", parentTest.GetMeta().GetResult().Name))
 }
 
 // getParams checks that the parameter extending the suite is of the slice type

@@ -86,7 +86,7 @@ Main interfaces for test working are `provider.T` and `provider.StepCtx`.
 | `Labels(labels ...allure.Label)`             |              Adds multiple allure labels               |
 | `ReplaceLabel(label allure.Label)`           | Replace any label with same name as passed to argument |
 
-:warning: **NOTE**: Some labels (such as `languange`, `host`, `framework`, etc) have default values and cannot be set
+:warning: **NOTE**: Some labels (such as `language`, `host`, `framework`, etc) have default values and cannot be set
 during test runtime any other way (`SystemLabels` interface) but ReplaceLabel method.
 
 ##### Link Methods (`Links` interface)
