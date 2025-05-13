@@ -13,10 +13,10 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: '1.22.4'
+          go-version: '1.17.8'
       - name: allure-golangci-lint
         run: cd ./pkg/allure && make lint
       - name: provider-golangci-lint
@@ -25,7 +25,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - name: allure-test
         run: cd ./pkg/allure && make test
       - name: provider-test
@@ -35,7 +35,7 @@ jobs:
     name: examples
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - name: Run examples
         run: make examples
       - name: Archive code coverage results
