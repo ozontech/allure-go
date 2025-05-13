@@ -134,9 +134,8 @@ func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t pr
 func collectParametrizedTests(runner *suiteRunner, suite TestSuite) {
 	if ps, ok := suite.(ParametrizedSuite); ok {
 		ps.InitializeTestsParams()
-	} else {
-		return
 	}
+
 	initializeParametrizedTests(runner)
 }
 
@@ -252,7 +251,6 @@ func collectHooks(runner *suiteRunner, suite TestSuite) {
 	if afterEach, ok := suite.(AllureAfterTest); ok {
 		runner.AfterEach(afterEach.AfterEach)
 	}
-
 }
 
 var matchMethod = flag.String("allure-go.m", "", "regular expression to select tests of the allure-go suite to run")
