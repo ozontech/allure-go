@@ -125,14 +125,29 @@ func TestLabelCreation(t *testing.T) {
 }
 
 func TestLabelUnmarshal(t *testing.T) {
-	const data = `{"name": "epic", "value": "very epic indeed"}`
+	t.Run("string", func(t *testing.T) {
+		const data = `{"name": "epic", "value": "very epic indeed"}`
 
-	var label Label
+		var label Label
 
-	require.NoError(t, json.Unmarshal([]byte(data), &label))
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
 
-	require.Equal(t, Label{
-		Name:  "epic",
-		Value: "very epic indeed",
-	}, label)
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: "very epic indeed",
+		}, label)
+	})
+
+	t.Run("int", func(t *testing.T) {
+		const data = `{"name": "epic", "value": 83294782375982}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: 83294782375982,
+		}, label)
+	})
 }
