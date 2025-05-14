@@ -1,6 +1,7 @@
 package allure
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -121,4 +122,17 @@ func TestLabelCreation(t *testing.T) {
 
 	require.Equal(t, "24.2", numLabel.GetValue())
 	require.Equal(t, "true", boolLabel.GetValue())
+}
+
+func TestLabelUnmarshal(t *testing.T) {
+	const data = `{"name": "epic", "value": "very epic indeed"}`
+
+	var label Label
+
+	require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+	require.Equal(t, Label{
+		Name:  "epic",
+		Value: "very epic indeed",
+	}, label)
 }
