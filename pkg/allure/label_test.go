@@ -79,6 +79,8 @@ func TestLabelCreation(t *testing.T) {
 	owner := OwnerLabel("ownerTest")
 	lead := LeadLabel("leadTest")
 	idAllure := IDAllureLabel("idAllureTest")
+	numLabel := NewLabel(ID, 24.2)
+	boolLabel := NewLabel(Epic, true)
 
 	require.Equal(t, epic.Name, Epic.ToString())
 	require.Equal(t, layer.Name, Layer.ToString())
@@ -116,4 +118,7 @@ func TestLabelCreation(t *testing.T) {
 	require.Equal(t, "ownerTest", owner.GetValue())
 	require.Equal(t, "leadTest", lead.GetValue())
 	require.Equal(t, "idAllureTest", idAllure.GetValue())
+
+	require.Equal(t, "24.2", numLabel.GetValue())
+	require.Equal(t, "true", boolLabel.GetValue())
 }

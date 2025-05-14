@@ -25,7 +25,7 @@ func (l *Label) GetValue() string {
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
-func NewLabel(labelType LabelType, value string) *Label {
+func NewLabel(labelType LabelType, value interface{}) *Label {
 	return &Label{
 		Name:  labelType.ToString(),
 		Value: value,
