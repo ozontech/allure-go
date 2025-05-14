@@ -126,7 +126,7 @@ func TestLabelCreation(t *testing.T) {
 
 func TestLabelUnmarshal(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
-		const data = `{"name": "epic", "value": "very epic indeed"}`
+		const data = `{"name": "epic", "value": "\"very epic indeed\""}`
 
 		var label Label
 
@@ -136,6 +136,8 @@ func TestLabelUnmarshal(t *testing.T) {
 			Name:  "epic",
 			Value: "very epic indeed",
 		}, label)
+
+		require.Equal(t, "very epic indeed", label.GetValue())
 	})
 
 	t.Run("int", func(t *testing.T) {
@@ -149,5 +151,7 @@ func TestLabelUnmarshal(t *testing.T) {
 			Name:  "epic",
 			Value: 83294782375982,
 		}, label)
+
+		require.Equal(t, "83294782375982", label.GetValue())
 	})
 }
