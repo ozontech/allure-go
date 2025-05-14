@@ -28,6 +28,11 @@ type Common struct {
 	xSkip bool
 
 	wg sync.WaitGroup
+
+	tempDirMu  sync.Mutex
+	tempDir    string
+	tempDirErr error
+	tempDirSeq int32
 }
 
 // NewT returns Common instance that implementing provider.T interface
