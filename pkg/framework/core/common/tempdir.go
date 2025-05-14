@@ -17,8 +17,8 @@ func (c *Common) TempDir() string {
 	//
 	// See this issue https://github.com/golang/go/issues/71742
 	//
-	// It was fixed recently by the go team https://go.dev/cl/671577
-	// but it will require some time until the fix will reach this library
+	// It was fixed recently (as of 14.05.2025) by the go team https://go.dev/cl/671577
+	// but it will require some time until it reaches the stable version.
 
 	// Use a single parent directory for all the temporary directories
 	// created by a test, each numbered sequentially.
