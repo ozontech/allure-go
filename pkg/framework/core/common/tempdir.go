@@ -95,6 +95,8 @@ func (c *Common) TempDir() string {
 	}
 
 	dir := fmt.Sprintf("%s%c%03d", c.tempDir, os.PathSeparator, seq)
+
+	//nolint:gosec // copied from the stdlib
 	if err := os.Mkdir(dir, 0o777); err != nil {
 		c.Fatalf("TempDir: %v", err)
 	}
