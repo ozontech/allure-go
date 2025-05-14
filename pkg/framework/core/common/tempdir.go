@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Common) TempDir() string {
-	// HACK: Temp solution until for the go stdlib bug.
+	// HACK: Temp solution for the go stdlib bug.
 	//
 	// Copied from https://github.com/golang/go/blob/master/src/testing/testing.go#L1307
 	//
