@@ -3,6 +3,7 @@ package allure
 import (
 	//"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -42,7 +43,14 @@ func NewParameters(kv ...interface{}) []*Parameter {
 
 // GetValue returns param value as string
 func (p *Parameter) GetValue() string {
-	return strings.Trim(fmt.Sprintf("%s", p.Value), "\"")
+	s := fmt.Sprint(p.Value)
+
+	unquoted, err := strconv.Unquote(s)
+	if err != nil {
+		return s
+	}
+
+	return unquoted
 }
 
 func trimBrackets(val string) string {

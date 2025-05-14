@@ -2,7 +2,7 @@ package allure
 
 import (
 	"fmt"
-	"strings"
+	"strconv"
 )
 
 // Label is the implementation of the label.
@@ -14,7 +14,14 @@ type Label struct {
 
 // GetValue returns label value as string
 func (l *Label) GetValue() string {
-	return strings.Trim(fmt.Sprintf("%s", l.Value), "\"")
+	s := fmt.Sprint(l.Value)
+
+	unquoted, err := strconv.Unquote(s)
+	if err != nil {
+		return s
+	}
+
+	return unquoted
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
