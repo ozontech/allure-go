@@ -57,10 +57,14 @@ func TmsLink(testCase string) *Link {
 
 // TmsLinks returns multiple TmsLink type link
 func TmsLinks(testCases ...string) []*Link {
-	var result []*Link
+	result := make([]*Link, 0, len(testCases))
+
 	for _, testCase := range testCases {
-		result = append(result, NewLink(testCase, TMS, fmt.Sprintf(getTmsPattern(), testCase)))
+		url := fmt.Sprintf(getTmsPattern(), testCase)
+
+		result = append(result, NewLink(testCase, TMS, url))
 	}
+
 	return result
 }
 
@@ -78,11 +82,14 @@ func getTmsPattern() string {
 
 func getPattern(envKey string, defaultPattern string) string {
 	pattern := os.Getenv(envKey)
-	if pattern == "" && !strings.Contains(pattern, "%s") {
-		fmt.Printf("Provided pattern (%s) not contains '%%s' or empty.\n", pattern)
-		fmt.Printf("Please provide correct one. Use %s environment variable.\n", envKey)
-		fmt.Printf("Until this default pattern will be used (%s).\n", defaultPattern)
+
+	if !strings.Contains(pattern, "%s") {
+		fmt.Printf("Provided pattern (%s) is either missing '%%s' or empty.\n", pattern)
+		fmt.Printf("Use %s environment variable to supply correct one.\n", envKey)
+		fmt.Printf("Default pattern will be used (%s).\n", defaultPattern)
+
 		return defaultPattern
 	}
+
 	return pattern
 }

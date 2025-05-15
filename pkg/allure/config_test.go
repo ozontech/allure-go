@@ -1,8 +1,9 @@
 package allure
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestConfig(t *testing.T) {
@@ -12,5 +13,5 @@ func TestConfig(t *testing.T) {
 	require.Equal(t, "ALLURE_TESTCASE_PATTERN", testCasePatternEnvKey)
 	require.Equal(t, "ALLURE_LAUNCH_TAGS", defaultTagsEnvKey)
 	require.Equal(t, "ALLURE_LINK_TMS_PATTERN", tmsLinkPatternEnvKey)
-	require.Equal(t, 0644, fileSystemPermissionCode)
+	require.Equal(t, 0o644, fileSystemPermissionCode)
 }

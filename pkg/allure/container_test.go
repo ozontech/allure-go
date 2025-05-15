@@ -3,7 +3,7 @@ package allure
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 	"time"
@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	allureDir = "./allure-results"
+	allureDir = "allure-results"
 )
 
 func TestNewContainer(t *testing.T) {
@@ -57,7 +57,7 @@ func TestContainer_Print(t *testing.T) {
 	_ = container.Print()
 	defer os.RemoveAll(allureDir)
 	require.DirExists(t, allureDir)
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 1)
 	var jsonFile *os.File
 	defer jsonFile.Close()
@@ -65,7 +65,7 @@ func TestContainer_Print(t *testing.T) {
 	f := files[0]
 	emptyContainer := &Container{}
 	jsonFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
-	bytes, readErr := ioutil.ReadAll(jsonFile)
+	bytes, readErr := io.ReadAll(jsonFile)
 	require.NoError(t, readErr)
 	unMarshallErr := json.Unmarshal(bytes, emptyContainer)
 	require.NoError(t, unMarshallErr)
@@ -93,7 +93,8 @@ func TestMarshallingContainer(t *testing.T) {
 		Start:       time.Now().UnixNano(),
 		Stop:        time.Now().UnixNano(),
 		Steps:       nil,
-		Parameters:  []*Parameter{NewParameter("p", b)}})
+		Parameters:  []*Parameter{NewParameter("p", b)},
+	})
 
 	_, err := container.ToJSON()
 	require.NoError(t, err)

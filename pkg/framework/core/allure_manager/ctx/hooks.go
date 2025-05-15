@@ -38,6 +38,7 @@ func (ctx *hooksCtx) AddStep(newStep *allure.Step) {
 	switch ctx.name {
 	case constants.BeforeAllContextName, constants.BeforeEachContextName:
 		ctx.container.Befores = append(ctx.container.Befores, newStep)
+
 	case constants.AfterAllContextName, constants.AfterEachContextName:
 		ctx.container.Afters = append(ctx.container.Afters, newStep)
 	}
@@ -50,11 +51,18 @@ func (ctx *hooksCtx) GetName() string {
 
 // AddAttachments adds attachment to the execution context
 func (ctx *hooksCtx) AddAttachments(attachments ...*allure.Attachment) {
+	if len(attachments) == 0 {
+		return
+	}
+
+	first := attachments[0]
+
 	newStep := allure.NewSimpleStep(
-		fmt.Sprintf("Attachment %s", attachments[0].Name),
-		allure.NewParameter("name", attachments[0].Name),
-		allure.NewParameter("type", string(attachments[0].Type)),
-		allure.NewParameter("source", attachments[0].Source))
-	newStep.WithAttachments(attachments...)
+		fmt.Sprintf("Attachment %s", first.Name),
+		allure.NewParameter("name", first.Name),
+		allure.NewParameter("type", string(first.Type)),
+		allure.NewParameter("source", first.Source),
+	).WithAttachments(attachments...)
+
 	ctx.AddStep(newStep)
 }

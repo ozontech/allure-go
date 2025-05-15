@@ -3,7 +3,7 @@ package manager
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -114,7 +114,7 @@ func TestNewProvider(t *testing.T) {
 func TestAllureManager_safely(t *testing.T) {
 	result := &allure.Result{}
 	manager := allureManager{testMeta: &testMetaMockProvider{result: result}}
-	manager.safely(func(result2 *allure.Result) {
+	manager.withResult(func(result2 *allure.Result) {
 		require.NotNil(t, result2)
 		require.Equal(t, result, result2)
 	})
@@ -177,7 +177,7 @@ func TestAllureManager_FinishTest(t *testing.T) {
 	manager.FinishTest()
 
 	defer os.RemoveAll(allureDir)
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 2)
 
 	var resultFile *os.File
@@ -190,19 +190,25 @@ func TestAllureManager_FinishTest(t *testing.T) {
 
 	for _, f := range files {
 		if strings.HasSuffix(f.Name(), "-result.json") {
-			fileByte = f
+			info, err := f.Info()
+			require.NoError(t, err)
+
+			fileByte = info
 			continue
 		}
 
 		if strings.HasSuffix(f.Name(), "-attachment.txt") {
-			attachByte = f
+			info, err := f.Info()
+			require.NoError(t, err)
+
+			attachByte = info
 			continue
 		}
 	}
 
 	emptyResult := &allure.Result{}
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, fileByte.Name()))
-	bytes, readErr := ioutil.ReadAll(resultFile)
+	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
 	unMarshallErr := json.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
@@ -220,7 +226,7 @@ func TestAllureManager_FinishTest(t *testing.T) {
 	require.Equal(t, now, emptyResult.Stop)
 
 	attachFile, _ := os.Open(fmt.Sprintf("%s/%s", allureDir, attachByte.Name()))
-	bytes, readErr = ioutil.ReadAll(attachFile)
+	bytes, readErr = io.ReadAll(attachFile)
 	require.NoError(t, readErr)
 	require.Equal(t, attachmentText, string(bytes))
 }

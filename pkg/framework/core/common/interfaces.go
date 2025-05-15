@@ -24,6 +24,7 @@ type HookProvider interface {
 
 type InternalT interface {
 	provider.T
+
 	SetRealT(realT provider.TestingT)
 	WG() *sync.WaitGroup
 }

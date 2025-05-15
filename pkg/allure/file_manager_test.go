@@ -2,7 +2,7 @@ package allure
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 
@@ -48,14 +48,14 @@ func TestFileManager_CreateFile(t *testing.T) {
 	require.DirExists(t, allureDir)
 	defer os.RemoveAll(allureDir)
 
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 1)
 	var file *os.File
 	defer file.Close()
 
 	f := files[0]
 	file, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
-	bytes, readErr := ioutil.ReadAll(file)
+	bytes, readErr := io.ReadAll(file)
 	require.NoError(t, readErr)
 	require.Equal(t, fileContent, string(bytes))
 }

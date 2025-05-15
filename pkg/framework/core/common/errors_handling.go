@@ -19,17 +19,21 @@ type ErrorProvider interface {
 func TestError(t ErrorT, provider ErrorProvider, contextName, errMsg string) {
 	short := errMsg
 	if len(errMsg) > 100 {
+		// TODO: trim properly to avoid invalid UTF-8
 		short = errMsg[:100]
 	}
+
 	switch contextName {
 	case constants.TestContextName, constants.BeforeEachContextName:
 		provider.StopResult(allure.Broken)
 		provider.UpdateResultStatus(short, errMsg)
 		t.Errorf(errMsg)
 		t.FailNow()
+
 	case constants.AfterEachContextName, constants.AfterAllContextName:
 		t.Logf(errMsg)
 		provider.UpdateResultStatus(short, errMsg)
+
 	case constants.BeforeAllContextName:
 		t.Logf(errMsg)
 		provider.UpdateResultStatus(short, errMsg)

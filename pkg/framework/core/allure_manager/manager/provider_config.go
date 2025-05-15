@@ -12,6 +12,10 @@ const (
 	ParentSuite ConfigKey = "parentSuite"
 )
 
+func (c ConfigKey) String() string {
+	return string(c)
+}
+
 // ProviderConfig describes configuration interface
 type ProviderConfig interface {
 	SuitePath() string

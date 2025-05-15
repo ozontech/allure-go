@@ -1,7 +1,7 @@
 package allure
 
 import (
-	"fmt"
+	"github.com/google/uuid"
 )
 
 // Attachment - is an implementation of the attachments to the report in allure. It is most often used to contain
@@ -47,41 +47,67 @@ const (
 	Xlsx MimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
-var mimeTypeMap = map[MimeType]string{
-	Text:    "txt",
-	Csv:     "csv",
-	Tsv:     "tsv",
-	URIList: "uri",
-	HTML:    "html",
-	XML:     "xml",
-	JSON:    "json",
-	Yaml:    "yaml",
-	Pcap:    "pcap",
-	Png:     "png",
-	Jpg:     "jpg",
-	Svg:     "svg",
-	Gif:     "gif",
-	Bmp:     "bmp",
-	Tiff:    "tiff",
-	Mp4:     "mp4",
-	Ogg:     "ogg",
-	Webm:    "webm",
-	Mpeg:    "mpeg",
-	Pdf:     "pdf",
-	Xlsx:    "xlsx",
+// Ext returns file extension for this mime-type
+func (mt MimeType) Ext() string {
+	switch mt {
+	case Text:
+		return ".txt"
+	case Csv:
+		return ".csv"
+	case Tsv:
+		return ".tsv"
+	case URIList:
+		return ".uri"
+	case HTML:
+		return ".html"
+	case XML:
+		return ".xml"
+	case JSON:
+		return ".json"
+	case Yaml:
+		return ".yaml"
+	case Pcap:
+		return ".pcap"
+	case Png:
+		return ".png"
+	case Jpg:
+		return ".jpg"
+	case Svg:
+		return ".svg"
+	case Gif:
+		return ".gif"
+	case Bmp:
+		return ".bmp"
+	case Tiff:
+		return ".tiff"
+	case Mp4:
+		return ".mp4"
+	case Ogg:
+		return ".ogg"
+	case Webm:
+		return ".webm"
+	case Mpeg:
+		return ".mpeg"
+	case Pdf:
+		return ".pdf"
+	case Xlsx:
+		return ".xlsx"
+	default:
+		return ""
+	}
 }
 
 // NewAttachment - Constructor. Returns pointer to new attachment object.
 func NewAttachment(name string, mimeType MimeType, content []byte) *Attachment {
-	attachment := &Attachment{
-		uuid:    getUUID().String(),
+	id := uuid.New().String()
+
+	return &Attachment{
+		uuid:    id,
 		content: content,
 		Name:    name,
 		Type:    mimeType,
+		Source:  id + "-attachment" + mimeType.Ext(),
 	}
-	attachment.Source = fmt.Sprintf("%s-attachment.%s", attachment.uuid, mimeTypeMap[attachment.Type])
-
-	return attachment
 }
 
 func (a *Attachment) GetUUID() string {

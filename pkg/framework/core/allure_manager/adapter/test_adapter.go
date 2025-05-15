@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -22,15 +21,17 @@ type TestAdapter struct {
 
 // NewTestMeta returns pointer to instance of TestAdapter
 func NewTestMeta(suiteFullName, suiteName, testName, packageName string, tags ...string) *TestAdapter {
+	// TODO: handle error
 	host, _ := os.Hostname()
 	fullName := suiteFullName
+
 	// ex: suiteFullName=TestRunner/My_Test, testName=My Test => after split and replace: My_test == My_test
 	// why? to avoid TestRunner/My_Test/My Test
 	if callers := strings.Split(suiteFullName, "/"); callers[len(callers)-1] != strings.ReplaceAll(testName, " ", "_") {
-		fullName = fmt.Sprintf("%s/%s", fullName, testName)
+		fullName = fullName + "/" + testName
 	}
 
-	var newTags []*allure.Label
+	newTags := make([]*allure.Label, 0, len(tags))
 	for _, tag := range tags {
 		newTags = append(newTags, allure.NewLabel(allure.Tag, tag))
 	}

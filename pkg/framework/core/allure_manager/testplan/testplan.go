@@ -3,7 +3,6 @@ package testplan
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,25 +32,28 @@ func newTestPlan() (*TestPlan, error) {
 	if filePath == "" {
 		return nil, fmt.Errorf("{%s} environment variable not set", testPlanPath)
 	}
-	if !strings.HasSuffix(filePath, ".json") {
+
+	if filepath.Ext(filePath) != ".json" {
 		return nil, fmt.Errorf("%s environment variable has a wrong format. Please, set path to .json file. Current path:%s", testPlanPath, filePath)
 	}
 
-	testPlanRaw, readFileErr := findTestPlan(filePath)
-	if readFileErr != nil {
-		return nil, readFileErr
-	}
-
-	plan := &TestPlan{}
-	err := json.Unmarshal(testPlanRaw, plan)
+	testPlanRaw, err := findTestPlan(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	if plan != nil && len(plan.Tests) == 0 {
+	var plan TestPlan
+
+	err = json.Unmarshal(testPlanRaw, &plan)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(plan.Tests) == 0 {
 		return nil, fmt.Errorf("no any tests found in %s", filePath)
 	}
-	return plan, nil
+
+	return &plan, nil
 }
 
 // IsSelected returns true if selector matches with testplan selector
@@ -62,6 +64,7 @@ func (p *TestPlan) IsSelected(id, selector string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -78,6 +81,7 @@ func initTestPlan() *TestPlan {
 		}
 	}
 	once.Do(testPlanOnce)
+
 	return tPlan
 }
 
@@ -87,10 +91,13 @@ func GetTestPlan() *TestPlan {
 }
 
 func findTestPlan(path string) (testPlanRaw []byte, readFileErr error) {
-	testPlanRaw, readFileErr = ioutil.ReadFile(filepath.Clean(path))
+	// TODO: refactor this function to use filepath pkg properly
+
+	testPlanRaw, readFileErr = os.ReadFile(filepath.Clean(path))
 	if readFileErr == nil && testPlanRaw != nil {
 		return testPlanRaw, nil
 	}
+
 	dir, getWdErr := os.Getwd()
 	if getWdErr != nil {
 		return nil, getWdErr
@@ -115,11 +122,11 @@ func findTestPlan(path string) (testPlanRaw []byte, readFileErr error) {
 		}
 
 		//nolint:gosec // already cleared
-		testPlanRaw, readFileErr = ioutil.ReadFile(absolutePath)
+		testPlanRaw, readFileErr = os.ReadFile(absolutePath)
 		if readFileErr != nil {
 			// stop looking if project root found
 			//nolint:gosec // already cleared
-			_, gErr := ioutil.ReadFile(filepath.Join(basicPath, "go.mod"))
+			_, gErr := os.ReadFile(filepath.Join(basicPath, "go.mod"))
 			if gErr == nil {
 				return
 			}

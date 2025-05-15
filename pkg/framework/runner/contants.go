@@ -4,7 +4,7 @@ const (
 	tableParamPrefix = "Param"
 	tableTestPrefix  = "TableTest"
 	testPrefix       = "Test"
-
-	// magic number of depth caller to find test's caller package
-	defaultPackageDepth = 2
 )
+
+// magic number of depth caller to find test's caller package
+const defaultPackageDepth = 2

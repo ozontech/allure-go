@@ -2,7 +2,7 @@ package allure
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"testing"
 	"time"
@@ -93,14 +93,14 @@ func TestStep_PrintAttachments(t *testing.T) {
 
 	defer os.RemoveAll(allureDir)
 
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 1)
 	var attachFile *os.File
 	defer attachFile.Close()
 
 	f := files[0]
 	attachFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
-	bytes, readErr := ioutil.ReadAll(attachFile)
+	bytes, readErr := io.ReadAll(attachFile)
 	require.NoError(t, readErr)
 	require.Equal(t, attachmentText, string(bytes))
 }

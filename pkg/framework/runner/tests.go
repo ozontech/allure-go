@@ -13,7 +13,8 @@ import (
 type suiteResult struct {
 	Container   *allure.Container `json:"container,omitempty"`
 	TestResults []TestResult      `json:"test_results,omitempty"`
-	mu          sync.Mutex
+
+	mu sync.Mutex
 }
 
 // NewSuiteResult Returns new SuiteResult
@@ -42,20 +43,21 @@ func (sr *suiteResult) GetAllTestResults() []TestResult {
 // GetResultByName searches result by name and returns it
 func (sr *suiteResult) GetResultByName(name string) TestResult {
 	for _, tr := range sr.TestResults {
-		if result := tr.GetResult(); result != nil {
-			if result.Name == name {
+		if r := tr.GetResult(); r != nil {
+			if r.Name == name {
 				return tr
 			}
 		}
 	}
+
 	return nil
 }
 
 // GetResultByUUID searches result by UUID and returns it
 func (sr *suiteResult) GetResultByUUID(uuid string) TestResult {
 	for _, tr := range sr.TestResults {
-		if result := tr.GetResult(); result != nil {
-			if result.UUID.String() == uuid {
+		if r := tr.GetResult(); r != nil {
+			if r.UUID.String() == uuid {
 				return tr
 			}
 		}
@@ -64,6 +66,8 @@ func (sr *suiteResult) GetResultByUUID(uuid string) TestResult {
 }
 
 // ToJSON marshall result to Json object
+//
+// Deprecated: use [json.Marshal] instead.
 func (sr *suiteResult) ToJSON() ([]byte, error) {
 	return json.Marshal(sr)
 }
@@ -93,40 +97,44 @@ func (tr *testResult) GetContainer() *allure.Container {
 
 // Print returns print
 func (tr *testResult) Print() error {
-	const errMessage = "failed to print Result. Reason: %s\nAlso failed to print Container. Reason: %s"
 	var (
-		result    *allure.Result
-		container *allure.Container
-
 		resultErr    error
 		containerErr error
 	)
-	if result = tr.GetResult(); result != nil {
+
+	result := tr.GetResult()
+
+	if result != nil {
 		resultErr = result.Done()
-	}
-	if result == nil {
+	} else {
 		resultErr = fmt.Errorf("failed to print Result. Reason: *allure.Result is nil")
 	}
 
-	if container = tr.GetContainer(); container != nil {
+	container := tr.GetContainer()
+	if container != nil {
 		containerErr = container.Done()
-	}
-	if container == nil {
+	} else {
 		containerErr = fmt.Errorf("failed to print Container. Reason: *allure.Container is nil")
 	}
+
 	if resultErr != nil && containerErr != nil {
-		return fmt.Errorf(errMessage, resultErr.Error(), containerErr.Error())
+		return fmt.Errorf("failed to print Result. Reason: %s\nAlso failed to print Container. Reason: %s", resultErr, containerErr)
 	}
+
 	if resultErr != nil {
 		return resultErr
 	}
+
 	if containerErr != nil {
 		return containerErr
 	}
+
 	return nil
 }
 
 // ToJSON marshall TestResult to the JSON
+//
+// Deprecated: use [json.Marshal] instead
 func (tr *testResult) ToJSON() ([]byte, error) {
 	return json.Marshal(tr)
 }
@@ -187,7 +195,9 @@ func insert(a []reflect.Value, index int, value reflect.Value) []reflect.Value {
 	if len(a) == index { // nil or empty slice or after last element
 		return append(a, value)
 	}
+
 	a = append(a[:index+1], a[index:]...) // index < len(a)
 	a[index] = value
+
 	return a
 }

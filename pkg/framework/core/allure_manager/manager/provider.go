@@ -14,13 +14,23 @@ type allureManager struct {
 }
 
 func NewProvider(cfg ProviderConfig) provider.Provider {
-	suiteMeta := adapter.NewSuiteMetaWithParent(cfg.PackageName(), cfg.Runner(), cfg.FullName(), cfg.SuiteName(), cfg.ParentSuite())
-	return &allureManager{suiteMeta: suiteMeta, testMeta: &adapter.TestAdapter{}}
+	suiteMeta := adapter.NewSuiteMetaWithParent(
+		cfg.PackageName(),
+		cfg.Runner(),
+		cfg.FullName(),
+		cfg.SuiteName(),
+		cfg.ParentSuite(),
+	)
+
+	return &allureManager{
+		suiteMeta: suiteMeta,
+		testMeta:  &adapter.TestAdapter{},
+	}
 }
 
-func (a *allureManager) safely(f func(result *allure.Result)) {
-	if result := a.GetResult(); result != nil {
-		f(result)
+func (a *allureManager) withResult(f func(r *allure.Result)) {
+	if r := a.GetResult(); r != nil {
+		f(r)
 	}
 }
 
@@ -30,9 +40,9 @@ func (a *allureManager) UpdateResultStatus(msg string, trace string) {
 }
 
 func (a *allureManager) StopResult(status allure.Status) {
-	a.safely(func(result *allure.Result) {
-		result.Status = status
-		result.Stop = allure.GetNow()
+	a.withResult(func(r *allure.Result) {
+		r.Status = status
+		r.Stop = allure.GetNow()
 	})
 }
 
@@ -64,9 +74,11 @@ func (a *allureManager) NewTest(testName, packageName string, tags ...string) {
 		packageName,
 		tags...,
 	)
+
 	if parentSuite := a.suiteMeta.GetParentSuite(); parentSuite != "" {
-		a.testMeta.GetResult().WithParentSuite(a.suiteMeta.GetParentSuite())
+		a.testMeta.GetResult().WithParentSuite(parentSuite)
 	}
+
 	a.suiteMeta.GetContainer().AddChild(a.testMeta.GetResult().UUID)
 }
 
@@ -77,5 +89,6 @@ func (a *allureManager) FinishTest() error {
 			return err
 		}
 	}
+
 	return a.testMeta.GetResult().Done()
 }
