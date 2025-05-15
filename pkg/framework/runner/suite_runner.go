@@ -292,6 +292,8 @@ var regFilter = newRegFilter()
 // Filtering method according to set regular expression
 // specified command-line argument -m
 func methodFilter(name string) (bool, error) {
+	// TODO: do we need regex here? Refactor later to use string prefix comparison
+
 	if !regFilter.MatchString(name) {
 		return false, nil
 	}
