@@ -91,7 +91,7 @@ func (l *Label) UnmarshalJSON(data []byte) error {
 	}
 
 	// possibly unreachable
-	return fmt.Errorf("unmarshal value: %w, %w", errStr, errNum)
+	return fmt.Errorf("unmarshal value: %w", &joinError{errs: []error{errStr, errNum}})
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
