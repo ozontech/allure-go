@@ -136,7 +136,7 @@ func (r *runner) RunTests() SuiteResult {
 
 		defer wg.Wait()
 		defer finishSuite(r.internalT.GetProvider())
-		defer runHook(r.t(), afterAllHook)
+		defer func() { _, _ = runHook(r.t(), afterAllHook) }()
 
 		for _, test := range r.tests {
 			result.GetContainer().AddChild(test.GetMeta().GetResult().UUID)
