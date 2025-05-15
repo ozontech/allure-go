@@ -120,7 +120,7 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 	}
 
 	// possibly unreachable
-	return fmt.Errorf("unmarshal value: %w, %w", errStr, errNum)
+	return fmt.Errorf("unmarshal value: %w", &joinError{errs: []error{errStr, errNum}})
 }
 
 func trimBrackets(val string) string {
