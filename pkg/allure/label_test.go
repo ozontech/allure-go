@@ -1,6 +1,7 @@
 package allure
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -79,6 +80,8 @@ func TestLabelCreation(t *testing.T) {
 	owner := OwnerLabel("ownerTest")
 	lead := LeadLabel("leadTest")
 	idAllure := IDAllureLabel("idAllureTest")
+	numLabel := NewLabel(ID, 24.2)
+	boolLabel := NewLabel(Epic, true)
 
 	require.Equal(t, epic.Name, Epic.ToString())
 	require.Equal(t, layer.Name, Layer.ToString())
@@ -116,4 +119,86 @@ func TestLabelCreation(t *testing.T) {
 	require.Equal(t, "ownerTest", owner.GetValue())
 	require.Equal(t, "leadTest", lead.GetValue())
 	require.Equal(t, "idAllureTest", idAllure.GetValue())
+
+	require.Equal(t, "24.2", numLabel.GetValue())
+	require.Equal(t, "true", boolLabel.GetValue())
+}
+
+func TestLabelUnmarshal(t *testing.T) {
+	t.Run("string", func(t *testing.T) {
+		const data = `{"name": "epic", "value": "\"very epic indeed\""}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: "\"very epic indeed\"",
+		}, label)
+
+		require.Equal(t, "very epic indeed", label.GetValue())
+	})
+
+	t.Run("int", func(t *testing.T) {
+		const data = `{"name": "epic", "value": 83294782375982}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: int64(83294782375982),
+		}, label)
+
+		require.Equal(t, "83294782375982", label.GetValue())
+	})
+
+	t.Run("float", func(t *testing.T) {
+		const data = `{"name": "epic", "value": 3.14159}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: 3.14159,
+		}, label)
+
+		require.Equal(t, "3.14159", label.GetValue())
+	})
+
+	t.Run("slice", func(t *testing.T) {
+		const data = `{"name": "epic", "value": [1, 2, 3]}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: []interface{}{int64(1), int64(2), int64(3)},
+		}, label)
+
+		require.Equal(t, "[1 2 3]", label.GetValue())
+	})
+
+	t.Run("map", func(t *testing.T) {
+		const data = `{"name": "epic", "value": {"a": [1, true, 3.14]}}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name: "epic",
+			Value: map[string]interface{}{
+				"a": []interface{}{int64(1), true, 3.14},
+			},
+		}, label)
+
+		require.Equal(t, "map[a:[1 true 3.14]]", label.GetValue())
+	})
 }

@@ -1,8 +1,9 @@
 package allure
 
 import (
+	"encoding/json"
 	"fmt"
-	"strings"
+	"strconv"
 )
 
 // Label is the implementation of the label.
@@ -14,11 +15,47 @@ type Label struct {
 
 // GetValue returns label value as string
 func (l *Label) GetValue() string {
-	return strings.Trim(fmt.Sprintf("%s", l.Value), "\"")
+	s := fmt.Sprint(l.Value)
+
+	unquoted, err := strconv.Unquote(s)
+	if err != nil {
+		return s
+	}
+
+	return unquoted
+}
+
+func (l *Label) UnmarshalJSON(data []byte) error {
+	// Since [Label.Value] is interface{} json will unmarshal any number as float64.
+	// This might lead to unexpected behaviour, such as 83294782375982 unmarshalled as 8.3294782375982e+13
+	// While these values are logically the same, when converted to string the later will result 8.3294782375982e+13 (with exponent)
+	//
+	// We could've checked if this float is convertable to int in [Label.GetValue], unless we can't - int(float32(99999999)) == 100000000
+	// See: https://stackoverflow.com/questions/65417925/golang-weird-behavior-when-converting-float-to-int
+	//
+	// So using custom json unmarshalling seems like the only choice if we want to preserve backwards compatibility.
+	//
+	// TODO: refactor this in v2
+
+	var aux struct {
+		Name  string         `json:"name"`
+		Value parameterValue `json:"value"`
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	*l = Label{
+		Name:  aux.Name,
+		Value: aux.Value.Inner(),
+	}
+
+	return nil
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
-func NewLabel(labelType LabelType, value string) *Label {
+func NewLabel(labelType LabelType, value interface{}) *Label {
 	return &Label{
 		Name:  labelType.ToString(),
 		Value: value,
