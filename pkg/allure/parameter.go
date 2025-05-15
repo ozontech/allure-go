@@ -54,6 +54,103 @@ func (p *Parameter) GetValue() string {
 	return unquoted
 }
 
+// TODO: remove this in v2
+//
+// See explanation in [Parameter.UnmarshalJSON]
+type parameterValue struct {
+	inner interface{}
+}
+
+func (p parameterValue) Inner() interface{} {
+	switch i := p.inner.(type) {
+	case string, float64, int64, bool:
+		return p.inner
+	case []parameterValue:
+		values := make([]interface{}, 0, len(i))
+
+		for _, v := range i {
+			values = append(values, v.Inner())
+		}
+
+		return values
+	case map[string]parameterValue:
+		values := make(map[string]interface{}, len(i))
+
+		for k, v := range i {
+			values[k] = v.Inner()
+		}
+
+		return values
+	default:
+		// unreachable
+		return nil
+	}
+}
+
+func (p *parameterValue) UnmarshalJSON(data []byte) error {
+	var valueStr string
+
+	errStr := json.Unmarshal(data, &valueStr)
+	if errStr == nil {
+		p.inner = valueStr
+
+		return nil
+	}
+
+	var valueBool bool
+
+	errBool := json.Unmarshal(data, &valueBool)
+	if errBool == nil {
+		p.inner = valueBool
+
+		return nil
+	}
+
+	var valueNum json.Number
+
+	errNum := json.Unmarshal(data, &valueNum)
+	if errNum == nil {
+		if n, err := valueNum.Int64(); err == nil {
+			p.inner = n
+
+			return nil
+		}
+
+		if n, err := valueNum.Float64(); err == nil {
+			p.inner = n
+
+			return nil
+		}
+
+		// possibly unreachable
+		p.inner = valueNum.String()
+
+		return nil
+	}
+
+	var valueMap map[string]parameterValue
+
+	errMap := json.Unmarshal(data, &valueMap)
+	if errMap == nil {
+		p.inner = valueMap
+
+		return nil
+	}
+
+	var valueSlice []parameterValue
+
+	errSlice := json.Unmarshal(data, &valueSlice)
+	if errSlice == nil {
+		p.inner = valueSlice
+
+		return nil
+	}
+
+	return &joinError{
+		errs: []error{errStr, errBool, errNum, errMap, errSlice},
+	}
+}
+
 func (p *Parameter) UnmarshalJSON(data []byte) error {
 	// Since [Parameter.Value] is interface{} json will unmarshal any number as float64.
 	// This might lead to unexpected behaviour, such as 83294782375982 unmarshalled as 8.3294782375982e+13
@@ -67,60 +164,20 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 	// TODO: refactor this in v2
 
 	var aux struct {
-		Name  string          `json:"name"`
-		Value json.RawMessage `json:"value"`
+		Name  string         `json:"name"`
+		Value parameterValue `json:"value"`
 	}
 
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
 	}
 
-	var (
-		valueStr string
-		valueNum json.Number
-	)
-
-	errStr := json.Unmarshal(aux.Value, &valueStr)
-	if errStr == nil {
-		*p = Parameter{
-			Name:  aux.Name,
-			Value: valueStr,
-		}
-
-		return nil
+	*p = Parameter{
+		Name:  aux.Name,
+		Value: aux.Value.Inner(),
 	}
 
-	errNum := json.Unmarshal(aux.Value, &valueNum)
-	if errNum == nil {
-		if n, err := valueNum.Int64(); err == nil {
-			*p = Parameter{
-				Name:  aux.Name,
-				Value: n,
-			}
-
-			return nil
-		}
-
-		if n, err := valueNum.Float64(); err == nil {
-			*p = Parameter{
-				Name:  aux.Name,
-				Value: n,
-			}
-
-			return nil
-		}
-
-		// possibly unreachable
-		*p = Parameter{
-			Name:  aux.Name,
-			Value: valueNum.String(),
-		}
-
-		return nil
-	}
-
-	// possibly unreachable
-	return fmt.Errorf("unmarshal value: %w", &joinError{errs: []error{errStr, errNum}})
+	return nil
 }
 
 func trimBrackets(val string) string {

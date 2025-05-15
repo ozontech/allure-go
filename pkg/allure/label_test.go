@@ -169,4 +169,36 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		require.Equal(t, "3.14159", label.GetValue())
 	})
+
+	t.Run("slice", func(t *testing.T) {
+		const data = `{"name": "epic", "value": [1, 2, 3]}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: []interface{}{int64(1), int64(2), int64(3)},
+		}, label)
+
+		require.Equal(t, "[1 2 3]", label.GetValue())
+	})
+
+	t.Run("map", func(t *testing.T) {
+		const data = `{"name": "epic", "value": {"a": [1, true, 3.14]}}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name: "epic",
+			Value: map[string]interface{}{
+				"a": []interface{}{int64(1), true, 3.14},
+			},
+		}, label)
+
+		require.Equal(t, "map[a:[1 true 3.14]]", label.GetValue())
+	})
 }

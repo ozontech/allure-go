@@ -38,60 +38,20 @@ func (l *Label) UnmarshalJSON(data []byte) error {
 	// TODO: refactor this in v2
 
 	var aux struct {
-		Name  string          `json:"name"`
-		Value json.RawMessage `json:"value"`
+		Name  string         `json:"name"`
+		Value parameterValue `json:"value"`
 	}
 
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
 	}
 
-	var (
-		valueStr string
-		valueNum json.Number
-	)
-
-	errStr := json.Unmarshal(aux.Value, &valueStr)
-	if errStr == nil {
-		*l = Label{
-			Name:  aux.Name,
-			Value: valueStr,
-		}
-
-		return nil
+	*l = Label{
+		Name:  aux.Name,
+		Value: aux.Value.Inner(),
 	}
 
-	errNum := json.Unmarshal(aux.Value, &valueNum)
-	if errNum == nil {
-		if n, err := valueNum.Int64(); err == nil {
-			*l = Label{
-				Name:  aux.Name,
-				Value: n,
-			}
-
-			return nil
-		}
-
-		if n, err := valueNum.Float64(); err == nil {
-			*l = Label{
-				Name:  aux.Name,
-				Value: n,
-			}
-
-			return nil
-		}
-
-		// possibly unreachable
-		*l = Label{
-			Name:  aux.Name,
-			Value: valueNum.String(),
-		}
-
-		return nil
-	}
-
-	// possibly unreachable
-	return fmt.Errorf("unmarshal value: %w", &joinError{errs: []error{errStr, errNum}})
+	return nil
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.

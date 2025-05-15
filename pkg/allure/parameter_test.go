@@ -89,4 +89,36 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		require.Equal(t, "3.14159", param.GetValue())
 	})
+
+	t.Run("slice", func(t *testing.T) {
+		const data = `{"name": "epic", "value": [1, 2, 3]}`
+
+		var param Parameter
+
+		require.NoError(t, json.Unmarshal([]byte(data), &param))
+
+		require.Equal(t, Parameter{
+			Name:  "epic",
+			Value: []interface{}{int64(1), int64(2), int64(3)},
+		}, param)
+
+		require.Equal(t, "[1 2 3]", param.GetValue())
+	})
+
+	t.Run("map", func(t *testing.T) {
+		const data = `{"name": "epic", "value": {"a": [1, true, 3.14]}}`
+
+		var param Parameter
+
+		require.NoError(t, json.Unmarshal([]byte(data), &param))
+
+		require.Equal(t, Parameter{
+			Name: "epic",
+			Value: map[string]interface{}{
+				"a": []interface{}{int64(1), true, 3.14},
+			},
+		}, param)
+
+		require.Equal(t, "map[a:[1 true 3.14]]", param.GetValue())
+	})
 }
