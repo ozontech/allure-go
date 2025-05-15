@@ -14,7 +14,7 @@ type Step struct {
 
 // NewStep Constructor. Creates a new `allure.Step` object with field values passed in arguments
 // and returns a pointer to it.
-func NewStep(name string, status Status, start int64, stop int64, parameters []*Parameter) *Step {
+func NewStep(name string, status Status, start, stop int64, parameters []*Parameter) *Step {
 	return &Step{
 		Name:       name,
 		Status:     status,
@@ -47,6 +47,7 @@ func (s *Step) GetParent() *Step {
 // Returns a pointer to the current Step (For Fluent Interface).
 func (s *Step) WithAttachments(attachments ...*Attachment) *Step {
 	s.Attachments = append(s.Attachments, attachments...)
+
 	return s
 }
 
@@ -54,6 +55,7 @@ func (s *Step) WithAttachments(attachments ...*Attachment) *Step {
 // Returns a pointer to current Step (for Fluent Interface).
 func (s *Step) WithParameters(params ...*Parameter) *Step {
 	s.Parameters = append(s.Parameters, params...)
+
 	return s
 }
 
@@ -64,6 +66,7 @@ func (s *Step) WithParameters(params ...*Parameter) *Step {
 // Returns pointer to the current Step (for Fluent Interface).
 func (s *Step) WithNewParameters(kv ...interface{}) *Step {
 	s.Parameters = append(s.Parameters, NewParameters(kv...)...)
+
 	return s
 }
 
@@ -74,6 +77,7 @@ func (s *Step) WithStatusDetails(message string, trace string) *Step {
 		Message: message,
 		Trace:   trace,
 	}
+
 	return s
 }
 
@@ -81,6 +85,7 @@ func (s *Step) WithStatusDetails(message string, trace string) *Step {
 // Returns a pointer to the current Step (for Fluent Interface).
 func (s *Step) Passed() *Step {
 	s.Status = Passed
+
 	return s
 }
 
@@ -88,6 +93,7 @@ func (s *Step) Passed() *Step {
 // Returns a pointer to the current Step (for Fluent Interface).
 func (s *Step) Failed() *Step {
 	s.Status = Failed
+
 	return s
 }
 
@@ -95,6 +101,7 @@ func (s *Step) Failed() *Step {
 // Returns a pointer to the current Step (for Fluent Interface).
 func (s *Step) Skipped() *Step {
 	s.Status = Skipped
+
 	return s
 }
 
@@ -102,6 +109,7 @@ func (s *Step) Skipped() *Step {
 // Returns a pointer to the current Step (for Fluent Interface).
 func (s *Step) Broken() *Step {
 	s.Status = Broken
+
 	return s
 }
 
@@ -109,6 +117,7 @@ func (s *Step) Broken() *Step {
 // Returns a pointer to the current Step (for Fluent Interface).
 func (s *Step) Begin() *Step {
 	s.Start = GetNow()
+
 	return s
 }
 
@@ -116,6 +125,7 @@ func (s *Step) Begin() *Step {
 // Returns a pointer to the current Step (for Fluent Interface).
 func (s *Step) Finish() *Step {
 	s.Stop = GetNow()
+
 	return s
 }
 
@@ -124,6 +134,7 @@ func (s *Step) Finish() *Step {
 func (s *Step) WithParent(parent *Step) *Step {
 	parent.Steps = append(parent.Steps, s)
 	s.parent = parent
+
 	return s
 }
 
@@ -131,6 +142,7 @@ func (s *Step) WithParent(parent *Step) *Step {
 // Returns a pointer to the current step (For Fluent Interface).
 func (s *Step) WithChild(child *Step) *Step {
 	child.WithParent(s)
+
 	return s
 }
 
@@ -140,9 +152,11 @@ func (s *Step) PrintAttachments() {
 	for _, a := range s.Attachments {
 		_ = a.Print()
 	}
+
 	if s.Steps == nil {
 		return
 	}
+
 	for _, step := range s.Steps {
 		step.PrintAttachments()
 	}

@@ -3,7 +3,7 @@ package allure
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"runtime"
 	"strings"
@@ -283,14 +283,14 @@ func TestResult_PrintAttachments(t *testing.T) {
 	result.PrintAttachments()
 	defer os.RemoveAll(allureDir)
 
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 1)
 	var attachFile *os.File
 	defer attachFile.Close()
 
 	f := files[0]
 	attachFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
-	bytes, readErr := ioutil.ReadAll(attachFile)
+	bytes, readErr := io.ReadAll(attachFile)
 	require.NoError(t, readErr)
 	require.Equal(t, attachmentText, string(bytes))
 }
@@ -310,7 +310,7 @@ func TestResult_Print(t *testing.T) {
 	require.NoError(t, err)
 
 	defer os.RemoveAll(allureDir)
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 1)
 
 	var resultFile *os.File
@@ -319,7 +319,7 @@ func TestResult_Print(t *testing.T) {
 	f := files[0]
 	emptyResult := &Result{}
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
-	bytes, readErr := ioutil.ReadAll(resultFile)
+	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
 	unMarshallErr := json.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
@@ -346,7 +346,7 @@ func TestResult_Print_withAttachment(t *testing.T) {
 	require.NoError(t, err)
 
 	defer os.RemoveAll(allureDir)
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 2)
 
 	var resultFile *os.File
@@ -359,19 +359,25 @@ func TestResult_Print_withAttachment(t *testing.T) {
 
 	for _, f := range files {
 		if strings.HasSuffix(f.Name(), "-result.json") {
-			fileByte = f
+			info, err := f.Info()
+			require.NoError(t, err)
+
+			fileByte = info
 			continue
 		}
 
 		if strings.HasSuffix(f.Name(), "-attachment.txt") {
-			attachByte = f
+			info, err := f.Info()
+			require.NoError(t, err)
+
+			attachByte = info
 			continue
 		}
 	}
 
 	emptyResult := &Result{}
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, fileByte.Name()))
-	bytes, readErr := ioutil.ReadAll(resultFile)
+	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
 	unMarshallErr := json.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
@@ -388,7 +394,7 @@ func TestResult_Print_withAttachment(t *testing.T) {
 	require.Equal(t, result.Start, emptyResult.Start)
 
 	attachFile, _ := os.Open(fmt.Sprintf("%s/%s", allureDir, attachByte.Name()))
-	bytes, readErr = ioutil.ReadAll(attachFile)
+	bytes, readErr = io.ReadAll(attachFile)
 	require.NoError(t, readErr)
 	require.Equal(t, attachmentText, string(bytes))
 }
@@ -402,7 +408,7 @@ func TestResult_Done(t *testing.T) {
 	result.Done()
 
 	defer os.RemoveAll(allureDir)
-	files, _ := ioutil.ReadDir(allureDir)
+	files, _ := os.ReadDir(allureDir)
 	require.Len(t, files, 2)
 
 	var resultFile *os.File
@@ -415,19 +421,25 @@ func TestResult_Done(t *testing.T) {
 
 	for _, f := range files {
 		if strings.HasSuffix(f.Name(), "-result.json") {
-			fileByte = f
+			info, err := f.Info()
+			require.NoError(t, err)
+
+			fileByte = info
 			continue
 		}
 
 		if strings.HasSuffix(f.Name(), "-attachment.txt") {
-			attachByte = f
+			info, err := f.Info()
+			require.NoError(t, err)
+
+			attachByte = info
 			continue
 		}
 	}
 
 	emptyResult := &Result{}
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, fileByte.Name()))
-	bytes, readErr := ioutil.ReadAll(resultFile)
+	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
 	unMarshallErr := json.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
@@ -445,7 +457,7 @@ func TestResult_Done(t *testing.T) {
 	require.Equal(t, now, emptyResult.Stop)
 
 	attachFile, _ := os.Open(fmt.Sprintf("%s/%s", allureDir, attachByte.Name()))
-	bytes, readErr = ioutil.ReadAll(attachFile)
+	bytes, readErr = io.ReadAll(attachFile)
 	require.NoError(t, readErr)
 	require.Equal(t, attachmentText, string(bytes))
 }

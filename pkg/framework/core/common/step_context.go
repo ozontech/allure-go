@@ -221,6 +221,7 @@ func (ctx *stepCtx) BrokenNowWithMessage(format string, args ...interface{}) {
 	errMsg := fmt.Sprintf(format, args...)
 	short := errMsg
 	if len(errMsg) > 100 {
+		// TODO: trim properly to avoid invalid UTF-8
 		short = short[:100]
 	}
 	ctx.WithStatusDetails(short, errMsg)
@@ -231,6 +232,7 @@ func (ctx *stepCtx) FailWithMessage(format string, args ...interface{}) {
 	errMsg := fmt.Sprintf(format, args...)
 	short := errMsg
 	if len(errMsg) > 100 {
+		// TODO: trim properly to avoid invalid UTF-8
 		short = short[:100]
 	}
 	ctx.WithStatusDetails(short, errMsg)
@@ -241,6 +243,7 @@ func (ctx *stepCtx) BrokenWithMessage(format string, args ...interface{}) {
 	errMsg := fmt.Sprintf(format, args...)
 	short := errMsg
 	if len(errMsg) > 100 {
+		// TODO: trim properly to avoid invalid UTF-8
 		short = short[:100]
 	}
 	ctx.WithStatusDetails(short, errMsg)

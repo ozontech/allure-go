@@ -1,6 +1,7 @@
 package runner
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 	"runtime/debug"
@@ -23,18 +24,21 @@ type runner struct {
 }
 
 func NewRunner(realT TestingT, suiteName string) TestRunner {
-	newT := common.NewT(realT)
-
 	callers := strings.Split(realT.Name(), "/")
 	providerCfg := manager.NewProviderConfig().
 		WithFullName(realT.Name()).
 		WithPackageName(getPackage(defaultPackageDepth)).
 		WithSuiteName(suiteName).
 		WithRunner(callers[0])
+
+	newT := common.NewT(realT)
 	newT.SetProvider(manager.NewProvider(providerCfg))
 
-	testPlan := testplan.GetTestPlan()
-	return &runner{internalT: newT, tests: make(map[string]Test), testPlan: testPlan}
+	return &runner{
+		internalT: newT,
+		tests:     make(map[string]Test),
+		testPlan:  testplan.GetTestPlan(),
+	}
 }
 
 func (r *runner) t() internalT {
@@ -49,19 +53,23 @@ func (r *runner) toRun(result *allure.Result) bool {
 	if r.testPlan != nil {
 		return r.testPlan.IsSelected(result.TestCaseID, result.FullName)
 	}
+
 	return true
 }
 
 func (r *runner) filterByTestPlan() map[string]Test {
 	if plan := r.testPlan; plan != nil {
-		tests := make(map[string]Test)
+		tests := make(map[string]Test, len(r.tests))
+
 		for fullName, testData := range r.tests {
 			if r.testPlan.IsSelected(testData.GetMeta().GetResult().TestCaseID, testData.GetMeta().GetResult().FullName) {
 				tests[fullName] = testData
 			}
 		}
+
 		return tests
 	}
+
 	return r.tests
 }
 
@@ -116,6 +124,7 @@ func (r *runner) RunTests() SuiteResult {
 	r.realT().Run(parentSuiteMeta.GetSuiteName(), func(t *testing.T) {
 		oldParentT := r.realT()
 		r.t().SetRealT(t)
+
 		defer r.t().SetRealT(oldParentT)
 
 		r.tests = r.filterByTestPlan()
@@ -125,16 +134,9 @@ func (r *runner) RunTests() SuiteResult {
 			return
 		}
 
-		defer func() {
-			wg.Wait()
-			finishSuite(r.internalT.GetProvider())
-		}()
-
-		// after all hook
-		defer func() {
-			wg.Wait()
-			_, _ = runHook(r.t(), afterAllHook)
-		}()
+		defer wg.Wait()
+		defer finishSuite(r.internalT.GetProvider())
+		defer runHook(r.t(), afterAllHook)
 
 		for _, test := range r.tests {
 			result.GetContainer().AddChild(test.GetMeta().GetResult().UUID)
@@ -144,19 +146,30 @@ func (r *runner) RunTests() SuiteResult {
 		ok, err := runHook(r.t(), beforeAllHook)
 		if err != nil {
 			for _, test := range r.tests {
-				result = setupErrorHandler(fmt.Sprintf("%v setup was failed", r.t().Name()), err, test.GetMeta(), result)
+				result = setupErrorHandler(
+					fmt.Sprintf("%v setup was failed", r.t().Name()),
+					err,
+					test.GetMeta(),
+					result,
+				)
 			}
+
 			return
 		}
 		if !ok {
 			for _, test := range r.tests {
-				result = setupErrorHandler(fmt.Sprintf("%v setup was failed", r.t().Name()), fmt.Errorf("something goes wrong in beforeAll"), test.GetMeta(), result)
+				result = setupErrorHandler(
+					fmt.Sprintf("%v setup was failed", r.t().Name()),
+					fmt.Errorf("something goes wrong in beforeAll"),
+					test.GetMeta(),
+					result,
+				)
 			}
+
 			return
 		}
 
-		// THE MOST dirty hack in history
-		// t.Parallel() waits for parent-test reach its defer function
+		// HACK: t.Parallel() waits for parent-test reach its defer function
 		// Unfortunately it's impossible to reach this function if parent-test waits for other tests complete
 		// So if we run child test from test-runner
 		// tests from suite will wait defer func of test-runner child instead of test-runner itself
@@ -223,7 +236,7 @@ func Run(t *testing.T, testName string, testBody func(provider.T), tags ...strin
 		newProvider = manager.NewProvider(providerCfg)
 	)
 	newT.SetProvider(newProvider)
-	newT.Provider.TestContext()
+	newT.TestContext()
 
 	return newT.Run(testName, testBody, tags...)
 }
@@ -249,14 +262,14 @@ func setupTest(t TestingT, parentProvider provider.Provider, meta provider.TestM
 	)
 	testT.SetProvider(manager.NewProvider(cfg))
 
-	testT.Provider.TestContext()
+	testT.TestContext()
 	meta.SetBeforeEach(parentTestMeta.GetBeforeEach())
 	meta.SetAfterEach(parentTestMeta.GetAfterEach())
 	if parentSuite := testT.Provider.GetSuiteMeta().GetParentSuite(); parentSuite != "" {
 		meta.GetResult().WithParentSuite(parentSuite)
 	}
 	meta.SetResult(copyLabels(parentProvider.GetResult(), meta.GetResult()))
-	testT.Provider.SetTestMeta(meta)
+	testT.SetTestMeta(meta)
 
 	return testT
 }
@@ -276,11 +289,12 @@ func finishSuite(p provider.Provider) {
 	_ = p.GetSuiteMeta().GetContainer().Print()
 }
 
-func setupErrorHandler(msg string, err error, meta provider.TestMeta, result SuiteResult) SuiteResult {
-	mtx := sync.Mutex{}
-	mtx.Lock()
-	defer mtx.Unlock()
-
+func setupErrorHandler(
+	msg string,
+	err error,
+	meta provider.TestMeta,
+	result SuiteResult,
+) SuiteResult {
 	tRes := NewTestResult(meta.GetResult(), meta.GetContainer())
 	tRes.GetResult().Status = allure.Failed
 	tRes.GetResult().SetStatusMessage(msg)
@@ -296,10 +310,17 @@ func runHook(t internalT, hookFunc common.HookFunc) (res bool, err error) {
 		if rec != nil {
 			ctxName := t.GetProvider().ExecutionContext().GetName()
 			errMsg := fmt.Sprintf("%s panicked: %v\n%s", ctxName, rec, debug.Stack())
-			err = fmt.Errorf(errMsg)
-			common.TestError(t, t.GetProvider(), t.GetProvider().ExecutionContext().GetName(), errMsg)
+			err = errors.New(errMsg)
+
+			common.TestError(
+				t,
+				t.GetProvider(),
+				t.GetProvider().ExecutionContext().GetName(),
+				errMsg,
+			)
 		}
 	}()
+
 	return hookFunc(t, t.GetProvider())
 }
 
@@ -310,6 +331,7 @@ func getPackage(depth int) string {
 	if lastSlash < 0 {
 		lastSlash = 0
 	}
+
 	lastDot := strings.LastIndexByte(funcName[lastSlash:], '.') + lastSlash
 	return funcName[:lastDot]
 }

@@ -58,15 +58,17 @@ type Result struct {
 // Sets the child for the container object.
 func NewResult(testName, fullName string) *Result {
 	result := Result{
-		UUID:       getUUID(),
+		UUID:       uuid.New(),
 		Name:       testName,
 		FullName:   fullName,
 		TestCaseID: getMD5Hash(fullName),
 		ToPrint:    true,
 	}
+
 	result.HistoryID = getMD5Hash(result.TestCaseID)
 	result.AddLabel(LanguageLabel(runtime.Version()))
 	result.Begin()
+
 	return &result
 }
 
@@ -86,14 +88,6 @@ func (result *Result) GetStatusTrace() string {
 	return result.StatusDetails.Trace
 }
 
-func (result *Result) addLabel(labelType LabelType, labelValue string) {
-	result.m.Lock()
-	defer result.m.Unlock()
-
-	label := NewLabel(labelType, labelValue)
-	result.Labels = append(result.Labels, label)
-}
-
 // AddLabel Adds all passed in arguments `allure.Label` to the report
 func (result *Result) AddLabel(labels ...*Label) {
 	result.m.Lock()
@@ -103,11 +97,12 @@ func (result *Result) AddLabel(labels ...*Label) {
 }
 
 // GetFirstLabel returns first label in labels list and true if something have been found, return false if nothing was found
-func (result *Result) GetFirstLabel(labelType LabelType) (label *Label, ok bool) {
+func (result *Result) GetFirstLabel(labelType LabelType) (*Label, bool) {
 	if labels := result.GetLabels(labelType); len(labels) > 0 {
 		return labels[0], true
 	}
-	return
+
+	return nil, false
 }
 
 // GetLabels Returns all `allure.Label` whose `LabelType` matches the one specified in the argument.
@@ -115,18 +110,20 @@ func (result *Result) GetLabels(labelType LabelType) []*Label {
 	result.m.RLock()
 	defer result.m.RUnlock()
 
-	labels := make([]*Label, 0)
+	labels := make([]*Label, 0, len(result.Labels))
+
 	for _, label := range result.Labels {
-		if label.Name == labelType.ToString() {
+		if label.Name == labelType.String() {
 			labels = append(labels, label)
 		}
 	}
+
 	return labels
 }
 
 // SetNewLabelMap Adds all passed in arguments `allure.Label` to the report
 func (result *Result) SetNewLabelMap(kv map[LabelType]string) {
-	var labels []*Label
+	labels := make([]*Label, 0, len(kv))
 	for k, v := range kv {
 		labels = append(labels, NewLabel(k, v))
 	}
@@ -147,6 +144,7 @@ func (result *Result) WithParentSuite(parentName string) *Result {
 	if parentName == "" {
 		return result
 	}
+
 	result.ReplaceNewLabel(ParentSuite, parentName)
 	return result
 }
@@ -169,8 +167,9 @@ func (result *Result) WithHost(hostName string) *Result {
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithSubSuites(children ...string) *Result {
 	for _, child := range children {
-		result.addLabel(SubSuite, child)
+		result.AddLabel(NewLabel(SubSuite, child))
 	}
+
 	return result
 }
 
@@ -178,6 +177,7 @@ func (result *Result) WithSubSuites(children ...string) *Result {
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithFrameWork(framework string) *Result {
 	result.ReplaceNewLabel(Framework, framework)
+
 	return result
 }
 
@@ -185,6 +185,7 @@ func (result *Result) WithFrameWork(framework string) *Result {
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithLanguage(language string) *Result {
 	result.ReplaceNewLabel(Language, language)
+
 	return result
 }
 
@@ -192,6 +193,7 @@ func (result *Result) WithLanguage(language string) *Result {
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithThread(thread string) *Result {
 	result.ReplaceNewLabel(Thread, thread)
+
 	return result
 }
 
@@ -199,39 +201,47 @@ func (result *Result) WithThread(thread string) *Result {
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithPackage(pkg string) *Result {
 	result.ReplaceNewLabel(Package, pkg)
+
 	return result
 }
 
 // WithLabels Adds an array of `allure.Label`.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
-func (result *Result) WithLabels(label ...*Label) *Result {
-	result.AddLabel(label...)
+func (result *Result) WithLabels(labels ...*Label) *Result {
+	result.AddLabel(labels...)
+
 	return result
 }
 
 // WithLaunchTags Adds all Launch Tags from the global variable `ALLURE_LAUNCH_TAGS` as labels with type `Tag` to the report.
 // Returns a pointer to the current `allure.Result` (for Fluent Interface).
 func (result *Result) WithLaunchTags() *Result {
+	tags := os.Getenv(defaultTagsEnvKey)
+	if tags == "" {
+		return result
+	}
+
 	result.m.Lock()
 	defer result.m.Unlock()
 
-	if tags := os.Getenv(defaultTagsEnvKey); tags != "" {
-		for _, tag := range strings.Split(tags, ",") {
-			result.Labels = append(result.Labels, TagLabel(strings.Trim(tag, " ")))
-		}
+	for _, tag := range strings.Split(tags, ",") {
+		result.Labels = append(result.Labels, TagLabel(strings.TrimSpace(tag)))
 	}
+
 	return result
 }
 
 // Begin Sets `Result.Start` as the current time
 func (result *Result) Begin() *Result {
 	result.Start = GetNow()
+
 	return result
 }
 
 // Finish Sets `Result.Stop` as the current time
 func (result *Result) Finish() *Result {
 	result.Stop = GetNow()
+
 	return result
 }
 
@@ -249,11 +259,13 @@ func (result *Result) Print() error {
 	if !result.ToPrint {
 		return nil
 	}
+
 	result.PrintAttachments()
+
 	return result.printResult()
 }
 
-// printResult marshals allure.Result to json and do ioutil.WriteFile
+// printResult marshals allure.Result to json and do [os.WriteFile]
 func (result *Result) printResult() error {
 	bResult, err := json.Marshal(result)
 	if err != nil {
@@ -312,10 +324,13 @@ func (result *Result) ReplaceLabel(label *Label) {
 			return
 		}
 	}
+
 	result.Labels = append(result.Labels, label)
 }
 
 // ToJSON marshall allure.Result to json file
+//
+// Deprecated: use [json.Marshal] instead.
 func (result *Result) ToJSON() ([]byte, error) {
 	return json.Marshal(result)
 }

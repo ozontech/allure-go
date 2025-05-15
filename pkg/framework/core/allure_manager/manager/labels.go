@@ -10,26 +10,28 @@ Labels
 
 // Label provides possibility to add any Label to test result
 func (a *allureManager) Label(label *allure.Label) {
-	a.safely(func(result *allure.Result) {
-		result.Labels = append(result.Labels, label)
+	a.withResult(func(r *allure.Result) {
+		r.Labels = append(r.Labels, label)
 	})
 }
 
 // Labels provides possibility to add few Labels to test result
 func (a *allureManager) Labels(labels ...*allure.Label) {
-	a.safely(func(result *allure.Result) {
-		result.Labels = append(result.Labels, labels...)
+	a.withResult(func(r *allure.Result) {
+		r.Labels = append(r.Labels, labels...)
 	})
 }
 
 func (a *allureManager) ReplaceLabel(label *allure.Label) {
-	a.safely(func(result *allure.Result) {
-		for idx := range result.Labels {
-			if result.Labels[idx].Name == label.Name {
-				result.Labels[idx].Value = label.Value
+	a.withResult(func(r *allure.Result) {
+		for _, l := range r.Labels {
+			if l.Name == label.Name {
+				l.Value = label.Value
+
 				return
 			}
 		}
+
 		a.Label(label)
 	})
 }

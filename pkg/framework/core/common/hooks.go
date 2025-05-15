@@ -20,6 +20,10 @@ const (
 	AfterEach  HookType = "AfterEach"
 )
 
+func (h HookType) String() string {
+	return string(h)
+}
+
 func CarriedHook(hook HookType, getHookBody func() func(t provider.T)) HookFunc {
 	return func(t InternalT, provider HookProvider) (result bool, err error) {
 		result = true
@@ -31,20 +35,23 @@ func CarriedHook(hook HookType, getHookBody func() func(t provider.T)) HookFunc 
 			oldT := t.RealT()
 			defer t.SetRealT(oldT)
 
-			// VERY dirt hack.
-			// That allows let testing library control routines to avoid deadlocks and appropriate waiting
+			// HACK: allows testing library control routines to avoid deadlocks and appropriate waiting
 			result = t.RealT().Run(string(hook), func(realT *testing.T) {
 				defer t.WG().Done()
 				switch hook {
 				case BeforeAll:
 					provider.BeforeAllContext()
+
 				case AfterAll:
 					provider.AfterAllContext()
+
 				case BeforeEach:
 					provider.BeforeEachContext()
+
 				case AfterEach:
 					provider.AfterEachContext()
 				}
+
 				defer func() {
 					r := recover()
 					if r != nil {
@@ -53,6 +60,7 @@ func CarriedHook(hook HookType, getHookBody func() func(t provider.T)) HookFunc 
 						t.FailNow()
 					}
 				}()
+
 				t.SetRealT(realT)
 				hookBody(t)
 			})

@@ -2,7 +2,6 @@ package allure
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -24,34 +23,38 @@ type Container struct {
 // NewContainer - Constructor. Builds and returns a new `allure.Container` object.
 func NewContainer() *Container {
 	return &Container{
-		UUID: getUUID(),
+		UUID: uuid.New(),
 	}
 }
 
 // AddChild Adds a new child to the Container.Children array.
-func (container *Container) AddChild(childUUID uuid.UUID) {
-	container.Children = append(container.Children, childUUID)
+func (container *Container) AddChild(child uuid.UUID) {
+	container.Children = append(container.Children, child)
 }
 
 // IsEmpty Returns `true` if arrays Container.Befores and Container.Afters are empty.
 func (container *Container) IsEmpty() bool {
-	return (container.Befores == nil || len(container.Befores) == 0) && (container.Afters == nil || len(container.Afters) == 0)
+	return len(container.Befores) == 0 && len(container.Afters) == 0
 }
 
 // Print Checks the file with the function Container.IsEmpty:
-// 1) if the container is empty, execution of the function completes without error.
-// 2) If the container contains steps
-//    1) Call Container.PrintAttachments()
-//    2) Serializes the file into `uuid4-container.json`.
-//    3) Creates a file in the file system in the output folder (`$ALLURE_OUTPUT_PATH`/`$ALLURE_OUTPUT_FOLDER`). If there is an error during
-//       error occurs during execution - returns it
+//
+//  1. If the container is empty, execution of the function completes without error.
+//
+//  2. If the container contains steps
+//     2.1. Call Container.PrintAttachments()
+//     2.2. Serializes the file into `uuid4-container.json`.
+//     2.3. Creates a file in the file system in the output folder (`$ALLURE_OUTPUT_PATH`/`$ALLURE_OUTPUT_FOLDER`). If there is an error during
+//
+// If error occurs during execution - returns it
 func (container *Container) Print() error {
-	var err error
 	if !container.IsEmpty() {
 		container.PrintAttachments()
-		err = container.printContainer()
+
+		return container.printContainer()
 	}
-	return err
+
+	return nil
 }
 
 // PrintAttachments It goes through all Container.Befores and Container.Afters
@@ -79,25 +82,29 @@ func (container *Container) Finish() {
 // Done calls Finish and Print
 func (container *Container) Done() error {
 	container.Finish()
+
 	return container.Print()
 }
 
-// ToJSON marshall allure.Result to json file
+// ToJSON marshal allure.Result to json file
+//
+// Deprecated: use [json.Marshal] instead
 func (container *Container) ToJSON() ([]byte, error) {
 	return json.Marshal(container)
 }
 
-// Print prints all attachments of Container.Befores and Container.Afters
-// after that marshals Container and ioutil.WriteFile
+// Print prints all attachments of [Container.Befores] and [Container.Afters]
+// after that marshals [Container] and [os.WriteFile]
 func (container *Container) printContainer() error {
 	bResult, err := json.Marshal(container)
 	if err != nil {
 		return errors.Wrap(err, "Failed marshal Result")
 	}
 
-	err = NewFileManager().CreateFile(fmt.Sprintf("%s-container.json", container.UUID), bResult)
+	err = NewFileManager().CreateFile(container.UUID.String()+"-container.json", bResult)
 	if err != nil {
 		return errors.Wrap(err, "Error write Result")
 	}
+
 	return nil
 }
