@@ -2,6 +2,7 @@ package allure
 
 import (
 	//"encoding/json"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -51,6 +52,75 @@ func (p *Parameter) GetValue() string {
 	}
 
 	return unquoted
+}
+
+func (p *Parameter) UnmarshalJSON(data []byte) error {
+	// Since [Parameter.Value] is interface{} json will unmarshal any number as float64.
+	// This might lead to unexpected behaviour, such as 83294782375982 unmarshalled as 8.3294782375982e+13
+	// While these values are logically the same, when converted to string the later will result 8.3294782375982e+13 (with exponent)
+	//
+	// We could've checked if this float is convertable to int in [Parameter.GetValue], unless we can't - int(float32(99999999)) == 100000000
+	// See: https://stackoverflow.com/questions/65417925/golang-weird-behavior-when-converting-float-to-int
+	//
+	// So using custom json unmarshalling seems like the only choice if we want to preserve backwards compatibility.
+	//
+	// TODO: refactor this in v2
+
+	var aux struct {
+		Name  string          `json:"name"`
+		Value json.RawMessage `json:"value"`
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	var (
+		valueStr string
+		valueNum json.Number
+	)
+
+	errStr := json.Unmarshal(aux.Value, &valueStr)
+	if errStr == nil {
+		*p = Parameter{
+			Name:  aux.Name,
+			Value: valueStr,
+		}
+
+		return nil
+	}
+
+	errNum := json.Unmarshal(aux.Value, &valueNum)
+	if errNum == nil {
+		if n, err := valueNum.Int64(); err == nil {
+			*p = Parameter{
+				Name:  aux.Name,
+				Value: n,
+			}
+
+			return nil
+		}
+
+		if n, err := valueNum.Float64(); err == nil {
+			*p = Parameter{
+				Name:  aux.Name,
+				Value: n,
+			}
+
+			return nil
+		}
+
+		// possibly unreachable
+		*p = Parameter{
+			Name:  aux.Name,
+			Value: valueNum.String(),
+		}
+
+		return nil
+	}
+
+	// possibly unreachable
+	return fmt.Errorf("unmarshal value: %w, %w", errStr, errNum)
 }
 
 func trimBrackets(val string) string {

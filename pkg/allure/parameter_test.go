@@ -30,9 +30,9 @@ func TestNewParameters_even(t *testing.T) {
 }
 
 func TestNewParameters_odd(t *testing.T) {
-	params := NewParameters("p1", "v1", "p2", "v2", "p3", "v3", 24)
+	params := NewParameters("p1", "v1", "p2", "v2", "p3", 24)
 	require.NotNil(t, params)
-	require.Len(t, params, 2)
+	require.Len(t, params, 3)
 
 	require.Equal(t, "p1", params[0].Name)
 	require.Equal(t, "v1", params[0].GetValue())
@@ -54,7 +54,7 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		require.Equal(t, Parameter{
 			Name:  "epic",
-			Value: "very epic indeed",
+			Value: "\"very epic indeed\"",
 		}, param)
 
 		require.Equal(t, "very epic indeed", param.GetValue())
@@ -69,9 +69,24 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		require.Equal(t, Parameter{
 			Name:  "epic",
-			Value: 83294782375982,
+			Value: int64(83294782375982),
 		}, param)
 
 		require.Equal(t, "83294782375982", param.GetValue())
+	})
+
+	t.Run("float", func(t *testing.T) {
+		const data = `{"name": "epic", "value": 3.14159}`
+
+		var param Parameter
+
+		require.NoError(t, json.Unmarshal([]byte(data), &param))
+
+		require.Equal(t, Parameter{
+			Name:  "epic",
+			Value: 3.14159,
+		}, param)
+
+		require.Equal(t, "3.14159", param.GetValue())
 	})
 }

@@ -134,7 +134,7 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		require.Equal(t, Label{
 			Name:  "epic",
-			Value: "very epic indeed",
+			Value: "\"very epic indeed\"",
 		}, label)
 
 		require.Equal(t, "very epic indeed", label.GetValue())
@@ -149,9 +149,24 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		require.Equal(t, Label{
 			Name:  "epic",
-			Value: 83294782375982,
+			Value: int64(83294782375982),
 		}, label)
 
 		require.Equal(t, "83294782375982", label.GetValue())
+	})
+
+	t.Run("float", func(t *testing.T) {
+		const data = `{"name": "epic", "value": 3.14159}`
+
+		var label Label
+
+		require.NoError(t, json.Unmarshal([]byte(data), &label))
+
+		require.Equal(t, Label{
+			Name:  "epic",
+			Value: 3.14159,
+		}, label)
+
+		require.Equal(t, "3.14159", label.GetValue())
 	})
 }
