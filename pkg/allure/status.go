@@ -11,3 +11,7 @@ const (
 	Broken  Status = "broken"
 	Unknown Status = "unknown"
 )
+
+func (s Status) String() string {
+	return string(s)
+}

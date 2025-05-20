@@ -58,6 +58,7 @@ type TestSuite interface {
 
 type TestingT interface {
 	testing.TB
+
 	Parallel()
 	Run(testName string, testBody func(t *testing.T)) bool
 }

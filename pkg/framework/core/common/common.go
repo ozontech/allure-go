@@ -45,23 +45,25 @@ func NewT(realT provider.TestingT) *Common {
 
 func (c *Common) registerError(fullMessage string) {
 	xSkipPrefix := "[XSkip]"
-	result := c.GetResult()
-	if result != nil && result.Status != allure.Broken {
+	res := c.GetResult()
+
+	if res != nil && res.Status != allure.Broken {
 		if c.xSkip {
-			result.Name = fmt.Sprintf("%s%s", xSkipPrefix, result.Name)
+			res.Name = fmt.Sprintf("%s%s", xSkipPrefix, res.Name)
 			c.Skip(fullMessage)
 		}
-		result.Status = allure.Failed
+		res.Status = allure.Failed
 	}
-	if result != nil {
-		result.StatusDetails.Message = extractErrorMessages(fullMessage)
-		result.StatusDetails.Trace = fmt.Sprintf("%s\n%s", result.StatusDetails.Trace, fullMessage)
+
+	if res != nil {
+		res.StatusDetails.Message = extractErrorMessages(fullMessage)
+		res.StatusDetails.Trace = fmt.Sprintf("%s\n%s", res.StatusDetails.Trace, fullMessage)
 	}
 }
 
-func (c *Common) safely(f func(result *allure.Result)) {
-	if result := c.GetResult(); result != nil {
-		f(result)
+func (c *Common) withResult(f func(result *allure.Result)) {
+	if r := c.GetResult(); r != nil {
+		f(r)
 	}
 }
 
@@ -106,28 +108,28 @@ func (c *Common) SkipOnPrint() {
 
 // LogStep ...
 func (c *Common) LogStep(args ...interface{}) {
-	c.Provider.Step(allure.NewSimpleStep(fmt.Sprintln(args...)))
+	c.Step(allure.NewSimpleStep(fmt.Sprintln(args...)))
 	c.Log(args...)
 }
 
 // LogfStep ...
 func (c *Common) LogfStep(format string, args ...interface{}) {
-	c.Provider.Step(allure.NewSimpleStep(fmt.Sprintf(format, args...)))
+	c.Step(allure.NewSimpleStep(fmt.Sprintf(format, args...)))
 	c.Logf(format, args...)
 }
 
 // Error ...
 func (c *Common) Error(args ...interface{}) {
-	c.TestingT.Helper()
+	c.Helper()
 
-	fullMessage := fmt.Sprintf("%s", args...)
+	fullMessage := fmt.Sprint(args...)
 	c.registerError(fullMessage)
 	c.TestingT.Error(args...)
 }
 
 // Errorf ...
 func (c *Common) Errorf(format string, args ...interface{}) {
-	c.TestingT.Helper()
+	c.Helper()
 
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
@@ -136,7 +138,7 @@ func (c *Common) Errorf(format string, args ...interface{}) {
 
 // Fatal ...
 func (c *Common) Fatal(args ...interface{}) {
-	c.TestingT.Helper()
+	c.Helper()
 
 	fullMessage := fmt.Sprintf("%s", args...)
 	c.registerError(fullMessage)
@@ -145,7 +147,7 @@ func (c *Common) Fatal(args ...interface{}) {
 
 // Fatalf ...
 func (c *Common) Fatalf(format string, args ...interface{}) {
-	c.TestingT.Helper()
+	c.Helper()
 
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
@@ -154,19 +156,21 @@ func (c *Common) Fatalf(format string, args ...interface{}) {
 
 // Break ...
 func (c *Common) Break(args ...interface{}) {
-	c.safely(func(result *allure.Result) {
-		result.Status = allure.Broken
+	c.withResult(func(r *allure.Result) {
+		r.Status = allure.Broken
 	})
-	fullMessage := fmt.Sprintf("%s", args...)
+
+	fullMessage := fmt.Sprint(args...)
 	c.registerError(fullMessage)
 	c.FailNow()
 }
 
 // Breakf ...
 func (c *Common) Breakf(format string, args ...interface{}) {
-	c.safely(func(result *allure.Result) {
-		result.Status = allure.Broken
+	c.withResult(func(r *allure.Result) {
+		r.Status = allure.Broken
 	})
+
 	fullMessage := fmt.Sprintf(format, args...)
 	c.registerError(fullMessage)
 	c.FailNow()
@@ -177,6 +181,7 @@ func (c *Common) Name() string {
 	if c.GetProvider() != nil && c.GetProvider().GetResult() != nil {
 		return c.GetProvider().GetResult().Name
 	}
+
 	return c.TestingT.Name()
 }
 
@@ -188,9 +193,9 @@ func (c *Common) Fail() {
 
 // FailNow ...
 func (c *Common) FailNow() {
-	c.safely(func(result *allure.Result) {
-		if result.Status != allure.Broken {
-			result.Status = allure.Failed
+	c.withResult(func(r *allure.Result) {
+		if r.Status != allure.Broken {
+			r.Status = allure.Failed
 		}
 	})
 	c.TestingT.FailNow()
@@ -198,47 +203,54 @@ func (c *Common) FailNow() {
 
 // Broken ...
 func (c *Common) Broken() {
-	c.safely(func(result *allure.Result) {
-		result.Status = allure.Broken
+	c.withResult(func(r *allure.Result) {
+		r.Status = allure.Broken
 	})
 	c.TestingT.Fail()
 }
 
 // BrokenNow ...
 func (c *Common) BrokenNow() {
-	c.safely(func(result *allure.Result) {
-		result.Status = allure.Broken
+	c.withResult(func(r *allure.Result) {
+		r.Status = allure.Broken
 	})
+
 	c.TestingT.FailNow()
 }
 
 // Skip ...
 func (c *Common) Skip(args ...interface{}) {
-	c.safely(func(result *allure.Result) {
+	c.withResult(func(r *allure.Result) {
 		skipMessage := fmt.Sprintln(args...)
 		if len(skipMessage) > 100 {
-			result.StatusDetails.Message = skipMessage[:100]
+			// TODO: trim properly to avoid invalid UTF-8
+			r.StatusDetails.Message = skipMessage[:100]
 		} else {
-			result.StatusDetails.Message = skipMessage
+			r.StatusDetails.Message = skipMessage
 		}
-		result.StatusDetails.Trace = skipMessage
-		result.Status = allure.Skipped
+
+		r.StatusDetails.Trace = skipMessage
+		r.Status = allure.Skipped
 	})
+
 	c.TestingT.Skip(args...)
 }
 
 // Skipf ...
 func (c *Common) Skipf(format string, args ...interface{}) {
-	c.safely(func(result *allure.Result) {
+	c.withResult(func(r *allure.Result) {
 		skipMessage := fmt.Sprintf(format, args...)
 		if len(skipMessage) > 100 {
-			result.StatusDetails.Message = skipMessage[:100]
+			// TODO: trim properly to avoid invalid UTF-8
+			r.StatusDetails.Message = skipMessage[:100]
 		} else {
-			result.StatusDetails.Message = skipMessage
+			r.StatusDetails.Message = skipMessage
 		}
-		result.StatusDetails.Trace = skipMessage
-		result.Status = allure.Skipped
+
+		r.StatusDetails.Trace = skipMessage
+		r.Status = allure.Skipped
 	})
+
 	c.TestingT.Skipf(format, args...)
 }
 
@@ -249,6 +261,7 @@ func (c *Common) WithTestSetup(setup func(provider.T)) {
 		c.Logf(logMsgSetupTearDown, "WithTestSetup", constants.TestContextName, currentContext)
 		return
 	}
+
 	c.subContextWrapper(currentContext, BeforeEach, setup)
 }
 
@@ -259,6 +272,7 @@ func (c *Common) WithTestTeardown(teardown func(provider.T)) {
 		c.Logf(logMsgSetupTearDown, "WithTestTeardown", constants.TestContextName, currentContext)
 		return
 	}
+
 	c.subContextWrapper(currentContext, AfterEach, teardown)
 }
 
@@ -271,14 +285,18 @@ func (c *Common) subContextWrapper(currentContext string, newContext HookType, h
 			TestError(c, c.GetProvider(), currentContext, errMsg)
 		}
 	}()
+
 	switch newContext {
 	case BeforeEach:
 		c.GetProvider().BeforeEachContext()
+
 	case AfterEach:
 		c.GetProvider().AfterEachContext()
+
 	default:
 		panic(fmt.Sprintf("Wrong execution context used to run func. Expected: %s OR %s; Actual: %s", BeforeEach, AfterEach, newContext))
 	}
+
 	hook(c)
 }
 
@@ -328,7 +346,7 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 
 		// print test result
 		defer func() {
-			err := testT.Provider.FinishTest()
+			err := testT.FinishTest()
 			if err != nil {
 				testT.Error(err.Error())
 			}
@@ -336,7 +354,7 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 
 		defer func() {
 			rec := recover()
-			// wait for all test's async steps over
+			// wait for all tests async steps over
 			testT.wg.Wait()
 			if rec != nil {
 				errMsg := fmt.Sprintf("Test panicked: %v\n%s", rec, debug.Stack())
@@ -344,7 +362,7 @@ func (c *Common) Run(testName string, testBody func(provider.T), tags ...string)
 			}
 		}()
 
-		testT.Provider.TestContext()
+		testT.TestContext()
 		testBody(testT)
 	})
 	return
@@ -382,18 +400,24 @@ func copyLabels(input, target *allure.Result) *allure.Result {
 	return target
 }
 
+var messagesRegexp = regexp.MustCompile(`Messages:(.*)`)
+
 func extractErrorMessages(output string) string {
-	r := regexp.MustCompile(`Messages:(.*)`)
-	result := strings.Trim(strings.TrimPrefix(r.FindString(output), "Messages:   "), " ")
+	result := strings.TrimSpace(strings.TrimPrefix(messagesRegexp.FindString(output), "Messages:   "))
+
 	if result == "" {
 		left := "\tError:"
 		right := "\tTest:"
+
 		r2 := regexp.MustCompile(`(?s)` + regexp.QuoteMeta(left) + `(.*?)` + regexp.QuoteMeta(right))
+
 		result = r2.FindString(output)
-		result = strings.Trim(strings.TrimSuffix(result, "\tTest:"), " ")
+		result = strings.TrimSpace(strings.TrimSuffix(result, "\tTest:"))
+
+		if result != "" {
+			return result
+		}
 	}
-	if result == "" {
-		return output
-	}
-	return result
+
+	return output
 }

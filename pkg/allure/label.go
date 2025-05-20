@@ -57,7 +57,7 @@ func (l *Label) UnmarshalJSON(data []byte) error {
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
 func NewLabel(labelType LabelType, value interface{}) *Label {
 	return &Label{
-		Name:  labelType.ToString(),
+		Name:  labelType.String(),
 		Value: value,
 	}
 }
@@ -86,7 +86,14 @@ const (
 	AllureID    LabelType = "ALLURE_ID"
 )
 
+// ToString ...
+//
+// Deprecated: use [LabelType.String] instead.
 func (l LabelType) ToString() string {
+	return string(l)
+}
+
+func (l LabelType) String() string {
 	return string(l)
 }
 
@@ -101,8 +108,14 @@ const (
 	TRIVIAL  SeverityType = "trivial"
 )
 
-// ToString casts SeverityType to string
+// ToString ...
+//
+// Deprecated: use [SeverityType.String] instead
 func (s SeverityType) ToString() string {
+	return string(s)
+}
+
+func (s SeverityType) String() string {
 	return string(s)
 }
 
@@ -128,10 +141,12 @@ func TagLabel(tag string) *Label {
 
 // TagLabels returns array of Tag Label
 func TagLabels(tags ...string) []*Label {
-	var result []*Label
+	result := make([]*Label, 0, len(tags))
+
 	for _, tag := range tags {
 		result = append(result, TagLabel(tag))
 	}
+
 	return result
 }
 

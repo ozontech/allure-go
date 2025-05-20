@@ -25,6 +25,7 @@ func (s *Suite) RunSuite(t provider.T, suite runner.TestSuite) runner.SuiteResul
 	t.SkipOnPrint()
 	parts := strings.Split(t.RealT().Name(), "/")
 	parentName := parts[len(parts)-3]
+
 	return runner.NewSuiteRunnerWithParent(t.RealT(), getPackage(2), cleanName(getSuiteName(suite)), parentName, suite).RunTests()
 }
 
@@ -32,6 +33,7 @@ func (s *Suite) RunNamedSuite(t provider.T, suiteName string, suite runner.TestS
 	t.SkipOnPrint()
 	parts := strings.Split(t.RealT().Name(), "/")
 	parentName := parts[len(parts)-3]
+
 	return runner.NewSuiteRunnerWithParent(t.RealT(), getPackage(2), suiteName, parentName, suite).RunTests()
 }
 
@@ -48,21 +50,25 @@ func getSuiteName(suite interface{}) string {
 	if s.Kind() == reflect.Ptr {
 		return s.Elem().Name()
 	}
-	return s.Name()
 
+	return s.Name()
 }
 
 func cleanName(fullName string) string {
 	nameParts := strings.Split(fullName, "/")
-	var removeIdxs []int
+
+	removeIDs := make([]int, 0, len(nameParts))
+
 	for idx, namePart := range nameParts {
 		if strings.HasSuffix(namePart, "_Tests") {
-			removeIdxs = append(removeIdxs, idx)
+			removeIDs = append(removeIDs, idx)
 		}
 	}
-	for _, idx := range removeIdxs {
+
+	for _, idx := range removeIDs {
 		nameParts = remove(nameParts, idx)
 	}
+
 	return strings.Join(nameParts, "/")
 }
 
@@ -77,6 +83,8 @@ func getPackage(depth int) string {
 	if lastSlash < 0 {
 		lastSlash = 0
 	}
+
 	lastDot := strings.LastIndexByte(funcName[lastSlash:], '.') + lastSlash
+
 	return funcName[:lastDot]
 }

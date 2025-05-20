@@ -1,9 +1,8 @@
 package allure
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 type FileManager interface {
@@ -16,14 +15,17 @@ type fileManager struct {
 
 func NewFileManager() FileManager {
 	resultsPath := getResultPath()
+
 	fm := &fileManager{resultsPath: resultsPath}
 	fm.createOutputDir()
+
 	return fm
 }
 
 func (m *fileManager) CreateFile(name string, content []byte) error {
-	file := fmt.Sprintf("%s/%s", m.resultsPath, name)
-	return ioutil.WriteFile(file, content, fileSystemPermissionCode)
+	file := filepath.Join(m.resultsPath, name)
+
+	return os.WriteFile(file, content, fileSystemPermissionCode)
 }
 
 func (m *fileManager) createOutputDir() {
@@ -31,6 +33,7 @@ func (m *fileManager) createOutputDir() {
 	if err != nil {
 		panic(err)
 	}
+
 	if !isExists {
 		_ = os.MkdirAll(m.resultsPath, os.ModePerm)
 	}
@@ -41,16 +44,19 @@ func getOutputFolderName() string {
 	if outputFolderName != "" {
 		return outputFolderName
 	}
+
 	return "allure-results"
 }
 
 func getResultPath() string {
 	resultsPathToOutput := os.Getenv(resultsPathEnvKey)
 	outputFolderName := getOutputFolderName()
+
 	if resultsPathToOutput != "" {
-		return fmt.Sprintf("%s/%s", resultsPathToOutput, outputFolderName)
+		return filepath.Join(resultsPathToOutput, outputFolderName)
 	}
-	return fmt.Sprintf("./%s", outputFolderName)
+
+	return outputFolderName
 }
 
 // exists returns whether the given file or directory exists
@@ -59,8 +65,10 @@ func exists(path string) (bool, error) {
 	if err == nil {
 		return true, nil
 	}
+
 	if os.IsNotExist(err) {
 		return false, nil
 	}
+
 	return false, err
 }
