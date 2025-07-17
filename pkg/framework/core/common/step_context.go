@@ -17,6 +17,7 @@ type StepProvider interface {
 }
 
 type StepT interface {
+	Fail()
 	FailNow()
 	Error(args ...interface{})
 	Errorf(format string, args ...interface{})
@@ -87,7 +88,11 @@ func (ctx *stepCtx) ExecutionContextName() string {
 }
 
 func (ctx *stepCtx) FailNow() {
-	ctx.Fail()
+	ctx.currentStep.Failed()
+	if ctx.parentStep != nil {
+		ctx.parentStep.Fail()
+	}
+
 	ctx.t.FailNow()
 }
 
@@ -199,6 +204,7 @@ func (ctx *stepCtx) Fail() {
 	if ctx.parentStep != nil {
 		ctx.parentStep.Fail()
 	}
+	ctx.t.Fail()
 }
 
 func (ctx *stepCtx) Broken() {
