@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 // Parameter is an implementation of the Parameter entity,
@@ -181,6 +184,36 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
+}
+
+func (p *Parameter) MarshalJSON() ([]byte, error) {
+	var value string
+
+	if msg, ok := p.Value.(proto.Message); ok {
+		res, err := protojson.Marshal(msg)
+		if err != nil {
+			return nil, fmt.Errorf("protojson marshal: %w", err)
+		}
+
+		value = string(res)
+	} else {
+		res, err := json.Marshal(p.Value)
+		if err != nil {
+			return nil, fmt.Errorf("json marshal: %v", err)
+		}
+
+		value = string(res)
+	}
+
+	aux := struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	}{
+		Name:  p.Name,
+		Value: value,
+	}
+
+	return json.Marshal(aux)
 }
 
 func trimBrackets(val string) string {
