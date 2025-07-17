@@ -131,6 +131,7 @@ func newExecutionCtxMock(name string) *executionCtxMock {
 		attachments: []*allure.Attachment{},
 	}
 }
+
 func (m *executionCtxMock) AddStep(step *allure.Step) {
 	m.steps = append(m.steps, step)
 }
@@ -213,7 +214,7 @@ func TestStepCtx_Fail_noParent(t *testing.T) {
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.Fail()
-	require.False(t, mockT.Failed())
+	require.True(t, mockT.Failed())
 	require.Equal(t, allure.Failed, step.Status)
 }
 
@@ -224,7 +225,7 @@ func TestStepCtx_Fail_withParent(t *testing.T) {
 	step := allure.NewSimpleStep("testStep")
 	ctx := stepCtx{t: mockT, currentStep: step, parentStep: parentCtx}
 	ctx.Fail()
-	require.False(t, mockT.Failed())
+	require.True(t, mockT.Failed())
 	require.Equal(t, allure.Failed, step.Status)
 	require.Equal(t, allure.Failed, parentStep.Status)
 }
