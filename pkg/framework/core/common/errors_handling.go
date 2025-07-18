@@ -33,6 +33,7 @@ func TestError(t ErrorT, provider ErrorProvider, contextName, errMsg string) {
 	case constants.AfterEachContextName, constants.AfterAllContextName:
 		t.Logf(errMsg)
 		provider.UpdateResultStatus(short, errMsg)
+		t.FailNow()
 
 	case constants.BeforeAllContextName:
 		t.Logf(errMsg)
