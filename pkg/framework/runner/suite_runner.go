@@ -166,7 +166,6 @@ func initializeParametrizedTests(runner *suiteRunner) {
 
 	for name, test := range runner.tests {
 		if strings.HasPrefix(name, tableTestPrefix) {
-
 			params, err := getParams(runner.suite, name)
 			if err != nil {
 				panic(err)
@@ -182,7 +181,6 @@ func initializeParametrizedTests(runner *suiteRunner) {
 			}
 		}
 	}
-
 	runner.tests = newTests
 }
 
