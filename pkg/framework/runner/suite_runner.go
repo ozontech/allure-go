@@ -88,7 +88,11 @@ func newSuiteRunner(
 	}
 
 	collectTests(r, suite)
-	collectParametrizedTests(r, suite)
+
+	if ps, ok := suite.(ParametrizedSuite); ok {
+		ps.InitializeTestsParams()
+	}
+
 	collectHooks(r, suite)
 
 	return r
@@ -154,17 +158,6 @@ func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t pr
 	}
 }
 
-// collectParametrizedTests finds test methods with tableTestPrefix,
-// gets map with parameters, gets map with parameterized tests,
-// replaces tests in runner with parameterized tests with results
-func collectParametrizedTests(runner *suiteRunner, suite TestSuite) {
-	if ps, ok := suite.(ParametrizedSuite); ok {
-		ps.InitializeTestsParams()
-	}
-
-	initializeParametrizedTests(runner)
-}
-
 func initializeParametrizedTests(runner *suiteRunner) {
 	newTests := make(map[string]Test, len(runner.tests))
 	for k, v := range runner.tests {
@@ -173,6 +166,7 @@ func initializeParametrizedTests(runner *suiteRunner) {
 
 	for name, test := range runner.tests {
 		if strings.HasPrefix(name, tableTestPrefix) {
+
 			params, err := getParams(runner.suite, name)
 			if err != nil {
 				panic(err)
@@ -188,6 +182,7 @@ func initializeParametrizedTests(runner *suiteRunner) {
 			}
 		}
 	}
+
 	runner.tests = newTests
 }
 
