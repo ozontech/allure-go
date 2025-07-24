@@ -18,9 +18,10 @@ import (
 )
 
 type runner struct {
-	internalT internalT
-	testPlan  *testplan.TestPlan
-	tests     map[string]Test
+	internalT        internalT
+	testPlan         *testplan.TestPlan
+	tests            map[string]Test
+	adjustTableTests func()
 }
 
 func NewRunner(realT TestingT, suiteName string) TestRunner {
@@ -127,13 +128,6 @@ func (r *runner) RunTests() SuiteResult {
 
 		defer r.t().SetRealT(oldParentT)
 
-		r.tests = r.filterByTestPlan()
-
-		if len(r.tests) == 0 {
-			r.t().Skipf("No tests to run for suite %s", r.t().Name())
-			return
-		}
-
 		defer wg.Wait()
 		defer finishSuite(r.internalT.GetProvider())
 		defer func() { _, _ = runHook(r.t(), afterAllHook) }()
@@ -166,6 +160,17 @@ func (r *runner) RunTests() SuiteResult {
 				)
 			}
 
+			return
+		}
+
+		if r.adjustTableTests != nil {
+			r.adjustTableTests()
+		}
+
+		r.tests = r.filterByTestPlan()
+
+		if len(r.tests) == 0 {
+			r.t().Skipf("No tests to run for suite %s", r.t().Name())
 			return
 		}
 

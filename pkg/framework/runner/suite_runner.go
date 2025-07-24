@@ -87,6 +87,10 @@ func newSuiteRunner(
 		suite:       suite,
 	}
 
+	r.adjustTableTests = func() {
+		initializeParametrizedTests(r)
+	}
+
 	collectTests(r, suite)
 	collectParametrizedTests(r, suite)
 	collectHooks(r, suite)
@@ -160,9 +164,8 @@ func parametrizedWrap(runner *suiteRunner, beforeAll func(provider.T)) func(t pr
 func collectParametrizedTests(runner *suiteRunner, suite TestSuite) {
 	if ps, ok := suite.(ParametrizedSuite); ok {
 		ps.InitializeTestsParams()
+		initializeParametrizedTests(runner)
 	}
-
-	initializeParametrizedTests(runner)
 }
 
 func initializeParametrizedTests(runner *suiteRunner) {
