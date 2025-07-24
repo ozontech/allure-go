@@ -87,6 +87,10 @@ func newSuiteRunner(
 		suite:       suite,
 	}
 
+	r.adjustTableTests = func() {
+		initializeParametrizedTests(r)
+	}
+
 	collectTests(r, suite)
 	collectParametrizedTests(r, suite)
 	collectHooks(r, suite)
