@@ -10,7 +10,7 @@ type Attachment struct {
 	Name    string   `json:"name,omitempty"`   // Attachment name
 	Source  string   `json:"source,omitempty"` // Path to the Attachment file (name)
 	Type    MimeType `json:"type,omitempty"`   // Mime-type of the Attachment
-	uuid    string   // Unique identifier of the Attachment
+	Uuid    string   `json:"uuid"`             // Unique identifier of the Attachment
 	content []byte   // Attachment's content as bytes array
 }
 
@@ -102,7 +102,7 @@ func NewAttachment(name string, mimeType MimeType, content []byte) *Attachment {
 	id := uuid.New().String()
 
 	return &Attachment{
-		uuid:    id,
+		Uuid:    id,
 		content: content,
 		Name:    name,
 		Type:    mimeType,
@@ -111,7 +111,7 @@ func NewAttachment(name string, mimeType MimeType, content []byte) *Attachment {
 }
 
 func (a *Attachment) GetUUID() string {
-	return a.uuid
+	return a.Uuid
 }
 
 func (a *Attachment) GetContent() []byte {

@@ -38,7 +38,7 @@ func TestNewAttachment(t *testing.T) {
 		t.Run(testAttachName, func(t *testing.T) {
 			content := []byte("some content")
 			attachment := NewAttachment(testAttachName, mt, content)
-			require.NotNil(t, attachment.uuid)
+			require.NotNil(t, attachment.Uuid)
 			require.Equal(t, mt, attachment.Type, "mime type should be same")
 			require.Equal(t, testAttachName, attachment.Name)
 			require.Equal(t, content, attachment.content)
