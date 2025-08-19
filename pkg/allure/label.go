@@ -2,6 +2,7 @@ package allure
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -14,7 +15,22 @@ type Label struct {
 
 // GetValue returns label value as string
 func (l *Label) GetValue() string {
-	return strings.Trim(fmt.Sprintf("%s", l.Value), "\"")
+	switch v := l.Value.(type) {
+	case string:
+		return strings.Trim(v, "\"")
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	case bool:
+		return strconv.FormatBool(v)
+	case int:
+		return strconv.Itoa(v)
+	case float32:
+		return strconv.FormatFloat(float64(v), 'f', -1, 32)
+	default:
+		return strings.Trim(fmt.Sprintf("%v", v), "\"")
+	}
 }
 
 // NewLabel - builds and returns a new allure.Label. The label key depends on the passed LabelType.
