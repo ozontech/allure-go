@@ -190,7 +190,11 @@ func (p *Parameter) MarshalJSON() ([]byte, error) {
 	var value string
 
 	if msg, ok := p.Value.(proto.Message); ok {
-		res, err := protojson.Marshal(msg)
+		res, err := protojson.MarshalOptions{
+			AllowPartial:      true,
+			EmitDefaultValues: true,
+			EmitUnpopulated:   true,
+		}.Marshal(msg)
 		if err != nil {
 			return nil, fmt.Errorf("protojson marshal: %w", err)
 		}
