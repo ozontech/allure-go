@@ -44,6 +44,20 @@ func TestNewParameters_odd(t *testing.T) {
 	require.Equal(t, "24", params[2].GetValue())
 }
 
+func TestParameterMarshallUnmarshall(t *testing.T) {
+	params := NewParameters("p1", "v1", "p2", "{\"namespace\":\"SELLER\"}")
+	require.NotNil(t, params)
+	bytes, err := json.Marshal(params)
+	require.NoError(t, err)
+	var newParams []*Parameter
+	err = json.Unmarshal(bytes, &newParams)
+	require.NoError(t, err)
+	for i, param := range newParams {
+		require.Equal(t, param.GetValue(), params[i].GetValue())
+	}
+	require.Equal(t, params[0].Value, newParams[0].Value)
+}
+
 func TestParameterUnmarshal(t *testing.T) {
 	t.Run("string", func(t *testing.T) {
 		const data = `{"name": "epic", "value": "\"very epic indeed\""}`
