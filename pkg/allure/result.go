@@ -3,13 +3,13 @@ package allure
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 
+	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )

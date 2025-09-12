@@ -1,9 +1,9 @@
 package assert
 
 import (
-	"encoding/json"
 	"fmt"
 
+	"github.com/goccy/go-json"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,7 @@ type tHelper interface {
 
 // JSONContains asserts that expected JSON contains fields and values of actual JSON which can be bigger.
 //
-//  assert.JSONContains(t, `{"hello": "world", "foo": "bar"}`, `{"foo": "bar", "hello": "world", "foobar": 1}`)
+//	assert.JSONContains(t, `{"hello": "world", "foo": "bar"}`, `{"foo": "bar", "hello": "world", "foobar": 1}`)
 func JSONContains(t TestingT, expected string, actual string, msgAndArgs ...interface{}) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()

@@ -1,13 +1,13 @@
 package common
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"sync"
 	"testing"
 
+	"github.com/goccy/go-json"
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"

@@ -3,6 +3,7 @@ module github.com/ozontech/allure-go/pkg/allure
 go 1.17
 
 require (
+	github.com/goccy/go-json v0.10.5
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1

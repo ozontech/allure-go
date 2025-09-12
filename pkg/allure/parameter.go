@@ -1,12 +1,11 @@
 package allure
 
 import (
-	//"encoding/json"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/goccy/go-json"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -187,34 +186,34 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 }
 
 func (p *Parameter) MarshalJSON() ([]byte, error) {
-	var value string
+	var raw json.RawMessage
 
-	if msg, ok := p.Value.(proto.Message); ok {
+	switch v := p.Value.(type) {
+	case proto.Message:
 		res, err := protojson.MarshalOptions{
 			AllowPartial:      true,
 			EmitDefaultValues: true,
 			EmitUnpopulated:   true,
-		}.Marshal(msg)
+		}.Marshal(v)
 		if err != nil {
 			return nil, fmt.Errorf("protojson marshal: %w", err)
 		}
+		raw = res
 
-		value = string(res)
-	} else {
-		res, err := json.Marshal(p.Value)
+	default:
+		res, err := json.Marshal(v)
 		if err != nil {
-			return nil, fmt.Errorf("json marshal: %v", err)
+			return nil, fmt.Errorf("json marshal: %w", err)
 		}
-
-		value = string(res)
+		raw = res
 	}
 
 	aux := struct {
-		Name  string `json:"name"`
-		Value string `json:"value"`
+		Name  string          `json:"name"`
+		Value json.RawMessage `json:"value"`
 	}{
 		Name:  p.Name,
-		Value: value,
+		Value: raw,
 	}
 
 	return json.Marshal(aux)

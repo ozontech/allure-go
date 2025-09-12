@@ -1,7 +1,6 @@
 package allure
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -9,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/goccy/go-json"
 	"github.com/stretchr/testify/require"
 )
 
