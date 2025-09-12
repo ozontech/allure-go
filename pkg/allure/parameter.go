@@ -1,12 +1,11 @@
 package allure
 
 import (
-	//"encoding/json"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/goccy/go-json"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )

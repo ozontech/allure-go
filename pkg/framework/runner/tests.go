@@ -1,11 +1,11 @@
 package runner
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"sync"
 
+	"github.com/goccy/go-json"
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )

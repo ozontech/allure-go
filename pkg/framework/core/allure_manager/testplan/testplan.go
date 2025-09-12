@@ -1,12 +1,13 @@
 package testplan
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/goccy/go-json"
 )
 
 var (

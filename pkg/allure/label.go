@@ -1,9 +1,10 @@
 package allure
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"github.com/goccy/go-json"
 )
 
 // Label is the implementation of the label.
