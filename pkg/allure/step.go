@@ -9,6 +9,7 @@ type Step struct {
 	Stop          int64         `json:"stop,omitempty"`
 	Steps         []*Step       `json:"steps,omitempty"`
 	Parameters    []*Parameter  `json:"parameters,omitempty"`
+	ExpectedSteps []*Step       `json:"expectedSteps,omitempty"`
 	parent        *Step
 }
 

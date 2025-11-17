@@ -32,11 +32,12 @@ type Result struct {
 
 	m sync.RWMutex
 
-	Attachments []*Attachment `json:"attachments,omitempty"` // Test case attachments
-	Parameters  []*Parameter  `json:"parameters,omitempty"`  // Test case parameters
-	Labels      []*Label      `json:"labels,omitempty"`      // Array of labels
-	Links       []*Link       `json:"links,omitempty"`       // Array of references
-	Steps       []*Step       `json:"steps,omitempty"`       // Array of steps
+	Attachments   []*Attachment `json:"attachments,omitempty"`   // Test case attachments
+	Parameters    []*Parameter  `json:"parameters,omitempty"`    // Test case parameters
+	Labels        []*Label      `json:"labels,omitempty"`        // Array of labels
+	Links         []*Link       `json:"links,omitempty"`         // Array of references
+	Steps         []*Step       `json:"steps,omitempty"`         // Array of steps
+	ExpectedSteps []*Step       `json:"expectedSteps,omitempty"` // Array of expectedSteps
 
 	ToPrint bool `json:"-"` // If false - the report will not be saved to a file
 }
