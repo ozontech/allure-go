@@ -1,16 +1,17 @@
 package allure
 
 type Step struct {
-	Name          string        `json:"name,omitempty"`
-	Status        Status        `json:"status,omitempty"`
-	StatusDetails StatusDetail  `json:"statusDetails"`
-	Attachments   []*Attachment `json:"attachments,omitempty"`
-	Start         int64         `json:"start,omitempty"`
-	Stop          int64         `json:"stop,omitempty"`
-	Steps         []*Step       `json:"steps,omitempty"`
-	Parameters    []*Parameter  `json:"parameters,omitempty"`
-	ExpectedSteps []*Step       `json:"expectedSteps,omitempty"`
-	parent        *Step
+	Name           string        `json:"name,omitempty"`
+	Status         Status        `json:"status,omitempty"`
+	StatusDetails  StatusDetail  `json:"statusDetails"`
+	Attachments    []*Attachment `json:"attachments,omitempty"`
+	Start          int64         `json:"start,omitempty"`
+	Stop           int64         `json:"stop,omitempty"`
+	Steps          []*Step       `json:"steps,omitempty"`
+	Parameters     []*Parameter  `json:"parameters,omitempty"`
+	ExpectedSteps  []*Step       `json:"expectedSteps,omitempty"`
+	ExpectedResult string        `json:"expectedResult,omitempty"`
+	parent         *Step
 }
 
 // NewStep Constructor. Creates a new `allure.Step` object with field values passed in arguments
