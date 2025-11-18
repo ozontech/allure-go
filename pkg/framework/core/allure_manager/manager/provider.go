@@ -24,7 +24,7 @@ func NewProvider(cfg ProviderConfig) provider.Provider {
 
 	return &allureManager{
 		suiteMeta: suiteMeta,
-		testMeta:  &adapter.TestAdapter{},
+		testMeta:  adapter.NewTestMeta(cfg.FullName(), cfg.SuiteName(), "", cfg.PackageName()),
 	}
 }
 
