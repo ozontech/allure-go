@@ -35,8 +35,18 @@ func (a *allureManager) withResult(f func(r *allure.Result)) {
 }
 
 func (a *allureManager) UpdateResultStatus(msg string, trace string) {
-	a.GetResult().SetStatusMessage(msg)
-	a.GetResult().SetStatusTrace(trace)
+	result := a.GetResult()
+	if result == nil {
+		// If result is nil (e.g., in BeforeAll hook), create a temporary result
+		// This allows error information to be captured even when test hasn't started yet
+		result = allure.NewResult(
+			"Before Hook Execution Error",
+			"Before Hook Execution Error",
+		)
+		result.Status = allure.Broken
+	}
+	result.SetStatusMessage(msg)
+	result.SetStatusTrace(trace)
 }
 
 func (a *allureManager) StopResult(status allure.Status) {

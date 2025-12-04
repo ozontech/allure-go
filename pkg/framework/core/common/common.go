@@ -103,7 +103,9 @@ func (c *Common) GetProvider() provider.Provider {
 
 // SkipOnPrint skips creating of report for current test
 func (c *Common) SkipOnPrint() {
-	c.GetResult().SkipOnPrint()
+	if result := c.GetResult(); result != nil {
+		result.SkipOnPrint()
+	}
 }
 
 // LogStep ...
@@ -187,7 +189,16 @@ func (c *Common) Name() string {
 
 // Fail ...
 func (c *Common) Fail() {
-	c.GetProvider().GetResult().Status = allure.Failed
+	result := c.GetProvider().GetResult()
+	if result == nil {
+		// If result is nil (e.g., in BeforeAll hook), create a temporary result
+		// This allows error information to be captured even when test hasn't started yet
+		result = allure.NewResult(
+			"Before Hook Execution Error",
+			"Before Hook Execution Error",
+		)
+	}
+	result.Status = allure.Failed
 	c.TestingT.Fail()
 }
 
