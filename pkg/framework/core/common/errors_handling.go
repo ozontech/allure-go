@@ -23,6 +23,12 @@ func TestError(t ErrorT, provider ErrorProvider, contextName, errMsg string) {
 		short = errMsg[:100]
 	}
 
+	if common, ok := t.(*Common); ok && common.xSkip {
+		common.Skip("[XSkip] " + errMsg)
+
+		return
+	}
+
 	switch contextName {
 	case constants.TestContextName, constants.BeforeEachContextName:
 		provider.StopResult(allure.Broken)
