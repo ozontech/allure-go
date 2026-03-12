@@ -40,6 +40,21 @@ func (s *FailsDemoSuite) TestXSkipFail(t provider.T) {
 	t.Require().Equal(1, 2, "Assertion Failed")
 }
 
+func (s *FailsDemoSuite) TestXSkipFailInStep(t provider.T) {
+	t.Title("This test skipped by assert inside step")
+	t.Description(`
+		This Test will be skipped with assert Error inside a step.
+		Error text: Assertion Failed`)
+	t.Tags("fail", "xskip", "assertions")
+
+	t.XSkip()
+	t.WithNewStep("Failed parent step", func(ctx provider.StepCtx) {
+		ctx.WithNewStep("Failed child step", func(ctx provider.StepCtx) {
+			ctx.Require().Equal(1, 2, "Failed inside step")
+		})
+	})
+}
+
 func (s *FailsDemoSuite) TestAssertionFailNoMessage(t provider.T) {
 	t.Title("This test failed by assert without message")
 	t.Description(`
