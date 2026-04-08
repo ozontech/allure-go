@@ -136,3 +136,26 @@ func TestParameterUnmarshal(t *testing.T) {
 		require.Equal(t, "map[a:[1 true 3.14]]", param.GetValue())
 	})
 }
+
+func TestParameterMode(t *testing.T) {
+	const paramName = "paramName"
+	paramValue := "paramValue"
+
+	param := NewParameter(paramName, paramValue)
+	require.NotNil(t, param)
+	require.Equal(t, paramName, param.Name)
+	require.Equal(t, string(paramValue), param.GetValue())
+	require.Empty(t, param.Mode)
+
+	param = NewParameter(paramName, paramValue).Hidden()
+	require.NotNil(t, param)
+	require.Equal(t, paramName, param.Name)
+	require.Equal(t, string(paramValue), param.GetValue())
+	require.Equal(t, Hidden, param.Mode)
+
+	param = NewParameter(paramName, paramValue).Masked()
+	require.NotNil(t, param)
+	require.Equal(t, paramName, param.Name)
+	require.Equal(t, string(paramValue), param.GetValue())
+	require.Equal(t, Masked, param.Mode)
+}

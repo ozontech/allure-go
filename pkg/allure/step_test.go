@@ -17,8 +17,8 @@ func TestNewStep(t *testing.T) {
 	stepStart := time.Now().UnixNano() / int64(time.Millisecond)
 	stepStop := time.Now().UnixNano()/int64(time.Millisecond) + 1
 	parameters := []*Parameter{
-		{"Param1", []byte("val1")},
-		{"Param2", []byte("val2")},
+		{"Param1", "", []byte("val1")},
+		{"Param2", "", []byte("val2")},
 	}
 	step := NewStep(stepName, stepStatus, stepStart, stepStop, parameters)
 	assert.Equal(t, stepName, step.Name)

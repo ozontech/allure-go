@@ -15,8 +15,17 @@ import (
 // (for example - request host or server address)
 type Parameter struct {
 	Name  string      `json:"name"`
+	Mode  Mode        `json:"mode,omitempty"`
 	Value interface{} `json:"value"`
 }
+
+// Parameter's Mode constants
+type Mode string
+
+const (
+	Hidden Mode = "hidden"
+	Masked Mode = "masked"
+)
 
 // NewParameter Constructor. Builds and returns a new `Parameter` object,
 // using `name` as the parameter name and `value`, as the value.
@@ -57,6 +66,22 @@ func (p *Parameter) GetValue() string {
 	}
 
 	return unquoted
+}
+
+// Hidden marks the parameter as hidden in the Allure report.
+// Use this for internal metadata that should exist in the result file
+// but remain invisible to the reader in the Allure UI.
+func (p *Parameter) Hidden() *Parameter {
+	p.Mode = Hidden
+	return p
+}
+
+// Masked marks the parameter as masked in the Allure report.
+// Use this for sensitive data like passwords, API keys, or PII to ensure
+// the values are obscured in the UI and report exports.
+func (p *Parameter) Masked() *Parameter {
+	p.Mode = Masked
+	return p
 }
 
 // TODO: remove this in v2
@@ -171,6 +196,7 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 	var aux struct {
 		Name  string         `json:"name"`
 		Value parameterValue `json:"value"`
+		Mode  Mode           `json:"mode"`
 	}
 
 	if err := json.Unmarshal(data, &aux); err != nil {
@@ -180,6 +206,7 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 	*p = Parameter{
 		Name:  aux.Name,
 		Value: aux.Value.Inner(),
+		Mode:  aux.Mode,
 	}
 
 	return nil
@@ -210,9 +237,11 @@ func (p *Parameter) MarshalJSON() ([]byte, error) {
 
 	aux := struct {
 		Name  string          `json:"name"`
+		Mode  Mode            `json:"mode,omitempty"`
 		Value json.RawMessage `json:"value"`
 	}{
 		Name:  p.Name,
+		Mode:  p.Mode,
 		Value: raw,
 	}
 
