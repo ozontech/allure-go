@@ -103,3 +103,7 @@ ifeq ($(wildcard $(GOLANGCI_BIN)),)
 		rm -rf $$tmp
 GOLANGCI_BIN:=$(LOCAL_BIN)/golangci-lint
 endif
+
+.PHONY: test
+test:
+	go test ./tests/... -race

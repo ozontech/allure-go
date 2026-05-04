@@ -17,7 +17,7 @@ func NewTestCtx(result *allure.Result) provider.ExecutionContext {
 }
 
 func (ctx *testCtx) AddStep(newStep *allure.Step) {
-	ctx.result.Steps = append(ctx.result.Steps, newStep)
+	ctx.result.AddSteps(newStep)
 }
 
 func (ctx *testCtx) GetName() string {
@@ -29,5 +29,5 @@ func (ctx *testCtx) GetTestResult() *allure.Result {
 }
 
 func (ctx *testCtx) AddAttachments(attachments ...*allure.Attachment) {
-	ctx.result.Attachments = append(ctx.result.Attachments, attachments...)
+	ctx.result.AddAttachments(attachments...)
 }

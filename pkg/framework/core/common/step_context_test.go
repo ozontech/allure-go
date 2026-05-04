@@ -3,7 +3,6 @@ package common
 import (
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
@@ -419,12 +418,9 @@ func TestStepCtx_WithNewStep(t *testing.T) {
 }
 
 func TestStepCtx_WithNewAsyncStep(t *testing.T) {
-	wg := sync.WaitGroup{}
 	flag := false
-	wg.Add(1)
 	stepF := func(ctx provider.StepCtx) {
 		flag = true
-		defer wg.Done()
 	}
 
 	mockT := new(providerTMockStep)
@@ -432,7 +428,7 @@ func TestStepCtx_WithNewAsyncStep(t *testing.T) {
 
 	ctx := stepCtx{t: mockT, currentStep: step}
 	ctx.WithNewAsyncStep("new step", stepF, allure.NewParameter("p1", "v1"))
-	wg.Wait()
+	ctx.WG().Wait()
 	require.True(t, flag)
 	require.NotNil(t, ctx.currentStep.Steps)
 	require.NotEmpty(t, ctx.currentStep.Steps)
@@ -485,9 +481,7 @@ func TestStepCtx_WithNewAsyncStep_panic(t *testing.T) {
 
 	ctx := stepCtx{t: mockT, p: &providerMockStep{executionContext: newExecutionCtxMock(constants.TestContextName)}, currentStep: step}
 	ctx.WithNewAsyncStep("new step", stepF, allure.NewParameter("p1", "v1"))
-
-	// wg doesn't help cause panic
-	time.Sleep(100 * time.Millisecond)
+	ctx.WG().Wait()
 
 	require.True(t, flag)
 	require.True(t, mockT.errorF)

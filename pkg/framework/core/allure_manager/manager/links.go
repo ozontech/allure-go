@@ -27,13 +27,13 @@ func (a *allureManager) TmsLinks(testCase ...string) {
 // Link adds Link to struct.AllureResult
 func (a *allureManager) Link(link *allure.Link) {
 	a.withResult(func(r *allure.Result) {
-		r.Links = append(r.Links, link)
+		r.AddLinks(link)
 	})
 }
 
 // Links adds multiple Link to struct.AllureResult
 func (a *allureManager) Links(links []*allure.Link) {
 	a.withResult(func(r *allure.Result) {
-		r.Links = append(r.Links, links...)
+		r.AddLinks(links...)
 	})
 }

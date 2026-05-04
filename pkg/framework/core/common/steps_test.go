@@ -3,7 +3,6 @@ package common
 import (
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -266,7 +265,7 @@ func TestCommon_WithNewAsyncStep(t *testing.T) {
 	comm := Common{TestingT: mockT, Provider: p}
 	params := allure.NewParameters("p1", "v1", "p2", "v2")
 	comm.WithNewAsyncStep("step", func(ctx provider.StepCtx) {}, params...)
-	time.Sleep(100 * time.Millisecond)
+	comm.WG().Wait()
 	require.NotEmpty(t, p.steps)
 	require.Len(t, p.steps, 1)
 	require.Equal(t, "step", p.steps[0].Name)
@@ -284,7 +283,7 @@ func TestCommon_WithNewAsyncStep_panic(t *testing.T) {
 	comm := Common{TestingT: mockT, Provider: p}
 	params := allure.NewParameters("p1", "v1", "p2", "v2")
 	comm.WithNewAsyncStep("step", func(ctx provider.StepCtx) { panic("whoops") }, params...)
-	time.Sleep(100 * time.Millisecond)
+	comm.WG().Wait()
 	require.NotEmpty(t, p.steps)
 	require.Len(t, p.steps, 1)
 	require.Equal(t, "step", p.steps[0].Name)
