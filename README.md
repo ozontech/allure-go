@@ -1,3 +1,17 @@
+> [!IMPORTANT]
+> Take a look at the [Testo framework](https://github.com/ozontech/testo) and its [Allure plugin](https://github.com/ozontech/testo-allure).
+> Allure-Go is now in maintenance mode, with new changes limited to fixing critical bugs.
+>
+> **Why?** Allure-Go served us well for many years, but it longer fits our needs.
+> We were limited by its built-in features and the fact that the core framework's architecture
+> is indivisible from the Allure reporting - hence the name.
+>
+> **Can it happen again with Testo?** No. Testo features a plugin system, which helps
+> the core framework remain lean while providing more independent features through external plugins.
+>
+> We are grateful to every Allure-Go contributor and welcome everyone to help us make
+> [Testo framework](https://github.com/ozontech/testo) better!
+
 # Allure-Go
 
 ![](.resources/allure_go_icon.svg)
