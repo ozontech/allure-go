@@ -10,30 +10,16 @@ Labels
 
 // Label provides possibility to add any Label to test result
 func (a *allureManager) Label(label *allure.Label) {
-	a.withResult(func(r *allure.Result) {
-		r.Labels = append(r.Labels, label)
-	})
+	a.withResult(func(r *allure.Result) { r.AddLabel(label) })
 }
 
 // Labels provides possibility to add few Labels to test result
 func (a *allureManager) Labels(labels ...*allure.Label) {
-	a.withResult(func(r *allure.Result) {
-		r.Labels = append(r.Labels, labels...)
-	})
+	a.withResult(func(r *allure.Result) { r.AddLabel(labels...) })
 }
 
 func (a *allureManager) ReplaceLabel(label *allure.Label) {
-	a.withResult(func(r *allure.Result) {
-		for _, l := range r.Labels {
-			if l.Name == label.Name {
-				l.Value = label.Value
-
-				return
-			}
-		}
-
-		a.Label(label)
-	})
+	a.withResult(func(r *allure.Result) { r.ReplaceLabel(label) })
 }
 
 // Epic adds Epic label to test result

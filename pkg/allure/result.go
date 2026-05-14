@@ -92,6 +92,54 @@ func (result *Result) SetStatusTrace(trace string) {
 	result.StatusDetails.Trace = trace
 }
 
+// AddAttachments appends test-level attachments.
+func (result *Result) AddAttachments(attachments ...*Attachment) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Attachments = append(result.Attachments, attachments...)
+}
+
+// AddParameters appends test-level parameters.
+func (result *Result) AddParameters(params ...*Parameter) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Parameters = append(result.Parameters, params...)
+}
+
+// AddLinks appends test-level links.
+func (result *Result) AddLinks(links ...*Link) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Links = append(result.Links, links...)
+}
+
+// AddSteps appends test-level steps.
+func (result *Result) AddSteps(steps ...*Step) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.Steps = append(result.Steps, steps...)
+}
+
+// AddExpectedSteps appends expected steps.
+func (result *Result) AddExpectedSteps(steps ...*Step) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.ExpectedSteps = append(result.ExpectedSteps, steps...)
+}
+
+// SetExpectedResult sets expected result value.
+func (result *Result) SetExpectedResult(expected string) {
+	result.m.Lock()
+	defer result.m.Unlock()
+
+	result.ExpectedResult = expected
+}
+
 func (result *Result) GetStatusTrace() string {
 	return result.StatusDetails.Trace
 }

@@ -30,6 +30,8 @@ jobs:
         run: cd ./pkg/allure && make test
       - name: provider-test
         run: cd ./pkg/framework && make test
+      - name: integration-test
+        run: make test
 
   examples:
     name: examples
