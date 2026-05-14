@@ -61,6 +61,29 @@ func (s *ParametersDemoSuite) TestAddParameterToNestedStep(t provider.T) {
 	})
 }
 
+func (s *ParametersDemoSuite) TestSetParameterMode(t provider.T) {
+	t.Epic("Demo")
+	t.Feature("Parameters")
+	t.Title("Set Parameters mode")
+	t.Description(`
+		Step A will contain following parameters:
+			Param1 = Val1
+			Param2 = Val2 (hidden)
+			Param3 = Val3 (masked)`)
+
+	t.Tags("Steps", "Mode", "Parameters")
+
+	step := allure.NewSimpleStep("Step A")
+
+	// with step.WithParameters(s) function
+	step.WithParameters(allure.NewParameter("Param1", "Val1"))
+	step.WithParameters(allure.NewParameter("Param2", "Val2").Hidden())
+	step.WithParameters(allure.NewParameter("Param3", "Val3").Masked())
+
+	// don't forget register your step :)
+	t.Step(step)
+}
+
 func TestParameters(t *testing.T) {
 	t.Parallel()
 	suite.RunSuite(t, new(ParametersDemoSuite))
