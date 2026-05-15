@@ -1,6 +1,7 @@
 package common
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -44,6 +45,47 @@ func (m *executionContextCommMock) GetName() string {
 
 func (m *executionContextCommMock) GetTestResult() *allure.Result {
 	return nil
+}
+
+func TestTags_RuntimeFilter(t *testing.T) {
+	if flag.Lookup("allure-go.tag") == nil {
+		flag.String("allure-go.tag", "", "")
+	}
+	require.NoError(t, flag.Set("allure-go.tag", "P0"))
+	defer func() {
+		_ = flag.Set("allure-go.tag", "")
+	}()
+
+	t.Run("mismatch_skips", func(t *testing.T) {
+		c := NewT(t)
+		cfg := manager.NewProviderConfig().
+			WithFullName(t.Name()).
+			WithPackageName("pkg").
+			WithSuiteName("suite").
+			WithRunner("runner")
+		c.SetProvider(manager.NewProvider(cfg))
+
+		defer func() {
+			require.True(t, t.Skipped())
+			require.Equal(t, allure.Skipped, c.GetResult().Status)
+		}()
+
+		c.Tags("P1")
+		t.Fatalf("expected test to be skipped by tag filter")
+	})
+
+	t.Run("match_runs", func(t *testing.T) {
+		c := NewT(t)
+		cfg := manager.NewProviderConfig().
+			WithFullName(t.Name()).
+			WithPackageName("pkg").
+			WithSuiteName("suite").
+			WithRunner("runner")
+		c.SetProvider(manager.NewProvider(cfg))
+
+		c.Tags("P0")
+		require.False(t, t.Skipped())
+	})
 }
 
 type providerMockCommon struct {

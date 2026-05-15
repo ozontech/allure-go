@@ -289,6 +289,7 @@ func collectHooks(runner *suiteRunner, suite TestSuite) {
 }
 
 var matchMethod = flag.String("allure-go.m", "", "regular expression to select tests of the allure-go suite to run")
+var matchTags = common.MatchTags
 
 var regFilter = newRegFilter()
 
@@ -302,6 +303,24 @@ func methodFilter(name string) (bool, error) {
 	}
 
 	return regexp.MatchString(*matchMethod, name)
+}
+
+func tagFilter(tags []string) bool {
+	if matchTags.Empty() {
+		return true
+	}
+
+	for _, tag := range tags {
+		if matchTags.Contains(tag) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func mustTagFilter(tags []string) bool {
+	return tagFilter(tags)
 }
 
 func newRegFilter() regexp.Regexp {

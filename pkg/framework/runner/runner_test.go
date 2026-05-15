@@ -508,3 +508,54 @@ func TestRunner_NewTest(t *testing.T) {
 	r.tests[testKey].GetBody()(r.t())
 	require.True(t, flag)
 }
+
+func TestTagFilter(t *testing.T) {
+	original := matchTags.String()
+	defer func() {
+		require.NoError(t, matchTags.Set(""))
+		if original != "" {
+			require.NoError(t, matchTags.Set(original))
+		}
+	}()
+
+	require.NoError(t, matchTags.Set(""))
+	require.NoError(t, matchTags.Set("fast,smoke"))
+
+	require.True(t, tagFilter([]string{"slow", "smoke"}))
+	require.False(t, tagFilter([]string{"slow"}))
+}
+
+func TestTagFilterFlag_Set(t *testing.T) {
+	filter := common.MatchTags
+	require.NoError(t, filter.Set(""))
+
+	require.NoError(t, filter.Set("fast, smoke"))
+	require.NoError(t, filter.Set("regression"))
+
+	require.True(t, filter.Contains("fast"))
+	require.True(t, filter.Contains("smoke"))
+	require.True(t, filter.Contains("regression"))
+	require.False(t, filter.Contains("slow"))
+}
+
+func TestRunner_NewTest_TagFilter(t *testing.T) {
+	original := matchTags.String()
+	defer func() {
+		require.NoError(t, matchTags.Set(""))
+		if original != "" {
+			require.NoError(t, matchTags.Set(original))
+		}
+	}()
+
+	require.NoError(t, matchTags.Set(""))
+	require.NoError(t, matchTags.Set("fast"))
+
+	r := runner{tests: make(map[string]Test), internalT: newInternalTMock(constants.AfterAllContextName)}
+	r.NewTest("FastTest", func(t provider.T) {}, "fast", "smoke")
+	r.NewTest("SlowTest", func(t provider.T) {}, "slow")
+
+	require.Len(t, r.tests, 1)
+
+	testKey := fmt.Sprintf("%s/%s", r.t().Name(), "FastTest")
+	require.Contains(t, r.tests, testKey)
+}

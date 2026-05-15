@@ -77,6 +77,10 @@ func (r *runner) filterByTestPlan() map[string]Test {
 func (r *runner) NewTest(testName string, testBody func(provider.T), tags ...string) {
 	fullName := fmt.Sprintf("%s/%s", r.t().Name(), testName)
 
+	if !mustTagFilter(tags) {
+		return
+	}
+
 	testMeta := adapter.NewTestMeta(
 		r.t().GetProvider().GetSuiteMeta().GetSuiteFullName(),
 		r.t().GetProvider().GetSuiteMeta().GetSuiteName(),

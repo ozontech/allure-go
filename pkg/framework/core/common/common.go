@@ -1,9 +1,11 @@
 package common
 
 import (
+	"flag"
 	"fmt"
 	"regexp"
 	"runtime/debug"
+	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -33,6 +35,16 @@ type Common struct {
 	tempDir    string
 	tempDirErr error
 	tempDirSeq int32
+}
+
+// MatchTags supports:
+// - multiple occurrences: -allure-go.tag fast -allure-go.tag smoke
+// - comma separated:      -allure-go.tag fast,smoke
+// Matching is exact against test tags (not regexp).
+var MatchTags = newTagFilter()
+
+func init() {
+	flag.Var(MatchTags, "allure-go.tag", "select tests to run by tag (repeatable, comma-separated)")
 }
 
 // NewT returns Common instance that implementing provider.T interface
@@ -99,6 +111,94 @@ func (c *Common) XSkip() {
 // GetProvider ...
 func (c *Common) GetProvider() provider.Provider {
 	return c.Provider
+}
+
+// Tag adds Tag label to test result and (optionally) applies runtime tag filtering.
+// Note: this filtering happens at runtime, so the test will start executing until Tag/Tags is called.
+func (c *Common) Tag(value string) {
+	if c.Provider != nil {
+		c.Provider.Tag(value)
+	}
+
+	if MatchTags.Empty() {
+		return
+	}
+	if MatchTags.Contains(value) {
+		return
+	}
+
+	c.Skipf("Skipped by -allure-go.tag (selected: %s)", MatchTags.String())
+}
+
+// Tags adds multiple Tag labels to test result and (optionally) applies runtime tag filtering.
+// Note: this filtering happens at runtime, so the test will start executing until Tag/Tags is called.
+func (c *Common) Tags(values ...string) {
+	if c.Provider != nil {
+		c.Provider.Tags(values...)
+	}
+
+	if MatchTags.Empty() {
+		return
+	}
+	for _, v := range values {
+		if MatchTags.Contains(v) {
+			return
+		}
+	}
+
+	c.Skipf("Skipped by -allure-go.tag (selected: %s)", MatchTags.String())
+}
+
+type tagFilterFlag struct {
+	set map[string]struct{}
+}
+
+func newTagFilter() *tagFilterFlag {
+	return &tagFilterFlag{set: make(map[string]struct{})}
+}
+
+func (f *tagFilterFlag) String() string {
+	if f == nil {
+		return ""
+	}
+	keys := make([]string, 0, len(f.set))
+	for k := range f.set {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return strings.Join(keys, ",")
+}
+
+func (f *tagFilterFlag) Set(value string) error {
+	if f.set == nil {
+		f.set = make(map[string]struct{})
+	}
+	if strings.TrimSpace(value) == "" {
+		for k := range f.set {
+			delete(f.set, k)
+		}
+		return nil
+	}
+	for _, part := range strings.Split(value, ",") {
+		tag := strings.TrimSpace(part)
+		if tag == "" {
+			continue
+		}
+		f.set[tag] = struct{}{}
+	}
+	return nil
+}
+
+func (f *tagFilterFlag) Empty() bool {
+	return f == nil || len(f.set) == 0
+}
+
+func (f *tagFilterFlag) Contains(tag string) bool {
+	if f == nil {
+		return false
+	}
+	_, ok := f.set[tag]
+	return ok
 }
 
 // GetCurrentTestResult returns the current test result (available in AfterEach hook)

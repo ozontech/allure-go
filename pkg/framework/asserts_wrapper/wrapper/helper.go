@@ -22,6 +22,19 @@ func (h *assertHelper) getStepName(assertName string, msgAndArgs ...interface{})
 }
 
 func (h *assertHelper) WithNewStep(t TestingT, provider Provider, assertName string, assert func(t TestingT) bool, params []*allure.Parameter, msgAndArgs ...interface{}) bool {
+loop:
+	for i, arg := range msgAndArgs {
+		switch argV := arg.(type) {
+		case allure.Parameter:
+			params = append(params, &argV)
+		case *allure.Parameter:
+			params = append(params, argV)
+		default:
+			msgAndArgs = msgAndArgs[i:]
+			break loop
+		}
+	}
+
 	var (
 		step   = allure.NewSimpleStep(h.getStepName(assertName, msgAndArgs...), params...)
 		result = assert(t)
