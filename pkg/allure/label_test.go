@@ -3,7 +3,7 @@ package allure
 import (
 	"testing"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"github.com/stretchr/testify/require"
 )
 
@@ -130,7 +130,7 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		var label Label
 
-		require.NoError(t, json.Unmarshal([]byte(data), &label))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &label))
 
 		require.Equal(t, Label{
 			Name:  "epic",
@@ -145,7 +145,7 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		var label Label
 
-		require.NoError(t, json.Unmarshal([]byte(data), &label))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &label))
 
 		require.Equal(t, Label{
 			Name:  "epic",
@@ -160,7 +160,7 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		var label Label
 
-		require.NoError(t, json.Unmarshal([]byte(data), &label))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &label))
 
 		require.Equal(t, Label{
 			Name:  "epic",
@@ -175,7 +175,7 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		var label Label
 
-		require.NoError(t, json.Unmarshal([]byte(data), &label))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &label))
 
 		require.Equal(t, Label{
 			Name:  "epic",
@@ -190,7 +190,7 @@ func TestLabelUnmarshal(t *testing.T) {
 
 		var label Label
 
-		require.NoError(t, json.Unmarshal([]byte(data), &label))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &label))
 
 		require.Equal(t, Label{
 			Name: "epic",

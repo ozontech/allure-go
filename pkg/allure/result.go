@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
@@ -275,7 +275,7 @@ func (result *Result) Print() error {
 
 // printResult marshals allure.Result to json and do [os.WriteFile]
 func (result *Result) printResult() error {
-	bResult, err := json.Marshal(result)
+	bResult, err := sonic.Marshal(result)
 	if err != nil {
 		return errors.Wrap(err, "Failed marshal Result")
 	}
@@ -340,7 +340,7 @@ func (result *Result) ReplaceLabel(label *Label) {
 //
 // Deprecated: use [json.Marshal] instead.
 func (result *Result) ToJSON() ([]byte, error) {
-	return json.Marshal(result)
+	return sonic.Marshal(result)
 }
 
 // getMD5Hash ...

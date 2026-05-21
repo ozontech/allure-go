@@ -1,11 +1,12 @@
 package allure
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -95,7 +96,7 @@ func (p parameterValue) Inner() interface{} {
 func (p *parameterValue) UnmarshalJSON(data []byte) error {
 	var valueStr string
 
-	errStr := json.Unmarshal(data, &valueStr)
+	errStr := sonic.Unmarshal(data, &valueStr)
 	if errStr == nil {
 		p.inner = valueStr
 
@@ -104,7 +105,7 @@ func (p *parameterValue) UnmarshalJSON(data []byte) error {
 
 	var valueBool bool
 
-	errBool := json.Unmarshal(data, &valueBool)
+	errBool := sonic.Unmarshal(data, &valueBool)
 	if errBool == nil {
 		p.inner = valueBool
 
@@ -113,7 +114,7 @@ func (p *parameterValue) UnmarshalJSON(data []byte) error {
 
 	var valueNum json.Number
 
-	errNum := json.Unmarshal(data, &valueNum)
+	errNum := sonic.Unmarshal(data, &valueNum)
 	if errNum == nil {
 		if n, err := valueNum.Int64(); err == nil {
 			p.inner = n
@@ -135,7 +136,7 @@ func (p *parameterValue) UnmarshalJSON(data []byte) error {
 
 	var valueMap map[string]parameterValue
 
-	errMap := json.Unmarshal(data, &valueMap)
+	errMap := sonic.Unmarshal(data, &valueMap)
 	if errMap == nil {
 		p.inner = valueMap
 
@@ -144,7 +145,7 @@ func (p *parameterValue) UnmarshalJSON(data []byte) error {
 
 	var valueSlice []parameterValue
 
-	errSlice := json.Unmarshal(data, &valueSlice)
+	errSlice := sonic.Unmarshal(data, &valueSlice)
 	if errSlice == nil {
 		p.inner = valueSlice
 
@@ -173,7 +174,7 @@ func (p *Parameter) UnmarshalJSON(data []byte) error {
 		Value parameterValue `json:"value"`
 	}
 
-	if err := json.Unmarshal(data, &aux); err != nil {
+	if err := sonic.Unmarshal(data, &aux); err != nil {
 		return err
 	}
 
@@ -201,7 +202,7 @@ func (p *Parameter) MarshalJSON() ([]byte, error) {
 		raw = res
 
 	default:
-		res, err := json.Marshal(v)
+		res, err := sonic.Marshal(v)
 		if err != nil {
 			return nil, fmt.Errorf("json marshal: %w", err)
 		}
@@ -216,7 +217,7 @@ func (p *Parameter) MarshalJSON() ([]byte, error) {
 		Value: raw,
 	}
 
-	return json.Marshal(aux)
+	return sonic.Marshal(aux)
 }
 
 func trimBrackets(val string) string {

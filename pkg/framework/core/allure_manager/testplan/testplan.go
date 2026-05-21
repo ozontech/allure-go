@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 var (
@@ -45,7 +45,7 @@ func newTestPlan() (*TestPlan, error) {
 
 	var plan TestPlan
 
-	err = json.Unmarshal(testPlanRaw, &plan)
+	err = sonic.Unmarshal(testPlanRaw, &plan)
 	if err != nil {
 		return nil, err
 	}

@@ -7,10 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
+	"github.com/stretchr/testify/require"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"github.com/stretchr/testify/require"
 )
 
 type testMetaMockProvider struct {
@@ -210,7 +211,7 @@ func TestAllureManager_FinishTest(t *testing.T) {
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, fileByte.Name()))
 	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
-	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	unMarshallErr := sonic.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
 
 	require.Equal(t, result.Name, emptyResult.Name)

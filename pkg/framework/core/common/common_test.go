@@ -7,13 +7,14 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
+	"github.com/stretchr/testify/require"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/asserts_wrapper/helper"
 	"github.com/ozontech/allure-go/pkg/framework/core/allure_manager/manager"
 	"github.com/ozontech/allure-go/pkg/framework/core/constants"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
-	"github.com/stretchr/testify/require"
 )
 
 type executionContextCommMock struct {
@@ -314,7 +315,7 @@ func TestCommon_Run(t *testing.T) {
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
 	bytes, readErr := ioutil.ReadAll(resultFile)
 	require.NoError(t, readErr)
-	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	unMarshallErr := sonic.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
 }
 
@@ -354,7 +355,7 @@ func TestCommon_Run_panicHandle(t *testing.T) {
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
 	bytes, readErr := ioutil.ReadAll(resultFile)
 	require.NoError(t, readErr)
-	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	unMarshallErr := sonic.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
 }
 

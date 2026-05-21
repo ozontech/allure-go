@@ -6,7 +6,8 @@ package suite_demo
 import (
 	"testing"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/suite"
@@ -34,7 +35,7 @@ func (s *AttachmentTestDemoSuite) TestAttachment(t provider.T) {
 
 	step := allure.NewSimpleStep("Step A")
 	var ExampleJson = JSONStruct{"this is JSON message"}
-	attachmentJSON, _ := json.Marshal(ExampleJson)
+	attachmentJSON, _ := sonic.Marshal(ExampleJson)
 	step.WithAttachments(allure.NewAttachment("Json Attachment for Step A", allure.JSON, attachmentJSON))
 	t.Step(step)
 }
@@ -50,7 +51,7 @@ func (s *AttachmentDemoSuite) BeforeAll(t provider.T) {
 
 	step := allure.NewSimpleStep("Before suite Step")
 	var ExampleJson = JSONStruct{"This is BeforeAll JSON message"}
-	attachmentJSON, _ := json.Marshal(ExampleJson)
+	attachmentJSON, _ := sonic.Marshal(ExampleJson)
 	step.WithAttachments(allure.NewAttachment("Json Attachment for Before suite Step", allure.JSON, attachmentJSON))
 	t.Step(step)
 }
@@ -62,7 +63,7 @@ func (s *AttachmentDemoSuite) BeforeEach(t provider.T) {
 
 	step := allure.NewSimpleStep("Before Test Step")
 	var ExampleJson = JSONStruct{"This is BeforeEach JSON message"}
-	attachmentJSON, _ := json.Marshal(ExampleJson)
+	attachmentJSON, _ := sonic.Marshal(ExampleJson)
 	step.WithAttachments(allure.NewAttachment("Json Attachment for Before Test Step", allure.JSON, attachmentJSON))
 	t.Step(step)
 }
@@ -74,7 +75,7 @@ func (s *AttachmentDemoSuite) AfterAll(t provider.T) {
 
 	step := allure.NewSimpleStep("After suite Step")
 	var ExampleJson = JSONStruct{"This is AfterAll JSON message"}
-	attachmentJSON, _ := json.Marshal(ExampleJson)
+	attachmentJSON, _ := sonic.Marshal(ExampleJson)
 	step.WithAttachments(allure.NewAttachment("Json Attachment for After suite Step", allure.JSON, attachmentJSON))
 	t.Step(step)
 }
@@ -86,7 +87,7 @@ func (s *AttachmentDemoSuite) AfterEach(t provider.T) {
 
 	step := allure.NewSimpleStep("After Test Step")
 	var ExampleJson = JSONStruct{"This is AfterEach JSON message"}
-	attachmentJSON, _ := json.Marshal(ExampleJson)
+	attachmentJSON, _ := sonic.Marshal(ExampleJson)
 	step.WithAttachments(allure.NewAttachment("Json Attachment for After Test Step", allure.JSON, attachmentJSON))
 	t.Step(step)
 }

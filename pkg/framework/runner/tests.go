@@ -5,7 +5,8 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
+
 	"github.com/ozontech/allure-go/pkg/allure"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 )
@@ -69,7 +70,7 @@ func (sr *suiteResult) GetResultByUUID(uuid string) TestResult {
 //
 // Deprecated: use [json.Marshal] instead.
 func (sr *suiteResult) ToJSON() ([]byte, error) {
-	return json.Marshal(sr)
+	return sonic.Marshal(sr)
 }
 
 type testResult struct {
@@ -136,7 +137,7 @@ func (tr *testResult) Print() error {
 //
 // Deprecated: use [json.Marshal] instead
 func (tr *testResult) ToJSON() ([]byte, error) {
-	return json.Marshal(tr)
+	return sonic.Marshal(tr)
 }
 
 type TestBody func(t provider.T)

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"github.com/stretchr/testify/require"
 )
 
@@ -321,7 +321,7 @@ func TestResult_Print(t *testing.T) {
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
 	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
-	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	unMarshallErr := sonic.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
 
 	require.Equal(t, result.Name, emptyResult.Name)
@@ -379,7 +379,7 @@ func TestResult_Print_withAttachment(t *testing.T) {
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, fileByte.Name()))
 	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
-	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	unMarshallErr := sonic.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
 
 	require.Equal(t, result.Name, emptyResult.Name)
@@ -441,7 +441,7 @@ func TestResult_Done(t *testing.T) {
 	resultFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, fileByte.Name()))
 	bytes, readErr := io.ReadAll(resultFile)
 	require.NoError(t, readErr)
-	unMarshallErr := json.Unmarshal(bytes, emptyResult)
+	unMarshallErr := sonic.Unmarshal(bytes, emptyResult)
 	require.NoError(t, unMarshallErr)
 
 	require.Equal(t, result.Name, emptyResult.Name)

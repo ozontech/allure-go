@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/goccy/go-json"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -67,7 +66,7 @@ func TestContainer_Print(t *testing.T) {
 	jsonFile, _ = os.Open(fmt.Sprintf("%s/%s", allureDir, f.Name()))
 	bytes, readErr := io.ReadAll(jsonFile)
 	require.NoError(t, readErr)
-	unMarshallErr := json.Unmarshal(bytes, emptyContainer)
+	unMarshallErr := sonic.Unmarshal(bytes, emptyContainer)
 	require.NoError(t, unMarshallErr)
 	require.Equal(t, container.UUID, emptyContainer.UUID)
 

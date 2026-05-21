@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 // Label is the implementation of the label.
@@ -43,7 +43,7 @@ func (l *Label) UnmarshalJSON(data []byte) error {
 		Value parameterValue `json:"value"`
 	}
 
-	if err := json.Unmarshal(data, &aux); err != nil {
+	if err := sonic.Unmarshal(data, &aux); err != nil {
 		return err
 	}
 

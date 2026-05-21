@@ -1,7 +1,7 @@
 package allure
 
 import (
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
@@ -89,13 +89,13 @@ func (container *Container) Done() error {
 //
 // Deprecated: use [json.Marshal] instead
 func (container *Container) ToJSON() ([]byte, error) {
-	return json.Marshal(container)
+	return sonic.Marshal(container)
 }
 
 // Print prints all attachments of [Container.Befores] and [Container.Afters]
 // after that marshals [Container] and [os.WriteFile]
 func (container *Container) printContainer() error {
-	bResult, err := json.Marshal(container)
+	bResult, err := sonic.Marshal(container)
 	if err != nil {
 		return errors.Wrap(err, "Failed marshal Result")
 	}

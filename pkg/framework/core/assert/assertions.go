@@ -3,7 +3,7 @@ package assert
 import (
 	"fmt"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,11 +25,11 @@ func JSONContains(t TestingT, expected string, actual string, msgAndArgs ...inte
 	}
 	var expectedJSONAsInterface, actualJSONAsInterface interface{}
 
-	if err := json.Unmarshal([]byte(expected), &expectedJSONAsInterface); err != nil {
+	if err := sonic.Unmarshal([]byte(expected), &expectedJSONAsInterface); err != nil {
 		return assert.Fail(t, fmt.Sprintf("Expected value ('%s') is not valid json.\nJSON parsing error: '%s'", expected, err.Error()), msgAndArgs...)
 	}
 
-	if err := json.Unmarshal([]byte(actual), &actualJSONAsInterface); err != nil {
+	if err := sonic.Unmarshal([]byte(actual), &actualJSONAsInterface); err != nil {
 		return assert.Fail(t, fmt.Sprintf("Input ('%s') needs to be valid json.\nJSON parsing error: '%s'", actual, err.Error()), msgAndArgs...)
 	}
 

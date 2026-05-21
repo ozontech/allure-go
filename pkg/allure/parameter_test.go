@@ -3,7 +3,7 @@ package allure
 import (
 	"testing"
 
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,10 +47,10 @@ func TestNewParameters_odd(t *testing.T) {
 func TestParameterMarshallUnmarshall(t *testing.T) {
 	params := NewParameters("p1", "v1", "p2", "{\"namespace\":\"SELLER\"}")
 	require.NotNil(t, params)
-	bytes, err := json.Marshal(params)
+	bytes, err := sonic.Marshal(params)
 	require.NoError(t, err)
 	var newParams []*Parameter
-	err = json.Unmarshal(bytes, &newParams)
+	err = sonic.Unmarshal(bytes, &newParams)
 	require.NoError(t, err)
 	for i, param := range newParams {
 		require.Equal(t, param.GetValue(), params[i].GetValue())
@@ -64,7 +64,7 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		var param Parameter
 
-		require.NoError(t, json.Unmarshal([]byte(data), &param))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &param))
 
 		require.Equal(t, Parameter{
 			Name:  "epic",
@@ -79,7 +79,7 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		var param Parameter
 
-		require.NoError(t, json.Unmarshal([]byte(data), &param))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &param))
 
 		require.Equal(t, Parameter{
 			Name:  "epic",
@@ -94,7 +94,7 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		var param Parameter
 
-		require.NoError(t, json.Unmarshal([]byte(data), &param))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &param))
 
 		require.Equal(t, Parameter{
 			Name:  "epic",
@@ -109,7 +109,7 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		var param Parameter
 
-		require.NoError(t, json.Unmarshal([]byte(data), &param))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &param))
 
 		require.Equal(t, Parameter{
 			Name:  "epic",
@@ -124,7 +124,7 @@ func TestParameterUnmarshal(t *testing.T) {
 
 		var param Parameter
 
-		require.NoError(t, json.Unmarshal([]byte(data), &param))
+		require.NoError(t, sonic.Unmarshal([]byte(data), &param))
 
 		require.Equal(t, Parameter{
 			Name: "epic",
